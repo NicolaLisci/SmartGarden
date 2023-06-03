@@ -1,6 +1,6 @@
 {
   "config": {
-    "host": "REPLACE_ME"
+    "host": "https://cdn.jsdelivr.net/gh/NicolaLisci/SmartGarden/ui"
   },
   "scripts": {
     "clean": "rimraf ./output",

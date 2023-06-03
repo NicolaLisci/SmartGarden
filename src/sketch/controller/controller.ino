@@ -386,3 +386,47 @@ void htmlPumpState(WiFiClient* client) {
  * Outputs html doc.
  */
  // TODO: Copy from output/html-doc.c
+void htmlDoc(WiFiClient* client) {
+  client->println("<!doctype html>");
+  client->println("<html lang='en'>");
+  client->println("<head>");
+  client->println("<meta charset='utf-8'>");
+  client->println("<meta name='viewport' content='width=device-width, initial-scale=1'>");
+  client->println("<link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/NicolaLisci/SmartGarden//css/styles.css'>");
+  client->println("<title>SmartGarden</title>");
+  client->println("</head>");
+  client->println("<body>");
+  client->println("<div>");
+  client->println("<div>");
+  htmlLightState(client);
+  client->println("<div>");
+  client->println("<div></div>");
+  client->println("</div>");
+  client->println("</div>");
+  htmlPumpState(client);
+  client->println("<div class='header'>Scene Setting</div>");
+  client->println("<div class='controls'>");
+  htmlButton(client, "?scene=normal", "Normal");
+  htmlButton(client, "?scene=grow", "Grow");
+  htmlButton(client, "?scene=enjoy", "Enjoy");
+  client->println("</div>");
+  client->println("<div class='header'>Light Mode</div>");
+  client->println("<div class='controls'>");
+  htmlButton(client, "?mode=timer", "Auto");
+  htmlButton(client, "?mode=on", "On");
+  htmlButton(client, "?mode=off", "Off");
+  client->println("</div>");
+  client->println("<div class='header'>Pump Mode</div>");
+  client->println("<div class='controls'>");
+  htmlButton(client, "?pump-mode=auto", "Auto");
+  htmlButton(client, "?pump-mode=on", "On");
+  htmlButton(client, "?pump-mode=off", "Off");
+  client->println("</div>");
+  client->println("</div>");
+  client->println("<div>");
+  client->println("Made with ♡ in Munich");
+  client->println("</div>");
+  client->println("</div>");
+  client->println("</body>");
+  client->println("</html>");
+}
