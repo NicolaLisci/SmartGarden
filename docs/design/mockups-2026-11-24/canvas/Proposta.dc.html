@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>SmartGarden, proposta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#86EFAC}a:hover{color:#BBF7D0}
+button{font:inherit;cursor:pointer;touch-action:manipulation;transition:transform 160ms cubic-bezier(0.16,1,0.3,1),background-color 200ms ease,border-color 200ms ease}
+button:active{transform:scale(0.97)}
+button:focus-visible,a:focus-visible{outline:3px solid #86EFAC;outline-offset:3px}
+@keyframes sg-pulse{0%,100%{r:9;opacity:1}50%{r:12;opacity:0.85}}
+.sg-now{animation:sg-pulse 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){.sg-now{animation:none}button{transition:none}button:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #0A111C; color: #F8FAFC; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; font-variant-numeric: tabular-nums; overflow: hidden">
+
+<div aria-hidden="true" style="position: absolute; width: 340px; height: 340px; left: 25px; top: 40px; border-radius: 50%; background: #F5B935; opacity: 0.16; filter: blur(80px)"></div>
+<div aria-hidden="true" style="position: absolute; width: 260px; height: 260px; left: -90px; top: 470px; border-radius: 50%; background: #22C55E; opacity: 0.14; filter: blur(80px)"></div>
+
+<div style="position: relative; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; padding: 24px 20px 0">
+
+<header style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; font-weight: 500; color: #94A3B8">Martedì 24 novembre</span>
+<h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.6px">SmartGarden</h1>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); font-size: 13px; font-weight: 600; color: #CBD5E1">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0"></path><path d="M8.5 16a5 5 0 0 1 7 0"></path><circle cx="12" cy="19.5" r="0.8" fill="#4ADE80"></circle></svg>
+Online
+</div>
+</header>
+
+<section aria-label="Stato della luce" style="position: relative; display: flex; justify-content: center; align-items: center; height: 268px">
+<svg width="268" height="268" viewBox="0 0 260 260" role="img" aria-label="{{dialLabel}}">
+<defs>
+<linearGradient id="sgArc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FDE68A"></stop><stop offset="1" stop-color="#F59E0B"></stop></linearGradient>
+</defs>
+<circle cx="130" cy="130" r="108" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="16"></circle>
+<circle cx="130" cy="130" r="108" fill="none" stroke="url(#sgArc)" stroke-width="16" stroke-linecap="round" stroke-dasharray="{{dash}}" transform="rotate(15 130 130)" style="filter: drop-shadow(0 0 10px rgba(245,185,53,0.55)); transition: stroke-dasharray 400ms cubic-bezier(0.16,1,0.3,1)"></circle>
+<circle class="sg-now" cx="68" cy="218.5" r="9" fill="#0A111C" stroke="#FFFFFF" stroke-width="3"></circle>
+<text x="130" y="11" text-anchor="middle" fill="#94A3B8" font-size="11" font-weight="600" font-family="Plus Jakarta Sans, system-ui">0</text>
+<text x="253" y="134" text-anchor="middle" fill="#94A3B8" font-size="11" font-weight="600" font-family="Plus Jakarta Sans, system-ui">6</text>
+<text x="130" y="257" text-anchor="middle" fill="#94A3B8" font-size="11" font-weight="600" font-family="Plus Jakarta Sans, system-ui">12</text>
+<text x="7" y="134" text-anchor="middle" fill="#94A3B8" font-size="11" font-weight="600" font-family="Plus Jakarta Sans, system-ui">18</text>
+</svg>
+<div style="position: absolute; display: flex; flex-direction: column; align-items: center; gap: 2px">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #FCD34D">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+Giorno</span>
+<span style="font-size: 54px; font-weight: 800; letter-spacing: -2px; line-height: 1.05">14:20</span>
+<span style="font-size: 14px; font-weight: 500; color: #CBD5E1">si spegne alle {{end}}</span>
+<span style="font-size: 12px; color: #94A3B8">tra {{left}}</span>
+</div>
+</section>
+
+<section aria-label="Ciclo" style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; justify-content: space-between">
+<h2 style="margin: 0; font-size: 15px; font-weight: 700">Ciclo</h2>
+<button type="button" style="display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 4px; border: none; background: none; color: #86EFAC; font-size: 14px; font-weight: 700">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+Inizio 07:00</button>
+</div>
+<div role="radiogroup" aria-label="Scegli il ciclo" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{cycles}}" as="c" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="{{c.style}}">
+<span style="font-size: 16px; font-weight: 800">{{c.name}}</span>
+<span style="font-size: 13px; font-weight: 600; opacity: 0.85">{{c.ratio}}</span>
+</button>
+</sc-for>
+</div>
+</section>
+
+<section aria-label="Uscite" style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 22px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); backdrop-filter: blur(20px)">
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 112px; font-size: 13px; font-weight: 600; color: #CBD5E1">Bianco e rosso</span>
+<div style="flex: 1; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden"><div style="{{wBar}}"></div></div>
+<span style="width: 48px; text-align: right; font-size: 14px; font-weight: 700">{{w}}</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 112px; font-size: 13px; font-weight: 600; color: #CBD5E1">Blu</span>
+<div style="flex: 1; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden"><div style="{{bBar}}"></div></div>
+<span style="width: 48px; text-align: right; font-size: 14px; font-weight: 700">{{b}}</span>
+</div>
+<div style="height: 1px; background: rgba(255,255,255,0.08)"></div>
+<div style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="width: 36px; height: 36px; border-radius: 12px; background: rgba(56,189,248,0.16); display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path></svg>
+</div>
+<div style="display: flex; flex-direction: column">
+<span style="font-size: 14px; font-weight: 700">Pompa in funzione</span>
+<span style="font-size: 12px; color: #94A3B8">30 min accesa, 30 spenta</span>
+</div>
+</div>
+<span style="font-size: 14px; font-weight: 700; color: #7DD3FC">ancora 10 min</span>
+</div>
+</section>
+
+<nav aria-label="Sezioni" style="margin-top: auto; margin-inline: -20px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 10px 8px 28px; background: rgba(10,17,28,0.82); border-top: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(20px)">
+<a href="#" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 48px; justify-content: center; text-decoration: none; color: #86EFAC; font-size: 12px; font-weight: 700">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+Ciclo</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 48px; justify-content: center; text-decoration: none; color: #94A3B8; font-size: 12px; font-weight: 600">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path></svg>
+Prove</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 48px; justify-content: center; text-decoration: none; color: #94A3B8; font-size: 12px; font-weight: 600">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>
+Diagnostica</a>
+</nav>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: 'normale' }; }
+  renderVals() {
+    const C = 678.58;
+    const list = [
+      { id: 'normale', name: 'Normale', ratio: '14 / 10', h: 14, w: 100, b: 100 },
+      { id: 'corto', name: 'Corto', ratio: '12 / 12', h: 12, w: 50, b: 0 },
+      { id: 'lungo', name: 'Lungo', ratio: '16 / 8', h: 16, w: 100, b: 0 }
+    ];
+    const cur = list.find((c) => c.id === this.state.picked);
+    const endH = 7 + cur.h;
+    const leftMin = endH * 60 - (14 * 60 + 20);
+    const base = 'display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;min-height:76px;border-radius:18px;text-align:left;';
+    return {
+      dash: (cur.h / 24 * C).toFixed(1) + ' ' + C,
+      dialLabel: 'Luce accesa dalle 07:00 alle ' + String(endH).padStart(2, '0') + ':00, ora 14:20',
+      end: String(endH).padStart(2, '0') + ':00',
+      left: Math.floor(leftMin / 60) + ' h ' + String(leftMin % 60).padStart(2, '0') + ' min',
+      w: cur.w + '%',
+      b: cur.b ? cur.b + '%' : 'spento',
+      wBar: 'width:' + cur.w + '%;height:100%;border-radius:999px;background:#FBBF24;transition:width 400ms cubic-bezier(0.16,1,0.3,1)',
+      bBar: 'width:' + cur.b + '%;height:100%;border-radius:999px;background:#60A5FA;transition:width 400ms cubic-bezier(0.16,1,0.3,1)',
+      cycles: list.map((c) => ({
+        ...c,
+        checked: c.id === cur.id ? 'true' : 'false',
+        pick: () => this.setState({ picked: c.id }),
+        style: base + (c.id === cur.id
+          ? 'background:#22C55E;color:#04170B;border:1px solid #4ADE80;box-shadow:0 8px 28px rgba(34,197,94,0.35)'
+          : 'background:rgba(255,255,255,0.05);color:#F8FAFC;border:1px solid rgba(255,255,255,0.10)')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

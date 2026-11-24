@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0;font:14px system-ui}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>SmartGarden Digital Twin</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,600&family=Jost:wght@400;500;600&display=swap">
+<style>
+/* Layout: the 3D garden fills the screen edge to edge; one frosted sheet floats at the bottom and changes with the selected part. */
+:root{
+  --bg:#E9E2D4; --bg-night:#7F786B; --ground:#D6CDBB;
+  --fg:#1E2A22; --muted:#5A6557; --line:rgba(30,42,34,.16);
+  --glass:rgba(250,247,240,.82); --glass-strong:rgba(250,247,240,.94);
+  --sage:#7E9272; --forest:#1F3A2B; --on-forest:#F6F1E7;
+  --gold:#C9962C; --midnight:#22304F; --water:#3E8FB3;
+  --shadow:0 24px 60px rgba(40,34,20,.22);
+  --display:"Bodoni Moda","Didot","Times New Roman",serif;
+  --body:"Jost","Avenir Next","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#1B1C1E; --bg-night:#0C0D0E; --ground:#242528;
+  --fg:#F1EDE4; --muted:#A9AEA2; --line:rgba(241,237,228,.18);
+  --glass:rgba(34,35,38,.80); --glass-strong:rgba(34,35,38,.94);
+  --sage:#9DB08F; --forest:#CFE0C3; --on-forest:#16241B;
+  --gold:#E3B655; --midnight:#3B4F80; --water:#6FB8D8;
+  --shadow:0 24px 60px rgba(0,0,0,.55); color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#1B1C1E; --bg-night:#0C0D0E; --ground:#242528;
+  --fg:#F1EDE4; --muted:#A9AEA2; --line:rgba(241,237,228,.18);
+  --glass:rgba(34,35,38,.80); --glass-strong:rgba(34,35,38,.94);
+  --sage:#9DB08F; --forest:#CFE0C3; --on-forest:#16241B;
+  --gold:#E3B655; --midnight:#3B4F80; --water:#6FB8D8;
+  --shadow:0 24px 60px rgba(0,0,0,.55); color-scheme:dark }
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;overflow:hidden;font-variant-numeric:tabular-nums}
+#app{position:relative;height:100%;overflow:hidden}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#scene:active{cursor:grabbing}
+#fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--muted)}
+
+.top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));pointer-events:none}
+.brand{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:-.2px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;background:var(--glass);border:1px solid var(--line);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font-size:12px;font-weight:500;color:var(--fg)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--sage)}
+
+.spot{position:absolute;left:0;top:0;display:flex;align-items:center;gap:0;transform:translate(-9999px,-9999px);border:0;background:none;padding:0;
+  color:var(--fg);font:inherit;cursor:pointer;min-height:44px}
+.spot i{width:12px;height:12px;border-radius:50%;background:var(--glass-strong);border:2px solid var(--forest);box-sizing:border-box;flex:none;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.spot b{width:22px;height:1px;background:var(--forest);opacity:.55;flex:none}
+.spot span{padding:6px 11px;border-radius:999px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  font-size:12px;font-weight:500;white-space:nowrap}
+.spot[aria-pressed="true"] i{transform:scale(1.5);background:var(--forest)}
+.spot[aria-pressed="true"] span{background:var(--forest);color:var(--on-forest);border-color:transparent}
+.spot.left{flex-direction:row-reverse}
+
+.sheet{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,460px);box-sizing:border-box;max-height:54%;overflow-y:auto;
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  background:var(--glass);border:1px solid var(--line);border-bottom:0;border-radius:28px 28px 0 0;
+  backdrop-filter:blur(28px) saturate(1.3);-webkit-backdrop-filter:blur(28px) saturate(1.3);box-shadow:var(--shadow)}
+.sheet-in{display:flex;flex-direction:column;gap:14px;animation:rise .42s cubic-bezier(.22,1,.36,1)}
+@keyframes rise{from{transform:translateY(10px)}to{transform:none}}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--line);align-self:center}
+.head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.head h2{margin:0;font-family:var(--display);font-size:24px;font-weight:600;letter-spacing:-.3px;text-wrap:balance}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.col{display:flex;flex-direction:column;gap:4px;min-width:0}
+.big{font-family:var(--display);font-size:44px;font-weight:500;line-height:1;letter-spacing:-1px}
+.muted{color:var(--muted);font-size:13px}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line);font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.rule{height:1px;background:var(--line)}
+
+button{font:inherit;color:inherit;touch-action:manipulation}
+.btn{min-height:44px;padding:0 16px;border-radius:14px;border:1px solid var(--line);background:transparent;cursor:pointer;font-weight:500;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),background-color .25s ease,color .25s ease}
+.btn:active{transform:scale(.96)}
+.btn.primary{background:var(--forest);color:var(--on-forest);border-color:transparent}
+.btn.icon{width:44px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:18px;background:rgba(127,127,127,.14)}
+.seg button{min-height:52px;border:0;border-radius:14px;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  transition:background-color .3s ease,color .3s ease,transform .3s cubic-bezier(.34,1.56,.64,1)}
+.seg button:active{transform:scale(.96)}
+.seg button strong{font-weight:600;font-size:14px}
+.seg button small{font-size:11px;color:var(--muted)}
+.seg button[aria-checked="true"]{background:var(--forest);color:var(--on-forest)}
+.seg button[aria-checked="true"] small{color:inherit;opacity:.8}
+.pods{display:flex;gap:5px}
+.pod{flex:1 1 0;min-width:0;max-width:48px;aspect-ratio:1;padding:0;border-radius:50%;border:1.5px dashed var(--sage);background:transparent;cursor:pointer;font-family:var(--display);font-size:18px;font-weight:600;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.pod:active{transform:scale(.92)}
+.pod.full{border:0;background:var(--forest);color:var(--on-forest)}
+.links{display:flex;gap:8px}
+.links .btn{flex:1}
+label{font-size:13px;color:var(--muted)}
+input[type="text"],input[type="date"]{font:inherit;color:var(--fg);min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:transparent;width:100%;box-sizing:border-box}
+input[type="range"]{width:100%;accent-color:var(--forest);min-height:32px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right}
+.log{margin:0;padding:0;list-style:none;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+:focus-visible{outline:2px solid var(--forest);outline-offset:3px}
+.ring-arc{transition:stroke-dasharray .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1);transform-origin:66px 66px}
+.ring-hand{transition:transform .6s cubic-bezier(.22,1,.36,1);transform-origin:66px 66px}
+@media (prefers-reduced-motion: reduce){ .sheet-in{animation:none} .ring-arc,.ring-hand,.btn,.seg button,.pod,.spot i{transition:none} }
+</style>
+
+<div id="app">
+  <canvas id="scene" role="img" aria-label="Modello 3D della serra Duronic GHS37. Trascina per ruotare, pizzica per ingrandire."></canvas>
+  <div id="fallback" hidden>Il modello 3D non è disponibile su questo dispositivo. I comandi qui sotto funzionano lo stesso.</div>
+  <div class="top">
+    <span class="brand">SmartGarden</span>
+    <span class="chip" title="Questa pagina è un prototipo: gli stati non arrivano ancora dalla lampada"><span class="dot"></span>Prototipo · dati di esempio</span>
+  </div>
+  <button class="spot" id="spot-lamp" type="button" aria-pressed="false"><i></i><b></b><span>Luce</span></button>
+  <button class="spot left" id="spot-tank" type="button" aria-pressed="false"><i></i><b></b><span>Vasca</span></button>
+  <button class="spot" id="spot-pump" type="button" aria-pressed="false"><i></i><b></b><span>Pompa</span></button>
+  <section class="sheet" id="sheet" aria-live="polite"></section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
+<script>
+(function () {
+'use strict';
+var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var $ = function (id) { return document.getElementById(id); };
+var pad = function (n) { return String(n).padStart(2, '0'); };
+var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
+
+/* ---------- state (single source for sheet and 3D twin) ---------- */
+var CYCLES = {
+  normale: { name: 'Normale', hours: 14, w: 100, b: 100 },
+  corto:   { name: 'Corto',   hours: 12, w: 50,  b: 0 },
+  lungo:   { name: 'Lungo',   hours: 16, w: 100, b: 0 }
+};
+var state = {
+  cycle: 'normale', start: 7, levels: { normale: [100, 100], corto: [50, 0], lungo: [100, 0] },
+  pumpMode: 'auto', pumpOn: 30, pumpOff: 30,
+  /* Nicola's garden, from his annotated photo: front row left to right, then back row left to right */
+  pods: ['Basilico porpora', 'Basilico normale', 'Basilico lemon', 'Trinidad scorpion giallo', 'Timo', 'Maggiorana', 'Bonsai di pino'].map(function (n) { return { name: n, sown: '' }; }),
+  examples: false, view: 'home', pod: 0, preview: null, manual: { w: 0, b: 0, p: 0 }, log: []
+};
+try { var saved = JSON.parse(localStorage.getItem('sg-twin') || 'null'); if (saved) { ['cycle', 'start', 'levels', 'pumpMode', 'pumpOn', 'pumpOff', 'pods', 'examples'].forEach(function (k) { if (k in saved && (k !== 'pods' || saved.examples === false)) state[k] = saved[k]; }); state.examples = false; } } catch (e) {}
+function save() { try { localStorage.setItem('sg-twin', JSON.stringify({ cycle: state.cycle, start: state.start, levels: state.levels, pumpMode: state.pumpMode, pumpOn: state.pumpOn, pumpOff: state.pumpOff, pods: state.pods, examples: state.examples })); } catch (e) {} }
+function logEvent(t) { var d = new Date(); state.log.unshift(pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + '  ' + t); state.log.length = Math.min(state.log.length, 8); }
+
+function nowMin() { if (state.preview !== null) return state.preview; var d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+function derive() {
+  var c = CYCLES[state.cycle], m = nowMin(), t = Date.now();
+  var rel = ((m / 60 - state.start) % 24 + 24) % 24, lit = rel < c.hours;
+  var lv = state.levels[state.cycle];
+  var w = lit ? lv[0] : 0, b = lit ? lv[1] : 0;
+  if (state.manual.w > t) w = 100; if (state.manual.b > t) b = 100;
+  var period = state.pumpOn + state.pumpOff, pos = m % period;
+  var pump = state.pumpMode === 'on' ? true : state.pumpMode === 'off' ? false : pos >= state.pumpOff;
+  if (state.manual.p > t) pump = true;
+  var toChange = Math.round((lit ? c.hours - rel : 24 - rel) * 60);
+  return { c: c, m: m, lit: lit, w: w, b: b, pump: pump, toChange: toChange,
+    nextAt: lit ? (state.start + c.hours) % 24 : state.start,
+    pumpLeft: pump ? period - pos : state.pumpOff - pos };
+}
+function hm(m) { return pad(Math.floor(m / 60) % 24) + ':' + pad(m % 60); }
+function dur(m) { return Math.floor(m / 60) + ' h ' + pad(m % 60) + ' min'; }
+
+/* ---------- sheet (contextual controls) ---------- */
+var sheet = $('sheet');
+function ring(d) {
+  var C = 326.73, deg = function (h) { return (h - 12) * 15; }, ticks = '';
+  for (var i = 0; i < 24; i++) ticks += '<line x1="66" y1="' + (i % 6 ? 9 : 6) + '" x2="66" y2="12" stroke="var(--muted)" stroke-width="' + (i % 6 ? 1 : 1.6) + '" transform="rotate(' + i * 15 + ' 66 66)"/>';
+  return '<svg width="132" height="132" viewBox="0 0 132 132" role="img" aria-label="Quadrante di 24 ore: luce dalle ' + pad(state.start) + ':00 per ' + d.c.hours + ' ore">' +
+    ticks +
+    '<circle cx="66" cy="66" r="52" fill="none" stroke="var(--midnight)" stroke-width="9"/>' +
+    '<circle class="ring-arc" cx="66" cy="66" r="52" fill="none" stroke="var(--gold)" stroke-width="9" stroke-linecap="round" stroke-dasharray="' + (d.c.hours / 24 * C).toFixed(1) + ' ' + C + '" style="transform:rotate(' + (deg(state.start) - 90) + 'deg)"/>' +
+    '<g class="ring-hand" style="transform:rotate(' + (d.m / 60 - 12) * 15 + 'deg)"><line x1="66" y1="66" x2="66" y2="20" stroke="var(--fg)" stroke-width="1.6" stroke-linecap="round"/><circle cx="66" cy="14" r="5" fill="var(--bg)" stroke="var(--fg)" stroke-width="1.6"/></g>' +
+    '<circle cx="66" cy="66" r="3" fill="var(--fg)"/>' +
+    '<text x="66" y="36" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="Jost,sans-serif">12</text>' +
+    '<text x="66" y="103" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="Jost,sans-serif">0</text></svg>';
+}
+function cycleSeg() {
+  return '<div class="seg" role="radiogroup" aria-label="Ciclo di luce">' + Object.keys(CYCLES).map(function (k) {
+    var c = CYCLES[k]; return '<button type="button" role="radio" aria-checked="' + (k === state.cycle) + '" data-act="cycle" data-v="' + k + '"><strong>' + c.name + '</strong><small>' + c.hours + ' / ' + (24 - c.hours) + '</small></button>'; }).join('') + '</div>';
+}
+function startRow() {
+  return '<div class="row"><span>Inizio luce</span><span class="row" style="gap:8px"><button class="btn icon" type="button" data-act="start" data-v="-1" aria-label="Un\'ora prima">−</button><strong style="font-family:var(--display);font-size:24px;width:74px;text-align:center">' + pad(state.start) + ':00</strong><button class="btn icon" type="button" data-act="start" data-v="1" aria-label="Un\'ora dopo">+</button></span></div>';
+}
+function header(title, eyebrow) {
+  return '<div class="grab" aria-hidden="true"></div><div class="head"><div class="col"><span class="eyebrow">' + eyebrow + '</span><h2>' + title + '</h2></div><button class="btn" type="button" data-act="view" data-v="home">Chiudi</button></div>';
+}
+var VIEWS = {
+  home: function (d) {
+    return '<div class="grab" aria-hidden="true"></div>' +
+      '<div class="row" style="align-items:center">' + ring(d) +
+        '<div class="col" style="flex:1"><span class="eyebrow">' + (d.lit ? 'Giorno' : 'Notte') + ' · ' + d.c.name + (state.preview !== null ? ' · anteprima' : '') + '</span>' +
+        '<span class="big">' + hm(d.m) + '</span>' +
+        '<span>' + (d.lit ? 'Buio' : 'Luce') + ' alle ' + pad(d.nextAt) + ':00</span><span class="muted">tra ' + dur(d.toChange) + '</span>' +
+        '<span class="muted">Pompa ' + (d.pump ? 'in funzione' : 'in pausa') + ' <span class="tag">comandato</span></span></div></div>' +
+      cycleSeg() + startRow() +
+      '<div class="rule"></div>' +
+      '<div class="col"><span class="eyebrow">Piante · ' + state.pods.filter(Boolean).length + ' fori su 7' + (state.examples ? ' · esempi' : '') + '</span><div class="pods">' +
+        state.pods.map(function (p, i) { return '<button type="button" class="pod' + (p ? ' full' : '') + '" data-act="pod" data-v="' + i + '" aria-label="Foro ' + (i + 1) + ': ' + (p ? esc(p.name) : 'libero') + '">' + (p ? esc(p.name.charAt(0).toUpperCase()) : '+') + '</button>'; }).join('') + '</div></div>' +
+      '<div class="links"><button class="btn" type="button" data-act="view" data-v="prove">Prove</button><button class="btn" type="button" data-act="view" data-v="diag">Diagnostica</button></div>';
+  },
+  lamp: function (d) {
+    var lv = state.levels[state.cycle];
+    return header('Luce', 'Pannello LED') +
+      '<div class="row"><span>' + (d.lit ? 'Accesa' : 'Spenta') + ' <span class="tag">comandato</span></span><span class="muted">' + (d.lit ? 'buio' : 'luce') + ' tra ' + dur(d.toChange) + '</span></div>' +
+      cycleSeg() + startRow() +
+      '<div class="col"><label for="lvW">Bianco e rosso · <span id="lvWo">' + lv[0] + '</span>%</label><input id="lvW" type="range" min="0" max="100" step="5" value="' + lv[0] + '" data-lv="0"></div>' +
+      '<div class="col"><label for="lvB">Blu · <span id="lvBo">' + lv[1] + '</span>%</label><input id="lvB" type="range" min="0" max="100" step="5" value="' + lv[1] + '" data-lv="1"></div>' +
+      '<span class="muted">Le intensità valgono per il ciclo ' + d.c.name + '. Il colore della luce nel modello è illustrativo.</span>';
+  },
+  tank: function (d) {
+    return header('Vasca', 'Serbatoio') +
+      '<dl class="kv"><dt>Livello acqua</dt><dd>non misurato</dd><dt>Pompa</dt><dd>' + (d.pump ? 'in funzione' : 'in pausa') + '</dd></dl>' +
+      '<span class="muted">La scheda non riceve il segnale del sensore di livello: quando l\'acqua manca avvisa il cicalino della serra. Il movimento dell\'acqua nel modello è illustrativo e segue lo stato della pompa.</span>' +
+      '<button class="btn" type="button" data-act="view" data-v="pump">Comandi della pompa</button>';
+  },
+  pump: function (d) {
+    var modes = { auto: 'Automatica', on: 'Accesa', off: 'Spenta' };
+    return header('Pompa', 'Circolazione') +
+      '<div class="row"><span>' + (d.pump ? 'In funzione' : 'In pausa') + ' <span class="tag">comandato</span></span><span class="muted">' + (state.pumpMode === 'auto' ? (d.pump ? 'si ferma' : 'riparte') + ' tra ' + d.pumpLeft + ' min' : '') + '</span></div>' +
+      '<div class="seg" role="radiogroup" aria-label="Modalità della pompa">' + Object.keys(modes).map(function (k) { return '<button type="button" role="radio" aria-checked="' + (k === state.pumpMode) + '" data-act="pmode" data-v="' + k + '"><strong>' + modes[k] + '</strong></button>'; }).join('') + '</div>' +
+      '<div class="row"><span>Minuti accesa</span><span class="row" style="gap:8px"><button class="btn icon" type="button" data-act="pon" data-v="-5" aria-label="Meno">−</button><strong style="width:44px;text-align:center">' + state.pumpOn + '</strong><button class="btn icon" type="button" data-act="pon" data-v="5" aria-label="Più">+</button></span></div>' +
+      '<div class="row"><span>Minuti di pausa</span><span class="row" style="gap:8px"><button class="btn icon" type="button" data-act="poff" data-v="-5" aria-label="Meno">−</button><strong style="width:44px;text-align:center">' + state.pumpOff + '</strong><button class="btn icon" type="button" data-act="poff" data-v="5" aria-label="Più">+</button></span></div>';
+  },
+  pod: function () {
+    var p = state.pods[state.pod], days = p && p.sown ? Math.max(0, Math.floor((Date.now() - new Date(p.sown).getTime()) / 864e5)) : null;
+    return header(p ? esc(p.name) : 'Foro libero', 'Foro ' + (state.pod + 1) + ' di 7') +
+      (days !== null ? '<div class="row"><span class="big">' + days + '</span><span class="muted" style="flex:1">giorni dalla semina</span></div>' : '') +
+      '<div class="col"><label for="podName">Cosa hai piantato</label><input id="podName" type="text" maxlength="24" autocomplete="off" placeholder="Per esempio: basilico" value="' + (p ? esc(p.name) : '') + '"></div>' +
+      '<div class="col"><label for="podDate">Data di semina (facoltativa)</label><input id="podDate" type="date" value="' + (p && p.sown ? esc(p.sown) : '') + '"></div>' +
+      '<div class="links"><button class="btn primary" type="button" data-act="podsave">Salva</button>' + (p ? '<button class="btn" type="button" data-act="podfree">Libera il foro</button>' : '') + '</div>' +
+      '<span class="muted">La forma e la crescita della pianta nel modello sono illustrative: senza data di semina il modello mostra un germoglio.</span>';
+  },
+  prove: function (d) {
+    var t = Date.now(), on = function (k) { return state.manual[k] > t; };
+    var b = function (k, l) { return '<button class="btn' + (on(k) ? ' primary' : '') + '" type="button" data-act="manual" data-v="' + k + '" aria-pressed="' + on(k) + '">' + l + '</button>'; };
+    return header('Prove', 'Collaudo') +
+      '<span class="muted">Accendi un\'uscita a mano: si spegne da sola dopo 60 secondi.</span>' +
+      '<div class="links">' + b('w', 'Bianco e rosso') + b('b', 'Blu') + b('p', 'Pompa') + '</div>' +
+      '<div class="rule"></div>' +
+      '<div class="col"><label for="scrub">Giornata accelerata · <span id="scrubo">' + hm(d.m) + '</span></label><input id="scrub" type="range" min="0" max="1435" step="5" value="' + d.m + '"></div>' +
+      '<button class="btn" type="button" data-act="live"' + (state.preview === null ? ' disabled' : '') + '>Torna a adesso</button>';
+  },
+  diag: function () {
+    return header('Diagnostica', 'Stato della scheda') +
+      '<dl class="kv"><dt>Segnale Wi-Fi</dt><dd class="muted">dal firmware</dd><dt>Accesa da</dt><dd class="muted">dal firmware</dd><dt>Ultimo riavvio</dt><dd class="muted">dal firmware</dd><dt>Memoria libera</dt><dd class="muted">dal firmware</dd></dl>' +
+      '<span class="eyebrow">Registro di questa sessione</span>' +
+      '<ul class="log">' + (state.log.length ? state.log.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') : '<li>Nessun evento: cambia un ciclo o prova un\'uscita.</li>') + '</ul>';
+  }
+};
+function render() {
+  var d = derive();
+  sheet.innerHTML = '<div class="sheet-in">' + VIEWS[state.view](d) + '</div>';
+  ['lamp', 'tank', 'pump'].forEach(function (k) { $('spot-' + k).setAttribute('aria-pressed', String(state.view === k)); });
+}
+function go(view, pod) { state.view = view; if (pod !== undefined) state.pod = pod; render(); sheet.scrollTop = 0; focusOn(view); }
+
+sheet.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-act]'); if (!b) return;
+  var a = b.dataset.act, v = b.dataset.v;
+  if (a === 'view') return go(v);
+  if (a === 'pod') return go('pod', Number(v));
+  if (a === 'cycle') { state.cycle = v; logEvent('ciclo ' + CYCLES[v].name); }
+  if (a === 'start') { state.start = (state.start + Number(v) + 24) % 24; logEvent('inizio luce ' + pad(state.start) + ':00'); }
+  if (a === 'pmode') { state.pumpMode = v; logEvent('pompa ' + v); }
+  if (a === 'pon') state.pumpOn = Math.min(55, Math.max(5, state.pumpOn + Number(v)));
+  if (a === 'poff') state.pumpOff = Math.min(55, Math.max(5, state.pumpOff + Number(v)));
+  if (a === 'manual') { var on = state.manual[v] > Date.now(); state.manual[v] = on ? 0 : Date.now() + 60000; logEvent('prova ' + v.toUpperCase() + (on ? ' off' : ' on')); if (!on) setTimeout(render, 60100); }
+  if (a === 'live') state.preview = null;
+  if (a === 'podsave') { var n = $('podName').value.trim(); state.pods[state.pod] = n ? { name: n, sown: $('podDate').value || '' } : null; state.examples = false; logEvent('foro ' + (state.pod + 1) + ': ' + (n || 'libero')); rebuildPlants(); }
+  if (a === 'podfree') { state.pods[state.pod] = null; state.examples = false; logEvent('foro ' + (state.pod + 1) + ' liberato'); rebuildPlants(); }
+  save(); render();
+});
+sheet.addEventListener('input', function (e) {
+  var t = e.target;
+  if (t.dataset.lv !== undefined) { state.levels[state.cycle][Number(t.dataset.lv)] = Number(t.value); $(t.id + 'o').textContent = t.value; save(); }
+  if (t.id === 'scrub') { state.preview = Number(t.value); $('scrubo').textContent = hm(state.preview); var lb = sheet.querySelector('[data-act="live"]'); if (lb) lb.disabled = false; }
+});
+['lamp', 'tank', 'pump'].forEach(function (k) { $('spot-' + k).addEventListener('click', function () { go(state.view === k ? 'home' : k); }); });
+setInterval(function () { if (state.view === 'home' && state.preview === null) render(); }, 30000);
+
+/* ---------- 3D twin ---------- */
+var focusOn = function () {}, rebuildPlants = function () {};
+render();
+if (!window.THREE) { $('fallback').hidden = false; $('scene').hidden = true; return; }
+var T = window.THREE, canvas = $('scene'), renderer;
+try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true }); } catch (e) { $('fallback').hidden = false; canvas.hidden = true; return; }
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.outputEncoding = T.sRGBEncoding;
+renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.92;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
+
+var scene = new T.Scene(), camera = new T.PerspectiveCamera(32, 1, 0.1, 80);
+var css = function (name) { return new T.Color(getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888'); };
+var theme = {}; function readTheme() { theme.bg = css('--bg'); theme.night = css('--bg-night'); theme.ground = css('--ground'); theme.dark = theme.bg.getHSL({}).l < 0.4; }
+readTheme();
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
+new MutationObserver(readTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+scene.background = theme.bg.clone(); scene.fog = new T.Fog(scene.background.getHex(), 11, 26);
+
+function rbox(w, h, d, r, mat) {
+  var s = new T.Shape(), x = -w / 2, z = -d / 2;
+  s.moveTo(x + r, z); s.lineTo(x + w - r, z); s.quadraticCurveTo(x + w, z, x + w, z + r); s.lineTo(x + w, z + d - r); s.quadraticCurveTo(x + w, z + d, x + w - r, z + d);
+  s.lineTo(x + r, z + d); s.quadraticCurveTo(x, z + d, x, z + d - r); s.lineTo(x, z + r); s.quadraticCurveTo(x, z, x + r, z);
+  var b = Math.min(0.045, h / 4);
+  var g = new T.ExtrudeGeometry(s, { depth: h - 2 * b, bevelEnabled: true, bevelSize: b, bevelThickness: b, bevelSegments: 4, curveSegments: 10 });
+  g.rotateX(-Math.PI / 2); g.translate(0, b, 0);
+  var m = new T.Mesh(g, mat); m.castShadow = true; m.receiveShadow = true; return m;
+}
+var plastic = new T.MeshPhysicalMaterial({ color: 0xf3f2ee, roughness: 0.32, clearcoat: 0.5, clearcoatRoughness: 0.35 });
+var basePlastic = plastic.clone();
+var garden = new T.Group(); scene.add(garden);
+
+var ground = new T.Mesh(new T.CircleGeometry(30, 48), new T.MeshStandardMaterial({ color: theme.ground, roughness: 0.95 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+/* base with reservoir (photo: wide white box, deck with 7 pods and a fill port) */
+var BW = 3.2, BH = 1.2, BD = 1.7;
+var base = rbox(BW, BH, BD, 0.22, basePlastic); base.userData.part = 'tank'; garden.add(base);
+var deck = rbox(BW - 0.16, 0.05, BD - 0.16, 0.18, new T.MeshStandardMaterial({ color: 0xe9e8e3, roughness: 0.5 })); deck.position.y = BH; deck.userData.part = 'tank'; garden.add(deck);
+var port = new T.Mesh(new T.CylinderGeometry(0.11, 0.11, 0.02, 24), new T.MeshStandardMaterial({ color: 0xb9bcc0, roughness: 0.6 })); port.position.set(1.36, BH + 0.06, 0.42); garden.add(port);
+/* water, visible when the reservoir is selected (x-ray) */
+var water = new T.Mesh(new T.BoxGeometry(BW - 0.3, 0.5, BD - 0.3), new T.MeshPhysicalMaterial({ color: 0x4aa3c7, roughness: 0.1, transparent: true, opacity: 0.5 })); water.position.y = 0.33; garden.add(water);
+var surfGeo = new T.PlaneGeometry(BW - 0.3, BD - 0.3, 28, 14); surfGeo.rotateX(-Math.PI / 2);
+var surf = new T.Mesh(surfGeo, new T.MeshPhysicalMaterial({ color: 0x8fd0ea, roughness: 0.05, transparent: true, opacity: 0.75, side: T.DoubleSide })); surf.position.y = 0.585; garden.add(surf);
+var surfBase = surfGeo.attributes.position.array.slice();
+var pumpBody = new T.Mesh(new T.CylinderGeometry(0.13, 0.15, 0.22, 20), new T.MeshStandardMaterial({ color: 0x2b2e33, roughness: 0.5 })); pumpBody.position.set(-1.1, 0.19, -0.4); garden.add(pumpBody);
+
+/* rod and lamp head */
+var rod = new T.Mesh(new T.CylinderGeometry(0.055, 0.055, 2.5, 20), new T.MeshStandardMaterial({ color: 0xc4c7cc, roughness: 0.3, metalness: 0.55 })); rod.position.set(0, 1.45, -0.86); rod.castShadow = true; garden.add(rod);
+var channel = rbox(0.24, BH + 0.04, 0.12, 0.04, plastic); channel.position.set(0, 0, -0.9); garden.add(channel);
+var LAMP_Y = 2.72;
+var head = rbox(3.45, 0.17, 1.5, 0.3, plastic); head.position.set(0, LAMP_Y, -0.12); head.userData.part = 'lamp'; garden.add(head);
+var ledMat = new T.MeshStandardMaterial({ color: 0x23262b, emissive: 0xffffff, emissiveIntensity: 0, roughness: 0.4 });
+var led = new T.Mesh(new T.PlaneGeometry(3.0, 1.1), ledMat); led.rotation.x = Math.PI / 2; led.position.set(0, LAMP_Y - 0.005, -0.12); led.userData.part = 'lamp'; garden.add(led);
+[-0.22, 0, 0.22].forEach(function (x) { var k = new T.Mesh(new T.CylinderGeometry(0.045, 0.045, 0.012, 20), new T.MeshStandardMaterial({ color: 0x1d1f22, roughness: 0.4 })); k.position.set(x, LAMP_Y + 0.172, -0.5); garden.add(k); });
+var beamGeo = new T.CylinderGeometry(1.05, 1.75, LAMP_Y - BH - 0.05, 4, 1, true); beamGeo.rotateY(Math.PI / 4); beamGeo.scale(1.35, 1, 0.62);
+var beam = new T.Mesh(beamGeo, new T.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide })); beam.position.set(0, (LAMP_Y + BH) / 2, -0.06); garden.add(beam);
+
+/* seven pods: three in front with the fill port, four at the back (photo of the unit) */
+var PODS = [[-0.95, 0.38], [0, 0.38], [0.95, 0.38], [-1.2, -0.3], [-0.45, -0.3], [0.45, -0.3], [1.2, -0.3]];
+var podMeshes = [], plantGroups = [];
+PODS.forEach(function (p, i) {
+  var collar = new T.Mesh(new T.CylinderGeometry(0.2, 0.2, 0.03, 24), new T.MeshStandardMaterial({ color: 0xdedcd6, roughness: 0.6 })); collar.position.set(p[0], BH + 0.065, p[1]); collar.receiveShadow = true; garden.add(collar);
+  var sponge = new T.Mesh(new T.CylinderGeometry(0.13, 0.13, 0.034, 24), new T.MeshStandardMaterial({ color: 0x17181a, roughness: 0.95 })); sponge.position.set(p[0], BH + 0.07, p[1]); garden.add(sponge);
+  var hit = new T.Mesh(new T.CylinderGeometry(0.26, 0.26, 0.9, 12), new T.MeshBasicMaterial({ visible: false })); hit.position.set(p[0], BH + 0.45, p[1]); hit.userData.part = 'pod:' + i; garden.add(hit); podMeshes.push(hit);
+  var g = new T.Group(); g.position.set(p[0], BH + 0.085, p[1]); garden.add(g); plantGroups.push(g);
+});
+/* keyword -> [leaf width, leaf length, leaf count, colour, height]; first match wins */
+var KINDS = [['porpora', [0.15, 0.22, 7, 0x6b3f6e, 0.5]], ['lemon', [0.13, 0.2, 8, 0x86b84a, 0.5]], ['basilico', [0.15, 0.22, 7, 0x4f9a3d, 0.5]], ['timo', [0.035, 0.05, 22, 0x6f9461, 0.32]], ['maggiorana', [0.06, 0.08, 16, 0x7fa06a, 0.4]], ['menta', [0.09, 0.16, 10, 0x3f8f52, 0.56]], ['prezzemolo', [0.07, 0.09, 15, 0x5aa33c, 0.46]], ['trinidad', [0.1, 0.2, 9, 0x3e8a3a, 0.62]], ['peperoncino', [0.1, 0.2, 9, 0x3e8a3a, 0.62]], ['pino', [0.02, 0.16, 26, 0x2f6b45, 0.5]], ['bonsai', [0.02, 0.16, 26, 0x2f6b45, 0.5]]];
+var leafGeo = new T.SphereGeometry(1, 12, 8);
+rebuildPlants = function () {
+  plantGroups.forEach(function (g, i) {
+    while (g.children.length) { var c = g.children.pop(); if (c.material) c.material.dispose(); }
+    var p = state.pods[i]; if (!p) return;
+    var low = p.name.toLowerCase(), found = KINDS.filter(function (e) { return low.indexOf(e[0]) >= 0; })[0], k = found ? found[1] : [0.1, 0.15, 9, 0x4c9446, 0.48];
+    var days = p.sown ? Math.max(0, (Date.now() - new Date(p.sown).getTime()) / 864e5) : 0, grow = Math.min(1, 0.28 + days / 45);
+    var h = k[4] * grow, mat = new T.MeshStandardMaterial({ color: k[3], roughness: 0.6 });
+    var stem = new T.Mesh(new T.CylinderGeometry(0.012, 0.02, h, 8), new T.MeshStandardMaterial({ color: 0x6a9a4a, roughness: 0.7 })); stem.position.y = h / 2; stem.castShadow = true; g.add(stem);
+    for (var n = 0; n < k[2]; n++) {
+      var a = n * 2.4 + i, t = 0.3 + 0.7 * n / k[2], leaf = new T.Mesh(leafGeo, mat), r = k[1] * grow * 0.75;
+      leaf.scale.set(k[0] * grow, 0.014, k[1] * grow);
+      leaf.position.set(Math.cos(a) * r, h * t, Math.sin(a) * r); leaf.rotation.set(0.35, -a + Math.PI / 2, 0, 'YXZ'); leaf.castShadow = true; leaf.receiveShadow = true; g.add(leaf);
+    }
+    g.userData.phase = i * 1.7;
+  });
+};
+rebuildPlants();
+
+/* lights: the room, and the lamp itself */
+var hemi = new T.HemisphereLight(0xffffff, 0xb8b0a0, 0.7); scene.add(hemi);
+var key = new T.DirectionalLight(0xfff4e6, 0.6); key.position.set(4, 7, 5); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+key.shadow.camera.left = -4; key.shadow.camera.right = 4; key.shadow.camera.top = 4; key.shadow.camera.bottom = -3; key.shadow.radius = 4; key.shadow.bias = -0.0005; scene.add(key);
+var grow = new T.SpotLight(0xffffff, 0, 0, 1.0, 0.75); grow.position.set(0, LAMP_Y - 0.05, -0.1); grow.target.position.set(0, 0, 0.15); grow.castShadow = true; grow.shadow.mapSize.set(1024, 1024); grow.shadow.bias = -0.0008; scene.add(grow); scene.add(grow.target);
+
+/* camera: orbit by drag, zoom by pinch or wheel, gentle focus on the selected part */
+var zoomK = 1, cam = { theta: 0.55, phi: 1.18, r: 9.6, tx: 0, ty: 1.45, tz: 0 }, goal = Object.assign({}, cam), touched = false;
+var FOCUS = { home: [0, 1.45, 0, 9.6], lamp: [0, 2.2, 0, 8.2], tank: [0, 0.8, 0, 8.4], pump: [-0.6, 0.6, 0, 7.6], prove: [0, 1.45, 0, 9.6], diag: [0, 1.45, 0, 10.4] };
+focusOn = function (view) {
+  var f = FOCUS[view]; if (view === 'pod') { var p = PODS[state.pod]; f = [p[0] * 0.7, 1.55, p[1], 7.2]; }
+  if (!f) return; goal.tx = f[0]; goal.ty = f[1]; goal.tz = f[2]; goal.r = f[3] * zoomK;
+};
+var pts = new Map(), downAt = null, pinch = 0;
+canvas.addEventListener('pointerdown', function (e) { canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); downAt = [e.clientX, e.clientY, false]; touched = true; if (pts.size === 2) pinch = dist(); });
+canvas.addEventListener('pointermove', function (e) {
+  if (!pts.has(e.pointerId)) return; var p = pts.get(e.pointerId), dx = e.clientX - p[0], dy = e.clientY - p[1]; pts.set(e.pointerId, [e.clientX, e.clientY]);
+  if (downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) downAt[2] = true;
+  if (pts.size === 1) { goal.theta -= dx * 0.008; goal.phi = Math.min(1.5, Math.max(0.35, goal.phi - dy * 0.006)); }
+  else if (pts.size === 2) { var d = dist(); if (pinch) goal.r = Math.min(22, Math.max(5.5, goal.r * pinch / d)); pinch = d; }
+});
+function dist() { var a = Array.from(pts.values()); return Math.hypot(a[0][0] - a[1][0], a[0][1] - a[1][1]) || 1; }
+function up(e) { var wasTap = pts.size === 1 && downAt && !downAt[2]; pts.delete(e.pointerId); pinch = 0; if (wasTap) pick(e); }
+canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', function (e) { pts.delete(e.pointerId); pinch = 0; });
+canvas.addEventListener('wheel', function (e) { e.preventDefault(); touched = true; goal.r = Math.min(22, Math.max(5.5, goal.r * (1 + e.deltaY * 0.0012))); }, { passive: false });
+var ray = new T.Raycaster(), ndc = new T.Vector2();
+function pick(e) {
+  var r = canvas.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  var hit = ray.intersectObjects(garden.children, false).filter(function (h) { return h.object.userData.part; })[0];
+  if (!hit) return go('home');
+  var part = hit.object.userData.part;
+  if (part.indexOf('pod:') === 0) go('pod', Number(part.slice(4))); else go(part);
+}
+
+var W = 0, H = 0;
+function resize() {
+  var r = canvas.parentElement.getBoundingClientRect(); if (!r.width || !r.height) return;
+  W = r.width; H = r.height; renderer.setSize(W, H, false); camera.aspect = W / H;
+  var narrow = W / H < 0.7; camera.fov = narrow ? 40 : 30; zoomK = narrow ? 1.5 : 1; camera.setViewOffset(W, H, 0, H * (narrow ? 0.24 : 0.16), W, H); camera.updateProjectionMatrix();
+  if (!touched) { focusOn(state.view); cam.r = goal.r; }
+}
+new ResizeObserver(resize).observe(canvas.parentElement); resize();
+
+var ANCH = { lamp: new T.Vector3(1.2, LAMP_Y + 0.1, 0.3), tank: new T.Vector3(-1.45, 0.75, 0.86), pump: new T.Vector3(1.1, 0.35, 0.86) }, v3 = new T.Vector3();
+function place(id, a, left) {
+  var el = $('spot-' + id); v3.copy(a).project(camera);
+  if (v3.z > 1) { el.style.transform = 'translate(-9999px,-9999px)'; return; }
+  var x = (v3.x * 0.5 + 0.5) * W, y = (-v3.y * 0.5 + 0.5) * H;
+  var ew = el.offsetWidth, px = Math.min(W - ew - 8, Math.max(8, left ? x - ew + 6 : x - 6));
+  el.style.transform = 'translate(' + px.toFixed(1) + 'px,' + (y - 22).toFixed(1) + 'px)';
+}
+
+var cur = { w: 0, b: 0, pump: 0, xray: 0, day: 1 }, col = new T.Color(), bgc = new T.Color(), clock = new T.Clock();
+function frame() {
+  requestAnimationFrame(frame); if (document.hidden) return;
+  var dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime, k = reduce ? 1 : 1 - Math.pow(0.002, dt), d = derive();
+  cur.w += (d.w / 100 - cur.w) * k; cur.b += (d.b / 100 - cur.b) * k; cur.pump += ((d.pump ? 1 : 0) - cur.pump) * k;
+  cur.xray += (((state.view === 'tank' || state.view === 'pump') ? 1 : 0) - cur.xray) * k;
+  var power = Math.min(1, cur.w + cur.b * 0.6); cur.day += ((d.lit ? 1 : 0) - cur.day) * k;
+
+  /* lamp: colour mixes the warm white+red channel and the blue channel (illustrative rendering of commanded levels) */
+  col.setRGB(cur.w * 1.0 + cur.b * 0.35, cur.w * 0.8 + cur.b * 0.42, cur.w * 0.7 + cur.b * 1.0);
+  var mx = Math.max(col.r, col.g, col.b, 0.001); col.multiplyScalar(1 / mx);
+  grow.color.copy(col); grow.intensity = (theme.dark ? 2.3 : 1.5) * power; ledMat.emissive.copy(col); ledMat.emissiveIntensity = 1.6 * power;
+  beam.material.color.copy(col); beam.material.opacity = (theme.dark ? 0.12 : 0.2) * power * (reduce ? 1 : 0.9 + 0.1 * Math.sin(t * 1.3));
+
+  /* room: darker when the garden's lights are off, darker still in the dark theme */
+  var room = theme.dark ? 0.35 : 0.78, amb = 0.34 + 0.66 * cur.day;
+  hemi.intensity = 0.72 * room * amb; key.intensity = 0.62 * room * amb;
+  bgc.copy(theme.night).lerp(theme.bg, cur.day); scene.background.lerp(bgc, k); scene.fog.color.copy(scene.background); ground.material.color.lerp(bgc.clone().lerp(theme.ground, 0.6), k);
+
+  /* reservoir x-ray, water ripples only while the pump is commanded on */
+  var op = 1 - 0.72 * cur.xray; if (basePlastic.transparent !== (op < 0.99)) { basePlastic.transparent = op < 0.99; basePlastic.depthWrite = op >= 0.99; basePlastic.needsUpdate = true; }
+  basePlastic.opacity = op; deck.material.transparent = basePlastic.transparent; deck.material.opacity = 1 - 0.5 * cur.xray;
+  if (cur.xray > 0.02 && !reduce) { var pa = surfGeo.attributes.position.array; for (var i = 0; i < pa.length; i += 3) pa[i + 1] = surfBase[i + 1] + cur.pump * 0.012 * (Math.sin(surfBase[i] * 6 + t * 3.2) + Math.cos(surfBase[i + 2] * 8 - t * 2.6)); surfGeo.attributes.position.needsUpdate = true; }
+
+  if (!reduce) plantGroups.forEach(function (g) { if (g.children.length) { g.rotation.z = Math.sin(t * 0.9 + g.userData.phase) * 0.03; g.rotation.x = Math.cos(t * 0.7 + g.userData.phase) * 0.025; } });
+  if (!touched && !reduce) goal.theta = 0.55 + Math.sin(t * 0.25) * 0.12;
+
+  ['theta', 'phi', 'r', 'tx', 'ty', 'tz'].forEach(function (p) { cam[p] += (goal[p] - cam[p]) * (reduce ? 1 : 1 - Math.pow(0.0006, dt)); });
+  camera.position.set(cam.tx + cam.r * Math.sin(cam.phi) * Math.sin(cam.theta), cam.ty + cam.r * Math.cos(cam.phi), cam.tz + cam.r * Math.sin(cam.phi) * Math.cos(cam.theta));
+  camera.lookAt(cam.tx, cam.ty, cam.tz);
+  renderer.render(scene, camera);
+  place('lamp', ANCH.lamp, false); place('tank', ANCH.tank, true); place('pump', ANCH.pump, false);
+}
+frame();
+})();
+</script>
+
+</body>
+</html>

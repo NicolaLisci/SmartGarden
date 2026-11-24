@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>SmartGarden, strumento</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#FF9A4D}a:hover{color:#FFC08F}
+button{font:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #111215; color: #ECECEE; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; padding: 28px 20px 0; gap: 18px; overflow: hidden">
+
+<div style="display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A0A2AA">
+<span>SMARTGARDEN · v0.1</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 7px; height: 7px; background: #5BE38B"></span>WI-FI −61 dBm</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 1px; color: #FF9A4D">● GIORNO · CICLO {{label}}</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 64px; font-weight: 700; letter-spacing: -3px; line-height: 1">14:20</span>
+<span style="font-size: 14px; color: #A0A2AA">spegnimento alle {{end}} · fra {{left}}</span>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px">
+<sc-for list="{{hours}}" as="h" hint-placeholder-count="24">
+<div style="{{h.style}}"></div>
+</sc-for>
+</div>
+<div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8D909A"><span>00</span><span>06</span><span>12</span><span>18</span><span>23</span></div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid #2A2C33; border-radius: 14px; overflow: hidden">
+<sc-for list="{{cycles}}" as="c" hint-placeholder-count="3">
+<button type="button" onClick="{{c.pick}}" style="{{c.style}}">
+<span style="font-size: 14px; font-weight: 700">{{c.name}}</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px">{{c.ratio}}</span>
+</button>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 14px; background: #191A1F; border: 1px solid #2A2C33">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 92px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A0A2AA">W  BIANCO</span><div style="flex: 1; height: 8px; background: #2A2C33"><div style="{{wBar}}"></div></div><span style="width: 44px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 13px">{{w}}</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 92px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A0A2AA">B  BLU</span><div style="flex: 1; height: 8px; background: #2A2C33"><div style="{{bBar}}"></div></div><span style="width: 44px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 13px">{{b}}</span></div>
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 92px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A0A2AA">P  POMPA</span><div style="flex: 1; height: 8px; background: #2A2C33"><div style="width: 66%; height: 100%; background: #6CC4FF"></div></div><span style="width: 44px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 13px">ON</span></div>
+</div>
+
+<button type="button" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 14px; border: 1px solid #2A2C33; background: #191A1F; color: #ECECEE">
+<span style="font-size: 14px; color: #A0A2AA">Inizio ciclo</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700">07:00</span>
+</button>
+
+<div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.7; color: #8D909A">
+<div>14:00:00  pompa ON (30 min)</div>
+<div>07:00:00  luce ON · W 100% B 100%</div>
+</div>
+
+<nav style="margin-top: auto; margin-inline: -20px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px 8px 30px; border-top: 1px solid #2A2C33; background: #0C0D0F">
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #FF9A4D; font-size: 12px; font-weight: 700">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+Ciclo</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #A0A2AA; font-size: 12px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path></svg>
+Prove</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #A0A2AA; font-size: 12px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>
+Diagnostica</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: 'normale' }; }
+  renderVals() {
+    const list = [
+      { id: 'normale', name: 'Normale', ratio: '14/10', h: 14, w: 100, b: 100 },
+      { id: 'corto', name: 'Corto', ratio: '12/12', h: 12, w: 50, b: 0 },
+      { id: 'lungo', name: 'Lungo', ratio: '16/8', h: 16, w: 100, b: 0 }
+    ];
+    const cur = list.find((c) => c.id === this.state.picked);
+    const endH = 7 + cur.h;
+    const leftMin = endH * 60 - (14 * 60 + 20);
+    const hours = [];
+    for (let i = 0; i < 24; i++) {
+      const lit = i >= 7 && i < endH;
+      const now = i === 14;
+      hours.push({ style: 'height:28px;' + (now ? 'background:#FFFFFF' : lit ? 'background:#FF7A1A' : 'background:#24262C') });
+    }
+    const base = 'display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 4px;border:none;min-height:60px;';
+    return {
+      label: cur.name.toUpperCase(),
+      end: String(endH).padStart(2, '0') + ':00',
+      left: Math.floor(leftMin / 60) + ' h ' + String(leftMin % 60).padStart(2, '0') + ' min',
+      hours,
+      w: cur.w + '%', b: cur.b ? cur.b + '%' : 'OFF',
+      wBar: 'width:' + cur.w + '%;height:100%;background:#FF7A1A',
+      bBar: 'width:' + cur.b + '%;height:100%;background:#7C8CFF',
+      cycles: list.map((c, i) => ({
+        ...c,
+        pick: () => this.setState({ picked: c.id }),
+        style: base + (i ? 'border-left:1px solid #2A2C33;' : '') + (c.id === cur.id
+          ? 'background:#FF7A1A;color:#140800'
+          : 'background:#191A1F;color:#ECECEE')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

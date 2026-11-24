@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>SmartGarden, lusso botanico</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=DM+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1F3A2B}a:hover{color:#0F2118}
+button{font:inherit;cursor:pointer;touch-action:manipulation;transition:background-color 350ms ease,color 350ms ease,border-color 350ms ease,transform 200ms ease}
+button:active{transform:scale(0.98)}
+button:focus-visible,a:focus-visible{outline:2px solid #1F3A2B;outline-offset:3px}
+.lx-sprig{transform-origin:50% 100%;animation:lx-sway 8s ease-in-out infinite}
+@keyframes lx-sway{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+@media (prefers-reduced-motion: reduce){.lx-sprig{animation:none}button:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #F6F1E7; color: #1F3A2B; font-family: 'DM Sans', system-ui, sans-serif; display: flex; flex-direction: column; padding: 30px 26px 0">
+
+<svg aria-hidden="true" width="390" height="844" style="position: absolute; left: 0; top: 0; opacity: 0.35; pointer-events: none"><filter id="lxPaper"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4"></feTurbulence><feColorMatrix values="0 0 0 0 0.45  0 0 0 0 0.40  0 0 0 0 0.30  0 0 0 0.18 0"></feColorMatrix></filter><rect width="390" height="844" filter="url(#lxPaper)"></rect></svg>
+
+<header style="position: relative; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 600; letter-spacing: 2.4px; text-transform: uppercase; color: #5C6B4A">
+<span>SmartGarden</span>
+<span style="display: flex; align-items: center; gap: 7px"><span style="width: 6px; height: 6px; border-radius: 50%; background: #6B7A45"></span>In linea</span>
+</header>
+
+<div style="position: relative; margin-top: 22px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: #5C6B4A">Martedì 24 novembre</span>
+<h1 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 40px; font-weight: 500; line-height: 1.05; letter-spacing: -0.5px">Il giardino<br><em style="font-style: italic; color: #6B7A45">è alla luce.</em></h1>
+</div>
+
+<section aria-label="{{ringLabel}}" style="position: relative; margin-top: 14px; height: 268px; display: flex; align-items: center; justify-content: center">
+<svg width="268" height="268" viewBox="0 0 268 268" aria-hidden="true">
+<circle cx="134" cy="134" r="122" fill="#EFE8D8"></circle>
+<circle cx="134" cy="134" r="122" fill="none" stroke="#D9D2BE" stroke-width="1"></circle>
+<circle cx="134" cy="134" r="122" fill="none" stroke="#1F3A2B" stroke-width="3" stroke-linecap="round" stroke-dasharray="{{dash}}" transform="rotate(15 134 134)" style="transition: stroke-dasharray 700ms cubic-bezier(0.22,1,0.36,1)"></circle>
+<circle cx="64" cy="234" r="6" fill="#F6F1E7" stroke="#1F3A2B" stroke-width="2"></circle>
+<g class="lx-sprig" fill="none" stroke="#3E5A3A" stroke-width="1.4" stroke-linecap="round">
+<path d="M134 214 C134 170 134 120 134 62"></path>
+<path d="M134 176 C112 170 100 152 102 134 C122 138 134 154 134 176Z" fill="#A9B89A" fill-opacity="0.75"></path>
+<path d="M134 150 C156 144 168 126 166 108 C146 112 134 128 134 150Z" fill="#8FA17C" fill-opacity="0.75"></path>
+<path d="M134 122 C116 116 106 100 108 84 C124 88 134 104 134 122Z" fill="#A9B89A" fill-opacity="0.75"></path>
+<path d="M134 96 C150 90 158 76 156 62 C142 66 134 80 134 96Z" fill="#8FA17C" fill-opacity="0.75"></path>
+</g>
+<text x="134" y="26" text-anchor="middle" font-size="10" letter-spacing="1.5" fill="#5C6B4A" font-family="DM Sans, sans-serif">MEZZANOTTE</text>
+<text x="134" y="252" text-anchor="middle" font-size="10" letter-spacing="1.5" fill="#5C6B4A" font-family="DM Sans, sans-serif">MEZZOGIORNO</text>
+</svg>
+<div style="position: absolute; right: 2px; bottom: 6px; text-align: right">
+<div style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 46px; font-weight: 500; line-height: 1">14:20</div>
+<div style="font-size: 12px; color: #5C6B4A">luce fino alle {{end}}</div>
+</div>
+</section>
+
+<section aria-label="Ciclo" style="position: relative; margin-top: 12px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 style="margin: 0; font-size: 11px; font-weight: 600; letter-spacing: 2.4px; text-transform: uppercase; color: #5C6B4A">Ciclo di luce</h2>
+<button type="button" style="min-height: 44px; padding: 0; border: none; background: none; color: #1F3A2B; font-size: 13px; font-weight: 500; text-decoration: underline; text-underline-offset: 4px">dalle 07:00</button>
+</div>
+<div role="radiogroup" aria-label="Scegli il ciclo" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{cycles}}" as="c" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="{{c.style}}">
+<span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; font-weight: 600; line-height: 1">{{c.name}}</span>
+<span style="font-size: 12px; opacity: 0.8">{{c.ratio}} ore</span>
+</button>
+</sc-for>
+</div>
+</section>
+
+<section aria-label="Stato" style="position: relative; margin-top: 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #D9D2BE; border-bottom: 1px solid #D9D2BE">
+<div style="padding: 12px 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #5C6B4A">Bianco e rosso</span><span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600">{{w}}</span></div>
+<div style="padding: 12px 0 12px 14px; border-left: 1px solid #D9D2BE; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #5C6B4A">Blu</span><span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600">{{b}}</span></div>
+<div style="padding: 12px 0 12px 14px; border-left: 1px solid #D9D2BE; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #5C6B4A">Acqua</span><span style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600">10 min</span></div>
+</section>
+
+<section aria-label="Piante" style="position: relative; margin-top: 12px; display: flex; align-items: center; justify-content: space-between">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 2.4px; text-transform: uppercase; color: #5C6B4A">L'orto · 4 di 7</span>
+<div style="display: flex; gap: 6px">
+<sc-for list="{{slots}}" as="s" hint-placeholder-count="7">
+<span title="{{s.name}}" style="{{s.style}}">{{s.ini}}</span>
+</sc-for>
+</div>
+</section>
+
+<nav aria-label="Sezioni" style="position: relative; margin-top: auto; margin-inline: -26px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 6px 12px 26px; border-top: 1px solid #D9D2BE; background: #F6F1E7">
+<a href="#" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 50px; text-decoration: none; color: #1F3A2B; font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M12 21V10"></path><path d="M12 12C12 7 8.5 4 4 4c0 5 3.5 8 8 8z"></path><path d="M12 15c0-4 3-6.5 8-6.5 0 4-3 6.5-8 6.5z"></path></svg>Giardino</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 50px; text-decoration: none; color: #5C6B4A; font-size: 11px; font-weight: 500; letter-spacing: 1.2px; text-transform: uppercase">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path></svg>Prove</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 50px; text-decoration: none; color: #5C6B4A; font-size: 11px; font-weight: 500; letter-spacing: 1.2px; text-transform: uppercase">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Diagnosi</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: 'normale' }; }
+  renderVals() {
+    const C = 766.55;
+    const list = [
+      { id: 'normale', name: 'Normale', ratio: '14 / 10', h: 14, w: '100%', b: '100%' },
+      { id: 'corto', name: 'Corto', ratio: '12 / 12', h: 12, w: '50%', b: 'spento' },
+      { id: 'lungo', name: 'Lungo', ratio: '16 / 8', h: 16, w: '100%', b: 'spento' }
+    ];
+    const cur = list.find((c) => c.id === this.state.picked);
+    const end = String(7 + cur.h).padStart(2, '0') + ':00';
+    const plants = ['Basilico', 'Menta', '', 'Prezzemolo', '', 'Timo', ''];
+    const base = 'display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px 12px;min-height:72px;border-radius:4px 22px 4px 22px;text-align:left;';
+    return {
+      dash: (cur.h / 24 * C).toFixed(1) + ' ' + C,
+      end, w: cur.w, b: cur.b,
+      ringLabel: 'Luce accesa dalle 07:00 alle ' + end + ', ora 14:20',
+      slots: plants.map((n) => ({
+        name: n || 'Libero', ini: n ? n[0] : '',
+        style: 'width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Cormorant Garamond,Georgia,serif;font-size:15px;font-weight:600;' + (n ? 'background:#1F3A2B;color:#F6F1E7' : 'border:1px dashed #8FA17C;box-sizing:border-box')
+      })),
+      cycles: list.map((c) => ({
+        ...c,
+        checked: c.id === cur.id ? 'true' : 'false',
+        pick: () => this.setState({ picked: c.id }),
+        style: base + (c.id === cur.id ? 'background:#1F3A2B;color:#F6F1E7;border:1px solid #1F3A2B' : 'background:transparent;color:#1F3A2B;border:1px solid #BFC7AD')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>SmartGarden, lampada viva</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#BBF7D0}a:hover{color:#DCFCE7}
+button{font:inherit;cursor:pointer;touch-action:manipulation;transition:transform 180ms cubic-bezier(0.16,1,0.3,1),background-color 300ms ease,border-color 300ms ease,box-shadow 300ms ease}
+button:active{transform:scale(0.96)}
+button:focus-visible,a:focus-visible{outline:3px solid #BBF7D0;outline-offset:3px}
+.sg-cone{transition:background 700ms cubic-bezier(0.16,1,0.3,1),opacity 700ms ease;animation:sg-breathe 5s ease-in-out infinite}
+@keyframes sg-breathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.18)}}
+.sg-flow{stroke-dasharray:10 14;animation:sg-flow 1.6s linear infinite}
+@keyframes sg-flow{to{stroke-dashoffset:-48}}
+.sg-leaf{transform-origin:bottom center;animation:sg-sway 6s ease-in-out infinite}
+@keyframes sg-sway{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.5deg)}}
+.sg-sun{animation:sg-glow 2.4s ease-in-out infinite}
+@keyframes sg-glow{0%,100%{box-shadow:0 0 0 4px rgba(253,224,71,0.25),0 0 18px rgba(253,224,71,0.8)}50%{box-shadow:0 0 0 8px rgba(253,224,71,0.12),0 0 28px rgba(253,224,71,0.95)}}
+@media (prefers-reduced-motion: reduce){.sg-cone,.sg-flow,.sg-leaf,.sg-sun{animation:none}button:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; overflow: hidden; background: #060A12; color: #F8FAFC; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; font-variant-numeric: tabular-nums">
+
+<div aria-hidden="true" style="{{aura}}"></div>
+
+<header style="position: absolute; left: 20px; right: 20px; top: 20px; display: flex; align-items: center; justify-content: space-between; z-index: 3">
+<span style="font-size: 15px; font-weight: 800; letter-spacing: -0.2px">SmartGarden</span>
+<span style="display: flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); font-size: 12px; font-weight: 700; color: #DCFCE7">
+<span style="width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 8px #4ADE80"></span>Online</span>
+</header>
+
+<section aria-label="{{heroLabel}}" style="position: absolute; left: 0; right: 0; top: 0; height: 440px">
+<div aria-hidden="true" style="position: absolute; left: 45px; width: 300px; top: 68px; height: 20px; border-radius: 10px; background: linear-gradient(180deg, #3A4558 0%, #1A2130 100%); box-shadow: 0 2px 0 rgba(255,255,255,0.06) inset, 0 10px 30px rgba(0,0,0,0.6); z-index: 2"></div>
+<div aria-hidden="true" style="position: absolute; left: 57px; width: 276px; top: 85px; height: 5px; display: flex; justify-content: space-between; z-index: 2">
+<sc-for list="{{leds}}" as="d" hint-placeholder-count="14">
+<span style="{{d.style}}"></span>
+</sc-for>
+</div>
+<div aria-hidden="true" class="sg-cone" style="{{cone}}"></div>
+
+<div style="position: absolute; left: 0; right: 0; top: 128px; display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2">
+<span style="font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.85)">{{cycleName}} · giorno</span>
+<span style="font-size: 76px; font-weight: 800; letter-spacing: -3.5px; line-height: 1; text-shadow: 0 0 40px rgba(255,255,255,0.35)">14:20</span>
+<span style="font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.9)">luce fino alle {{end}} · ancora {{left}}</span>
+</div>
+
+<svg aria-hidden="true" width="390" height="120" viewBox="0 0 390 120" style="position: absolute; left: 0; top: 300px; z-index: 2">
+<defs>
+<linearGradient id="vLeaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86EFAC"></stop><stop offset="1" stop-color="#15803D"></stop></linearGradient>
+<linearGradient id="vWater" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0EA5E9" stop-opacity="0.55"></stop><stop offset="1" stop-color="#0C4A6E" stop-opacity="0.15"></stop></linearGradient>
+</defs>
+<g class="sg-leaf"><path d="M80 96 C80 76 80 64 80 52" stroke="#16A34A" stroke-width="3" fill="none"></path><path d="M80 66 C64 62 56 48 58 36 C72 38 80 50 80 66Z" fill="url(#vLeaf)"></path><path d="M80 58 C94 52 104 40 102 28 C88 30 80 42 80 58Z" fill="url(#vLeaf)"></path></g>
+<g class="sg-leaf" style="animation-delay: -2s"><path d="M150 96 C150 70 150 56 150 40" stroke="#16A34A" stroke-width="3" fill="none"></path><path d="M150 62 C130 58 122 40 126 26 C142 30 150 44 150 62Z" fill="url(#vLeaf)"></path><path d="M150 50 C168 44 178 28 174 14 C158 18 150 32 150 50Z" fill="url(#vLeaf)"></path><path d="M150 78 C136 76 128 66 128 56 C140 56 150 66 150 78Z" fill="url(#vLeaf)"></path></g>
+<g class="sg-leaf" style="animation-delay: -4s"><path d="M240 96 C240 74 240 62 240 46" stroke="#16A34A" stroke-width="3" fill="none"></path><path d="M240 64 C222 60 214 46 218 32 C232 36 240 48 240 64Z" fill="url(#vLeaf)"></path><path d="M240 56 C256 50 266 36 262 22 C248 26 240 40 240 56Z" fill="url(#vLeaf)"></path></g>
+<g class="sg-leaf" style="animation-delay: -1s"><path d="M310 96 C310 80 310 70 310 60" stroke="#16A34A" stroke-width="3" fill="none"></path><path d="M310 72 C296 70 290 58 292 48 C304 50 310 60 310 72Z" fill="url(#vLeaf)"></path><path d="M310 66 C322 62 330 50 328 40 C316 42 310 54 310 66Z" fill="url(#vLeaf)"></path></g>
+<rect x="24" y="96" width="342" height="22" rx="8" fill="url(#vWater)"></rect>
+<line class="sg-flow" x1="36" y1="107" x2="354" y2="107" stroke="#7DD3FC" stroke-width="3" stroke-linecap="round" style="{{flowStyle}}"></line>
+</svg>
+</section>
+
+<main style="position: absolute; left: 0; right: 0; top: 432px; bottom: 0; display: flex; flex-direction: column; gap: 16px; padding: 22px 20px 0; border-radius: 30px 30px 0 0; background: rgba(15,21,33,0.78); border-top: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(24px); z-index: 4">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; height: 10px; border-radius: 999px; background: rgba(255,255,255,0.08)">
+<div style="{{track}}"></div>
+<span class="sg-sun" style="position: absolute; left: calc(59.7% - 8px); top: -3px; width: 16px; height: 16px; border-radius: 50%; background: #FDE047"></span>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: #94A3B8">
+<span>alba 07:00</span><span>ora 14:20</span><span>tramonto {{end}}</span>
+</div>
+</div>
+
+<div role="radiogroup" aria-label="Scegli il ciclo" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{cycles}}" as="c" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="{{c.style}}">
+<span aria-hidden="true" style="{{c.swatch}}"></span>
+<span style="font-size: 15px; font-weight: 800">{{c.name}}</span>
+<span style="font-size: 12px; font-weight: 600; color: #CBD5E1">{{c.ratio}} ore</span>
+</button>
+</sc-for>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09)">
+<div style="width: 40px; height: 40px; border-radius: 14px; background: rgba(56,189,248,0.18); display: flex; align-items: center; justify-content: center; flex-shrink: 0">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path></svg>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 700">Pompa in funzione</span>
+<span style="font-size: 12px; color: #94A3B8">ancora 10 min, poi pausa di 30</span>
+</div>
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); color: #F8FAFC; font-size: 13px; font-weight: 700">Inizio 07:00</button>
+</div>
+
+<nav aria-label="Sezioni" style="margin-top: auto; margin-inline: -20px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 8px 8px 26px; border-top: 1px solid rgba(255,255,255,0.08)">
+<a href="#" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 48px; text-decoration: none; color: #BBF7D0; font-size: 12px; font-weight: 800">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+Ciclo</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 48px; text-decoration: none; color: #94A3B8; font-size: 12px; font-weight: 600">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path></svg>
+Prove</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 48px; text-decoration: none; color: #94A3B8; font-size: 12px; font-weight: 600">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>
+Diagnostica</a>
+</nav>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: 'normale' }; }
+  renderVals() {
+    const list = [
+      { id: 'normale', name: 'Normale', ratio: '14/10', h: 14, top: 'rgba(244,164,255,0.78)', mid: 'rgba(196,140,255,0.32)', aura: 'rgba(192,132,252,0.30)', led: ['#FFF1E0', '#F87171', '#818CF8'], ledGlow: 1 },
+      { id: 'corto', name: 'Corto', ratio: '12/12', h: 12, top: 'rgba(253,186,116,0.48)', mid: 'rgba(253,186,116,0.14)', aura: 'rgba(251,146,60,0.16)', led: ['#FED7AA', '#FCA5A5', '#1E293B'], ledGlow: 0.5 },
+      { id: 'lungo', name: 'Lungo', ratio: '16/8', h: 16, top: 'rgba(255,190,150,0.85)', mid: 'rgba(255,140,120,0.34)', aura: 'rgba(251,113,133,0.28)', led: ['#FFF1E0', '#F87171', '#1E293B'], ledGlow: 1 }
+    ];
+    const cur = list.find((c) => c.id === this.state.picked);
+    const endH = 7 + cur.h;
+    const leftMin = endH * 60 - (14 * 60 + 20);
+    const leds = [];
+    for (let i = 0; i < 14; i++) {
+      const col = cur.led[i % 3];
+      const on = col !== '#1E293B';
+      leds.push({ style: 'width:6px;height:5px;border-radius:3px;background:' + col + ';transition:background 500ms ease,box-shadow 500ms ease;' + (on ? 'box-shadow:0 0 ' + (8 * cur.ledGlow) + 'px ' + col : '') });
+    }
+    const base = 'display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px;min-height:96px;border-radius:20px;text-align:left;color:#F8FAFC;';
+    return {
+      cycleName: cur.name,
+      heroLabel: 'Ciclo ' + cur.name + ', luce accesa dalle 07:00 alle ' + String(endH).padStart(2, '0') + ':00, pompa in funzione',
+      end: String(endH).padStart(2, '0') + ':00',
+      left: Math.floor(leftMin / 60) + ' h ' + String(leftMin % 60).padStart(2, '0'),
+      leds,
+      aura: 'position:absolute;left:-60px;right:-60px;top:120px;height:360px;border-radius:50%;filter:blur(70px);background:' + cur.aura + ';transition:background 700ms ease',
+      cone: 'position:absolute;left:0;right:0;top:88px;height:330px;clip-path:polygon(13% 0,87% 0,100% 100%,0 100%);background:linear-gradient(180deg,' + cur.top + ' 0%,' + cur.mid + ' 48%,rgba(0,0,0,0) 100%);z-index:1',
+      flowStyle: 'opacity:1',
+      track: 'position:absolute;top:0;bottom:0;left:' + (7 / 24 * 100).toFixed(2) + '%;width:' + (cur.h / 24 * 100).toFixed(2) + '%;border-radius:999px;background:linear-gradient(90deg,#FDBA74,#FDE047 50%,#FDBA74);transition:width 500ms cubic-bezier(0.16,1,0.3,1)',
+      cycles: list.map((c) => ({
+        ...c,
+        checked: c.id === cur.id ? 'true' : 'false',
+        pick: () => this.setState({ picked: c.id }),
+        swatch: 'width:34px;height:20px;clip-path:polygon(22% 0,78% 0,100% 100%,0 100%);background:linear-gradient(180deg,' + c.top + ',' + c.mid + ')',
+        style: base + (c.id === cur.id
+          ? 'background:rgba(255,255,255,0.12);border:1.5px solid ' + c.top + ';box-shadow:0 10px 30px ' + c.aura
+          : 'background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.10)')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

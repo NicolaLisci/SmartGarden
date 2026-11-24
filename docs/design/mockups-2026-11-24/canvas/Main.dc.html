@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>SmartGarden, serra notturna</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9BF0B0}a:hover{color:#C8F8D3}
+button{font:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0B1410; color: #E8F1EB; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; padding: 28px 20px 0; gap: 22px; overflow: hidden">
+
+<div style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 13px; color: #9DB3A6">Martedì 24 novembre</span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.5px">SmartGarden</span>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: #14231C; font-size: 13px; color: #B9CDC1">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: #7BE495; box-shadow: 0 0 10px #7BE495"></span>
+Online
+</div>
+</div>
+
+<div style="position: relative; display: flex; justify-content: center; align-items: center; height: 280px">
+<svg width="280" height="280" viewBox="0 0 260 260" aria-hidden="true">
+<circle cx="130" cy="130" r="110" fill="none" stroke="#18291F" stroke-width="18"></circle>
+<circle cx="130" cy="130" r="110" fill="none" stroke="#7BE495" stroke-width="18" stroke-linecap="round" stroke-dasharray="{{dash}}" transform="rotate(15 130 130)" style="filter: drop-shadow(0 0 8px rgba(123,228,149,0.55))"></circle>
+<circle cx="66.9" cy="220.1" r="9" fill="#0B1410" stroke="#FFFFFF" stroke-width="3"></circle>
+<text x="130" y="14" text-anchor="middle" fill="#6F8A7B" font-size="11" font-family="Inter">00</text>
+<text x="252" y="134" text-anchor="middle" fill="#6F8A7B" font-size="11" font-family="Inter">06</text>
+<text x="130" y="254" text-anchor="middle" fill="#6F8A7B" font-size="11" font-family="Inter">12</text>
+<text x="8" y="134" text-anchor="middle" fill="#6F8A7B" font-size="11" font-family="Inter">18</text>
+</svg>
+<div style="position: absolute; display: flex; flex-direction: column; align-items: center; gap: 4px">
+<span style="font-size: 13px; color: #9DB3A6; text-transform: uppercase; letter-spacing: 1.5px">Luce accesa</span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-size: 56px; font-weight: 600; letter-spacing: -2px">14:20</span>
+<span style="font-size: 14px; color: #B9CDC1">si spegne alle {{end}}</span>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 13px; color: #9DB3A6">Ciclo</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{cycles}}" as="c" hint-placeholder-count="3">
+<button type="button" onClick="{{c.pick}}" style="{{c.style}}">
+<span style="font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 600">{{c.name}}</span>
+<span style="font-size: 13px; opacity: 0.8">{{c.ratio}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<button type="button" style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px 16px; border-radius: 20px; border: 1px solid #1F3529; background: #111E18; color: #E8F1EB; text-align: left">
+<span style="font-size: 13px; color: #9DB3A6">Inizio</span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600">07:00</span>
+</button>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 20px; border: 1px solid #1F3529; background: #111E18">
+<span style="font-size: 13px; color: #9DB3A6">Pompa</span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; color: #9FD8FF">In funzione</span>
+<span style="font-size: 12px; color: #9DB3A6">si ferma tra 10 min</span>
+</div>
+</div>
+
+<div style="display: flex; gap: 10px">
+<div style="flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 16px; background: #111E18; font-size: 14px"><span style="color: #9DB3A6">Bianco + rosso</span><span style="font-weight: 600">{{w}}</span></div>
+<div style="flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 16px; background: #111E18; font-size: 14px"><span style="color: #9DB3A6">Blu</span><span style="font-weight: 600">{{b}}</span></div>
+</div>
+
+<nav style="margin-top: auto; margin-inline: -20px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px 8px 30px; border-top: 1px solid #1A2B22; background: #0D1813">
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #9BF0B0; font-size: 12px; font-weight: 600">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+Ciclo</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #8AA396; font-size: 12px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path></svg>
+Prove</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #8AA396; font-size: 12px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>
+Diagnostica</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: 'normale' }; }
+  renderVals() {
+    const C = 691.15;
+    const list = [
+      { id: 'normale', name: 'Normale', ratio: '14 / 10', h: 14, w: '100%', b: '100%' },
+      { id: 'corto', name: 'Corto', ratio: '12 / 12', h: 12, w: '50%', b: 'spento' },
+      { id: 'lungo', name: 'Lungo', ratio: '16 / 8', h: 16, w: '100%', b: 'spento' }
+    ];
+    const cur = list.find((c) => c.id === this.state.picked);
+    const base = 'display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;border-radius:18px;text-align:left;min-height:72px;';
+    return {
+      dash: (cur.h / 24 * C).toFixed(1) + ' ' + C,
+      end: String(7 + cur.h).padStart(2, '0') + ':00',
+      w: cur.w, b: cur.b,
+      cycles: list.map((c) => ({
+        ...c,
+        pick: () => this.setState({ picked: c.id }),
+        style: base + (c.id === cur.id
+          ? 'background:#7BE495;color:#062010;border:1px solid #7BE495;box-shadow:0 0 24px rgba(123,228,149,0.35)'
+          : 'background:#111E18;color:#E8F1EB;border:1px solid #1F3529')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

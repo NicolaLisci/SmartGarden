@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>SmartGarden, spatial</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#FFFFFF}a:hover{color:#FFFFFF}
+button{font:inherit;cursor:pointer;touch-action:manipulation;transition:background-color 300ms ease,box-shadow 300ms ease,transform 380ms cubic-bezier(0.34,1.56,0.64,1)}
+button:active{transform:scale(0.95)}
+button:focus-visible,a:focus-visible{outline:3px solid #FFFFFF;outline-offset:3px}
+.sp-float{animation:sp-float 7s ease-in-out infinite}
+@keyframes sp-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.sp-dot{animation:sp-ping 2.6s ease-out infinite}
+@keyframes sp-ping{0%{box-shadow:0 0 0 0 rgba(255,255,255,0.55)}100%{box-shadow:0 0 0 14px rgba(255,255,255,0)}}
+.sp-fade{transition:background 800ms ease,opacity 800ms ease,box-shadow 800ms ease}
+@media (prefers-reduced-motion: reduce){.sp-float,.sp-dot{animation:none}.sp-fade{transition:none}button:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; overflow: hidden; color: #FFFFFF; font-family: -apple-system, 'SF Pro Display', Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; background: linear-gradient(180deg, #55595F 0%, #3A3D43 38%, #24262B 62%, #17181C 100%)">
+
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 478px; height: 2px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent)"></div>
+<div aria-hidden="true" class="sp-fade" style="{{room}}"></div>
+
+<header style="position: absolute; left: 16px; right: 16px; top: 18px; display: flex; justify-content: space-between; align-items: center; z-index: 6">
+<div style="padding: 9px 16px; border-radius: 999px; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.28); backdrop-filter: blur(30px) saturate(1.6); font-size: 14px; font-weight: 600">SmartGarden</div>
+<div style="display: flex; align-items: center; gap: 7px; padding: 9px 14px; border-radius: 999px; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.28); backdrop-filter: blur(30px) saturate(1.6); font-size: 13px; font-weight: 500"><span style="width: 7px; height: 7px; border-radius: 50%; background: #5EEA8B"></span>Collegata</div>
+</header>
+
+<section aria-label="{{sceneLabel}}" class="sp-float" style="position: absolute; left: 0; right: 0; top: 78px; height: 420px">
+<div aria-hidden="true" style="position: absolute; left: 185px; top: 60px; width: 12px; height: 268px; border-radius: 6px; background: linear-gradient(90deg, #C9CCD2, #F4F5F7 45%, #9EA2AA)"></div>
+<div aria-hidden="true" style="position: absolute; left: 62px; top: 34px; width: 266px; height: 34px; border-radius: 17px; background: linear-gradient(180deg, #FFFFFF 0%, #E7E9ED 60%, #BFC3CA 100%); box-shadow: 0 18px 30px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.9) inset"></div>
+<div aria-hidden="true" class="sp-fade" style="{{panel}}"></div>
+<div aria-hidden="true" class="sp-fade" style="{{cone}}"></div>
+
+<svg aria-hidden="true" width="390" height="130" viewBox="0 0 390 130" style="position: absolute; left: 0; top: 212px">
+<defs><linearGradient id="spLeaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B9F2C4"></stop><stop offset="1" stop-color="#1E7A3C"></stop></linearGradient></defs>
+<g stroke="#1E7A3C" stroke-width="3" fill="url(#spLeaf)" stroke-linecap="round">
+<path d="M112 120 V84" fill="none"></path><path d="M112 98 C94 94 86 78 88 64 C104 68 112 82 112 98Z" stroke="none"></path><path d="M112 90 C128 84 136 70 134 56 C120 60 112 74 112 90Z" stroke="none"></path>
+<path d="M165 120 V66" fill="none"></path><path d="M165 92 C144 88 135 68 139 52 C156 56 165 74 165 92Z" stroke="none"></path><path d="M165 78 C185 72 195 54 191 38 C174 42 165 60 165 78Z" stroke="none"></path>
+<path d="M226 120 V72" fill="none"></path><path d="M226 96 C207 92 198 74 202 58 C218 62 226 78 226 96Z" stroke="none"></path><path d="M226 84 C244 78 254 62 250 46 C234 50 226 66 226 84Z" stroke="none"></path>
+<path d="M280 120 V90" fill="none"></path><path d="M280 102 C265 100 258 88 260 76 C273 78 280 90 280 102Z" stroke="none"></path><path d="M280 96 C293 92 301 80 299 68 C286 70 280 82 280 96Z" stroke="none"></path>
+</g>
+</svg>
+<div aria-hidden="true" style="position: absolute; left: 52px; top: 326px; width: 286px; height: 74px; border-radius: 26px 26px 34px 34px; background: linear-gradient(180deg, #FFFFFF 0%, #ECEEF1 45%, #C4C8CF 100%); box-shadow: 0 40px 50px rgba(0,0,0,0.45), 0 2px 0 rgba(255,255,255,0.95) inset"></div>
+<div aria-hidden="true" style="position: absolute; left: 76px; top: 344px; width: 238px; height: 16px; border-radius: 8px; background: linear-gradient(180deg, rgba(56,189,248,0.75), rgba(14,116,144,0.55)); box-shadow: 0 1px 3px rgba(0,0,0,0.3) inset"></div>
+<div aria-hidden="true" style="position: absolute; left: 90px; top: 404px; width: 210px; height: 16px; border-radius: 50%; background: rgba(0,0,0,0.45); filter: blur(10px)"></div>
+
+<div style="position: absolute; left: 242px; top: 84px; display: flex; align-items: center; gap: 8px">
+<span class="sp-dot" aria-hidden="true" style="width: 12px; height: 12px; border-radius: 50%; background: #FFFFFF; border: 3px solid rgba(255,255,255,0.4); background-clip: padding-box"></span>
+<span style="padding: 7px 12px; border-radius: 14px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.30); backdrop-filter: blur(24px) saturate(1.6); font-size: 12px; font-weight: 600; line-height: 1.3">Luce {{w}}<br><span style="font-weight: 400; opacity: 0.85">blu {{b}}</span></span>
+</div>
+<div style="position: absolute; left: 22px; top: 336px; display: flex; align-items: center; gap: 8px; flex-direction: row-reverse">
+<span class="sp-dot" aria-hidden="true" style="width: 12px; height: 12px; border-radius: 50%; background: #7DD3FC; border: 3px solid rgba(125,211,252,0.4); background-clip: padding-box; animation-delay: -1.3s"></span>
+<span style="padding: 7px 12px; border-radius: 14px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.30); backdrop-filter: blur(24px) saturate(1.6); font-size: 12px; font-weight: 600; line-height: 1.3; color: #1B1D21; background-color: rgba(255,255,255,0.72)">Pompa attiva<br><span style="font-weight: 400">ancora 10 min</span></span>
+</div>
+</section>
+
+<main style="position: absolute; left: 14px; right: 14px; bottom: 96px; display: flex; flex-direction: column; gap: 14px; padding: 18px; border-radius: 34px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.30); backdrop-filter: blur(40px) saturate(1.8); box-shadow: 0 30px 60px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.35) inset; z-index: 5">
+<div style="display: flex; align-items: flex-end; justify-content: space-between">
+<div style="display: flex; flex-direction: column"><span style="font-size: 13px; font-weight: 500; opacity: 0.85">{{cycleName}} · giorno</span><span style="font-size: 48px; font-weight: 700; letter-spacing: -2px; line-height: 1.05">14:20</span></div>
+<div style="text-align: right; font-size: 13px; line-height: 1.5"><div style="font-weight: 600">fino alle {{end}}</div><div style="opacity: 0.8">ancora {{left}}</div></div>
+</div>
+<div style="position: relative; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.22)">
+<div class="sp-fade" style="{{track}}"></div>
+<span style="position: absolute; left: calc(59.7% - 7px); top: -4px; width: 14px; height: 14px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.4)"></span>
+</div>
+<div role="radiogroup" aria-label="Scegli il ciclo" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 20px; background: rgba(0,0,0,0.22)">
+<sc-for list="{{cycles}}" as="c" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="{{c.style}}">
+<span style="font-size: 14px; font-weight: 600">{{c.name}}</span>
+<span style="font-size: 11px; opacity: 0.75">{{c.ratio}}</span>
+</button>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
+<button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.30); background: rgba(255,255,255,0.16); color: #FFFFFF; font-size: 14px; font-weight: 600">Inizio 07:00</button>
+<div aria-label="Piante: 4 fori occupati su 7" style="display: flex; gap: 5px">
+<sc-for list="{{slots}}" as="s" hint-placeholder-count="7">
+<span title="{{s.name}}" style="{{s.style}}">{{s.ini}}</span>
+</sc-for>
+</div>
+</div>
+</main>
+
+<nav aria-label="Sezioni" style="position: absolute; left: 50px; right: 50px; bottom: 22px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 5px; border-radius: 32px; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.30); backdrop-filter: blur(40px) saturate(1.8); z-index: 5">
+<a href="#" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; border-radius: 27px; background: rgba(255,255,255,0.26); text-decoration: none; color: #FFFFFF; font-size: 11px; font-weight: 600">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>Ciclo</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; text-decoration: none; color: #FFFFFF; font-size: 11px; font-weight: 500">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path></svg>Prove</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 52px; text-decoration: none; color: #FFFFFF; font-size: 11px; font-weight: 500">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Diagnosi</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: 'normale' }; }
+  renderVals() {
+    const list = [
+      { id: 'normale', name: 'Normale', ratio: '14 / 10', h: 14, w: '100%', b: '100%', glow: '236,170,255', led: '#F3C4FF' },
+      { id: 'corto', name: 'Corto', ratio: '12 / 12', h: 12, w: '50%', b: 'spento', glow: '253,200,140', led: '#FBD9A8' },
+      { id: 'lungo', name: 'Lungo', ratio: '16 / 8', h: 16, w: '100%', b: 'spento', glow: '255,170,140', led: '#FFC2A8' }
+    ];
+    const cur = list.find((c) => c.id === this.state.picked);
+    const k = cur.id === 'corto' ? 0.55 : 1;
+    const endH = 7 + cur.h;
+    const leftMin = endH * 60 - 860;
+    const pad = (n) => String(n).padStart(2, '0');
+    const plants = ['Basilico', 'Menta', '', 'Prezzemolo', '', 'Timo', ''];
+    const base = 'display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 4px;min-height:48px;border-radius:16px;border:none;';
+    return {
+      cycleName: cur.name,
+      end: pad(endH) + ':00',
+      left: Math.floor(leftMin / 60) + ' h ' + pad(leftMin % 60),
+      w: cur.w, b: cur.b,
+      sceneLabel: 'Serra con luce accesa, ciclo ' + cur.name + ', pompa attiva',
+      room: 'position:absolute;left:-40px;right:-40px;top:120px;height:420px;border-radius:50%;filter:blur(70px);background:rgba(' + cur.glow + ',' + (0.34 * k).toFixed(2) + ')',
+      panel: 'position:absolute;left:74px;top:62px;width:242px;height:7px;border-radius:4px;background:' + cur.led + ';box-shadow:0 0 ' + Math.round(26 * k) + 'px rgba(' + cur.glow + ',0.95)',
+      cone: 'position:absolute;left:30px;top:68px;width:330px;height:270px;clip-path:polygon(14% 0,86% 0,100% 100%,0 100%);background:linear-gradient(180deg,rgba(' + cur.glow + ',' + (0.62 * k).toFixed(2) + ') 0%,rgba(' + cur.glow + ',' + (0.16 * k).toFixed(2) + ') 60%,rgba(255,255,255,0) 100%)',
+      track: 'position:absolute;top:0;bottom:0;border-radius:3px;background:#FFFFFF;left:' + (7 / 24 * 100).toFixed(2) + '%;width:' + (cur.h / 24 * 100).toFixed(2) + '%;transition:width 500ms cubic-bezier(0.34,1.56,0.64,1)',
+      slots: plants.map((n) => ({
+        name: n || 'Libero', ini: n ? n[0] : '',
+        style: 'width:28px;height:28px;border-radius:50%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;' + (n ? 'background:rgba(255,255,255,0.9);color:#1E7A3C' : 'border:1.5px dashed rgba(255,255,255,0.5)')
+      })),
+      cycles: list.map((c) => ({
+        ...c,
+        checked: c.id === cur.id ? 'true' : 'false',
+        pick: () => this.setState({ picked: c.id }),
+        style: base + (c.id === cur.id ? 'background:rgba(255,255,255,0.92);color:#1B1D21;box-shadow:0 6px 16px rgba(0,0,0,0.25)' : 'background:transparent;color:#FFFFFF')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

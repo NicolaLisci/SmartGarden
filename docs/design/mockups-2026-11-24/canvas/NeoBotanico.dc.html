@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>SmartGarden, neo-botanico</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1B1B1B}a:hover{color:#000000}
+button{font:inherit;cursor:pointer;touch-action:manipulation;transition:background-color 260ms ease,color 260ms ease,transform 320ms cubic-bezier(0.34,1.56,0.64,1)}
+button:active{transform:scale(0.94) rotate(-1deg)}
+button:focus-visible,a:focus-visible{outline:3px solid #1B1B1B;outline-offset:3px}
+.nb-bar{transition:height 450ms cubic-bezier(0.34,1.56,0.64,1),background-color 300ms ease}
+.nb-spin{transform-origin:50% 50%;animation:nb-spin 18s linear infinite}
+@keyframes nb-spin{to{transform:rotate(360deg)}}
+.nb-bob{animation:nb-bob 3.2s ease-in-out infinite}
+@keyframes nb-bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-5px) rotate(4deg)}}
+@media (prefers-reduced-motion: reduce){.nb-spin,.nb-bob{animation:none}.nb-bar{transition:none}button:active{transform:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #F4EFDF; color: #1B1B1B; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-variant-numeric: tabular-nums; display: flex; flex-direction: column; gap: 10px; padding: 20px 14px 0">
+
+<header style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px">
+<span style="font-size: 20px; font-weight: 800; letter-spacing: -0.8px">smart<span style="color: #173F2A">garden</span></span>
+<span style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: #1B1B1B; color: #D4F23A; font-size: 12px; font-weight: 700"><span style="width: 7px; height: 7px; border-radius: 50%; background: #D4F23A"></span>online</span>
+</header>
+
+<section aria-label="{{heroLabel}}" style="position: relative; height: 252px; border-radius: 36px; background: #D4F23A; padding: 18px 20px; box-sizing: border-box; overflow: hidden">
+<svg class="nb-spin" aria-hidden="true" width="150" height="150" viewBox="0 0 150 150" style="position: absolute; right: -34px; top: -34px">
+<g fill="#173F2A"><ellipse cx="75" cy="22" rx="11" ry="22"></ellipse><ellipse cx="75" cy="128" rx="11" ry="22"></ellipse><ellipse cx="22" cy="75" rx="22" ry="11"></ellipse><ellipse cx="128" cy="75" rx="22" ry="11"></ellipse><ellipse cx="37.5" cy="37.5" rx="11" ry="22" transform="rotate(-45 37.5 37.5)"></ellipse><ellipse cx="112.5" cy="112.5" rx="11" ry="22" transform="rotate(-45 112.5 112.5)"></ellipse><ellipse cx="112.5" cy="37.5" rx="11" ry="22" transform="rotate(45 112.5 37.5)"></ellipse><ellipse cx="37.5" cy="112.5" rx="11" ry="22" transform="rotate(45 37.5 112.5)"></ellipse></g>
+<circle cx="75" cy="75" r="26" fill="#F4EFDF"></circle>
+</svg>
+<span style="position: relative; display: inline-block; padding: 5px 12px; border-radius: 999px; background: #173F2A; color: #F4EFDF; font-size: 12px; font-weight: 700">è giorno · ciclo {{lower}}</span>
+<div style="position: relative; margin-top: 2px; font-size: 104px; font-weight: 800; letter-spacing: -6px; line-height: 0.95">14:20</div>
+<div style="position: relative; font-size: 15px; font-weight: 700; color: #173F2A">luce fino alle {{end}}, ancora {{left}}</div>
+<div aria-hidden="true" style="position: absolute; left: 20px; right: 20px; bottom: 16px; height: 46px; display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 3px; align-items: end">
+<sc-for list="{{hours}}" as="h" hint-placeholder-count="24">
+<span class="nb-bar" style="{{h.style}}"></span>
+</sc-for>
+</div>
+</section>
+
+<div role="radiogroup" aria-label="Scegli il ciclo" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{cycles}}" as="c" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="{{c.style}}">
+<span style="font-size: 30px; font-weight: 800; letter-spacing: -1.5px; line-height: 1">{{c.h}}<span style="font-size: 14px; letter-spacing: 0">h</span></span>
+<span style="font-size: 14px; font-weight: 700">{{c.name}}</span>
+</button>
+</sc-for>
+</div>
+
+<div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 8px">
+<section aria-label="Pompa" style="position: relative; border-radius: 30px; background: #173F2A; color: #F4EFDF; padding: 16px 18px; min-height: 132px; box-sizing: border-box; overflow: hidden">
+<svg class="nb-bob" aria-hidden="true" width="60" height="76" viewBox="0 0 60 76" style="position: absolute; right: 12px; bottom: 10px"><path d="M30 4 C30 4 56 34 56 50 A26 26 0 0 1 4 50 C4 34 30 4 30 4Z" fill="#D4F23A"></path><circle cx="22" cy="48" r="4" fill="#173F2A"></circle><circle cx="38" cy="48" r="4" fill="#173F2A"></circle><path d="M22 58 Q30 65 38 58" stroke="#173F2A" stroke-width="3" fill="none" stroke-linecap="round"></path></svg>
+<span style="font-size: 13px; font-weight: 700; color: #D4F23A">pompa attiva</span>
+<div style="font-size: 58px; font-weight: 800; letter-spacing: -3px; line-height: 1">10<span style="font-size: 20px; letter-spacing: 0">min</span></div>
+<span style="font-size: 12px; font-weight: 500; opacity: 0.85">poi 30 di pausa</span>
+</section>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<button type="button" style="flex: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 10px 16px; border-radius: 26px; border: 2px solid #1B1B1B; background: #F4EFDF; color: #1B1B1B; text-align: left">
+<span style="font-size: 12px; font-weight: 700">inizio luce</span>
+<span style="font-size: 30px; font-weight: 800; letter-spacing: -1.5px; line-height: 1">07:00</span>
+</button>
+<div style="display: flex; gap: 8px">
+<div style="flex: 1; padding: 9px 10px; border-radius: 20px; background: #1B1B1B; color: #F4EFDF"><div style="font-size: 10px; font-weight: 700; opacity: 0.8">bianco+rosso</div><div style="font-size: 17px; font-weight: 800">{{w}}</div></div>
+<div style="flex: 1; padding: 9px 10px; border-radius: 20px; background: #1B1B1B; color: #F4EFDF"><div style="font-size: 10px; font-weight: 700; opacity: 0.8">blu</div><div style="font-size: 17px; font-weight: 800">{{b}}</div></div>
+</div>
+</div>
+</div>
+
+<section aria-label="Piante: 4 fori occupati su 7" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 26px; background: #FFFFFF; border: 2px solid #1B1B1B">
+<span style="font-size: 14px; font-weight: 800; line-height: 1.1">cosa<br>cresce</span>
+<div style="display: flex; gap: 5px">
+<sc-for list="{{slots}}" as="s" hint-placeholder-count="7">
+<span title="{{s.name}}" style="{{s.style}}">{{s.ini}}</span>
+</sc-for>
+</div>
+</section>
+
+<nav aria-label="Sezioni" style="margin-top: auto; margin-bottom: 20px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 5px; border-radius: 999px; background: #1B1B1B">
+<a href="#" aria-current="page" style="display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; border-radius: 999px; background: #D4F23A; text-decoration: none; color: #1B1B1B; font-size: 14px; font-weight: 800">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2"></path></svg>ciclo</a>
+<a href="#" style="display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; border-radius: 999px; text-decoration: none; color: #F4EFDF; font-size: 14px; font-weight: 700">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path></svg>prove</a>
+<a href="#" style="display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; border-radius: 999px; text-decoration: none; color: #F4EFDF; font-size: 14px; font-weight: 700">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>diagnosi</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: 'normale' }; }
+  renderVals() {
+    const list = [
+      { id: 'normale', name: 'Normale', h: 14, w: '100%', b: '100%' },
+      { id: 'corto', name: 'Corto', h: 12, w: '50%', b: 'off' },
+      { id: 'lungo', name: 'Lungo', h: 16, w: '100%', b: 'off' }
+    ];
+    const cur = list.find((c) => c.id === this.state.picked);
+    const endH = 7 + cur.h;
+    const leftMin = endH * 60 - 860;
+    const pad = (n) => String(n).padStart(2, '0');
+    const hours = [];
+    for (let i = 0; i < 24; i++) {
+      const lit = i >= 7 && i < endH;
+      hours.push({ style: 'border-radius:999px;height:' + (i === 14 ? 46 : lit ? 30 : 10) + 'px;background:' + (i === 14 ? '#1B1B1B' : lit ? '#173F2A' : 'rgba(23,63,42,0.28)') });
+    }
+    const plants = ['Basilico', 'Menta', '', 'Prezzemolo', '', 'Timo', ''];
+    const base = 'display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px;min-height:78px;border-radius:26px;text-align:left;border:2px solid #1B1B1B;';
+    return {
+      lower: cur.name.toLowerCase(),
+      end: pad(endH) + ':00',
+      left: Math.floor(leftMin / 60) + ' h ' + pad(leftMin % 60),
+      heroLabel: 'Luce accesa dalle 07:00 alle ' + pad(endH) + ':00, ora 14:20',
+      hours, w: cur.w, b: cur.b,
+      slots: plants.map((n) => ({
+        name: n || 'Libero', ini: n ? n[0] : '+',
+        style: 'width:30px;height:30px;border-radius:50%;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;' + (n ? 'background:#173F2A;color:#D4F23A' : 'border:2px dashed #1B1B1B;color:#1B1B1B')
+      })),
+      cycles: list.map((c) => ({
+        ...c,
+        checked: c.id === cur.id ? 'true' : 'false',
+        pick: () => this.setState({ picked: c.id }),
+        style: base + (c.id === cur.id ? 'background:#1B1B1B;color:#D4F23A' : 'background:#FFFFFF;color:#1B1B1B')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

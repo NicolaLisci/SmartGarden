@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>SmartGarden, botanico chiaro</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1E6B40}a:hover{color:#134A2C}
+button{font:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F3F6EF; color: #14281B; font-family: Manrope, system-ui, sans-serif; display: flex; flex-direction: column; padding: 28px 20px 0; gap: 18px; overflow: hidden">
+
+<div style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="width: 40px; height: 40px; border-radius: 14px; background: #1E6B40; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22V11"></path><path d="M12 11C12 6 8 3 3 3c0 5 4 8 9 8z"></path><path d="M12 14c0-4 3-7 9-7 0 4-3 7-9 7z"></path></svg>
+</div>
+<span style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px">SmartGarden</span>
+</div>
+<span style="font-size: 13px; font-weight: 600; color: #1E6B40; padding: 7px 12px; border-radius: 999px; background: #DCEBDD">Online</span>
+</div>
+
+<div style="background: #FFFFFF; border-radius: 28px; padding: 22px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 1px 2px rgba(20,40,27,0.06), 0 12px 32px rgba(20,40,27,0.06)">
+<div style="display: flex; justify-content: space-between; align-items: flex-start">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; font-weight: 600; color: #557062">Adesso</span>
+<span style="font-size: 30px; font-weight: 800; letter-spacing: -1px">Giorno</span>
+<span style="font-size: 14px; color: #3E5848">luce fino alle {{end}}</span>
+</div>
+<div style="width: 56px; height: 56px; border-radius: 50%; background: #FFE9B8; display: flex; align-items: center; justify-content: center">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9A5B00" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="position: relative; height: 14px; border-radius: 999px; background: #E6EDE4; overflow: hidden">
+<div style="{{barStyle}}"></div>
+<div style="position: absolute; left: 59.7%; top: -3px; width: 4px; height: 20px; border-radius: 2px; background: #14281B"></div>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #557062"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 15px; font-weight: 700">Scegli il ciclo</span>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{cycles}}" as="c" hint-placeholder-count="3">
+<button type="button" onClick="{{c.pick}}" style="{{c.style}}">
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px">
+<span style="font-size: 16px; font-weight: 700">{{c.name}}</span>
+<span style="font-size: 13px; opacity: 0.85">{{c.desc}}</span>
+</div>
+<span style="font-size: 18px; font-weight: 800">{{c.ratio}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<button type="button" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; border-radius: 20px; border: none; background: #FFFFFF; color: #14281B; text-align: left">
+<span style="font-size: 13px; font-weight: 600; color: #557062">Inizio</span>
+<span style="font-size: 24px; font-weight: 800">07:00</span>
+</button>
+<div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 20px; background: #DDEBF7">
+<span style="font-size: 13px; font-weight: 600; color: #2D5675">Pompa</span>
+<span style="font-size: 18px; font-weight: 800; color: #173A55">In funzione</span>
+<span style="font-size: 12px; color: #2D5675">si ferma tra 10 min</span>
+</div>
+</div>
+
+<nav style="margin-top: auto; margin-inline: -20px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px 8px 30px; background: #FFFFFF; border-top: 1px solid #E2E8DF">
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #1E6B40; font-size: 12px; font-weight: 700">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 22V11"></path><path d="M12 11C12 6 8 3 3 3c0 5 4 8 9 8z"></path></svg>
+Ciclo</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #557062; font-size: 12px; font-weight: 600">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path></svg>
+Prove</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #557062; font-size: 12px; font-weight: 600">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>
+Diagnostica</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: 'normale' }; }
+  renderVals() {
+    const list = [
+      { id: 'normale', name: 'Normale', desc: 'tutti i LED al massimo', ratio: '14/10', h: 14 },
+      { id: 'corto', name: 'Corto', desc: 'bianco e rosso a metà', ratio: '12/12', h: 12 },
+      { id: 'lungo', name: 'Lungo', desc: 'solo bianco e rosso', ratio: '16/8', h: 16 }
+    ];
+    const cur = list.find((c) => c.id === this.state.picked);
+    const base = 'display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-radius:20px;text-align:left;width:100%;box-sizing:border-box;min-height:64px;';
+    return {
+      end: String(7 + cur.h).padStart(2, '0') + ':00',
+      barStyle: 'position:absolute;top:0;bottom:0;left:' + (7 / 24 * 100).toFixed(2) + '%;width:' + (cur.h / 24 * 100).toFixed(2) + '%;border-radius:999px;background:#F2B53A',
+      cycles: list.map((c) => ({
+        ...c,
+        pick: () => this.setState({ picked: c.id }),
+        style: base + (c.id === cur.id
+          ? 'background:#1E6B40;color:#FFFFFF;border:2px solid #1E6B40'
+          : 'background:#FFFFFF;color:#14281B;border:2px solid #E2E8DF')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

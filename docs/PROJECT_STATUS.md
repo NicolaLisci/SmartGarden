@@ -61,10 +61,20 @@ firmware, then the final firmware (D-002). The table and blockers below date fro
     home Wi-Fi (IP 192.168.1.17 from DHCP, hostname `smartgarden`) and one upload over the
     network succeeded with the board on USB power. Not yet checked: Wi-Fi reception with
     the board inside the lamp head on the 24 V supply.
-13. Next: design of the control app, agreed so far: a web page served by the lamp itself
-    (Arduino firmware, D-002 option A) to set the cycle start time, keep the original
-    14/10, 12/12 and 16/8 cycles and offer a debug/test page. Design to be approved by
-    Nicola before spec 003 is updated and any code is written.
+13. App design, 2026-11-24. Agreed requirements: a web page served by the lamp
+    (Arduino firmware, D-002 option A); the three cycles 14/10, 12/12, 16/8, one at a
+    time, with a chosen start hour; intensities from Schmidt's scenes on the two channels
+    (Normale W 100 % B 100 %, Corto W 50 % B off, Lungo W 100 % B off), adjustable; pump
+    30 min on / 30 min off day and night, adjustable; a map of the seven pods with plant
+    name and optional sowing date; test and diagnostics (manual outputs with auto-off,
+    live state, board health, event log, accelerated day).
+14. UI: ten mockups and a 3D twin were made and all discarded by Nicola (record in
+    `docs/design/mockups-2026-11-24/`). Direction he asked for: the garden as the hero in
+    a photorealistic, edge-to-edge composition that changes with day and night, controls
+    placed on the object, no dashboard cards and no dominant clock. Blocked on the image
+    source: two real photos of the unit (lamp on / lamp off, same framing) are the
+    proposed route; no image generator is installed on the Mac.
+15. Spec 003 not yet updated with items 13–14; no app code written.
 
 ## History
 

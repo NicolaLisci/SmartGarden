@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>SmartGarden, BioTech</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Sora:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#B6FF3C}a:hover{color:#D7FF8A}
+button{font:inherit;cursor:pointer;touch-action:manipulation;transition:background-color 220ms ease,border-color 220ms ease,box-shadow 220ms ease,transform 160ms ease}
+button:active{transform:scale(0.97)}
+button:focus-visible,a:focus-visible{outline:2px solid #B6FF3C;outline-offset:3px}
+.bt-orbit{transform-origin:150px 150px;animation:bt-spin 60s linear infinite}
+@keyframes bt-spin{to{transform:rotate(360deg)}}
+.bt-beam{animation:bt-beam 4s ease-in-out infinite}
+@keyframes bt-beam{0%,100%{opacity:0.55}50%{opacity:0.9}}
+.bt-blink{animation:bt-blink 1.6s ease-in-out infinite}
+@keyframes bt-blink{0%,100%{opacity:1}50%{opacity:0.35}}
+@media (prefers-reduced-motion: reduce){.bt-orbit,.bt-beam,.bt-blink{animation:none}button:active{transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #040706; color: #E6FFF4; font-family: Sora, system-ui, sans-serif; display: flex; flex-direction: column; padding: 22px 18px 0">
+
+<div aria-hidden="true" style="position: absolute; inset: 0; background-image: linear-gradient(rgba(16,245,160,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(16,245,160,0.06) 1px, transparent 1px); background-size: 30px 30px; mask-image: radial-gradient(circle at 50% 34%, #000 0%, transparent 72%); -webkit-mask-image: radial-gradient(circle at 50% 34%, #000 0%, transparent 72%)"></div>
+<div aria-hidden="true" style="position: absolute; left: 45px; top: 120px; width: 300px; height: 300px; border-radius: 50%; background: #10F5A0; opacity: 0.10; filter: blur(60px)"></div>
+
+<header style="position: relative; display: flex; justify-content: space-between; align-items: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.2px; color: #7FBFA5">
+<span>SMARTGARDEN // ECO-01</span>
+<span style="display: flex; align-items: center; gap: 6px; color: #10F5A0"><span class="bt-blink" style="width: 6px; height: 6px; border-radius: 50%; background: #10F5A0; box-shadow: 0 0 8px #10F5A0"></span>SISTEMA ATTIVO</span>
+</header>
+
+<section aria-label="{{orbLabel}}" style="position: relative; margin-top: 6px; height: 312px; display: flex; align-items: center; justify-content: center">
+<svg width="312" height="312" viewBox="0 0 300 300" aria-hidden="true">
+<g class="bt-orbit"><circle cx="150" cy="150" r="144" fill="none" stroke="rgba(16,245,160,0.25)" stroke-width="1" stroke-dasharray="2 10"></circle></g>
+<circle cx="150" cy="150" r="126" fill="none" stroke="rgba(230,255,244,0.10)" stroke-width="10"></circle>
+<circle cx="150" cy="150" r="126" fill="none" stroke="#10F5A0" stroke-width="10" stroke-dasharray="{{dash}}" transform="rotate(15 150 150)" style="filter: drop-shadow(0 0 8px rgba(16,245,160,0.8)); transition: stroke-dasharray 500ms cubic-bezier(0.16,1,0.3,1)"></circle>
+<circle cx="150" cy="150" r="106" fill="none" stroke="rgba(230,255,244,0.08)" stroke-width="4"></circle>
+<circle cx="150" cy="150" r="106" fill="none" stroke="#38BDF8" stroke-width="4" stroke-dasharray="222 666" transform="rotate(30 150 150)"></circle>
+<circle cx="77" cy="252.8" r="7" fill="#040706" stroke="#B6FF3C" stroke-width="3"></circle>
+<path class="bt-beam" d="M112 96 L188 96 L214 206 L86 206 Z" fill="{{beam}}" style="transition: fill 500ms ease"></path>
+<rect x="104" y="88" width="92" height="9" rx="4.5" fill="#1B2A24" stroke="#10F5A0" stroke-width="1"></rect>
+<g stroke="#10F5A0" stroke-width="1.6" fill="rgba(16,245,160,0.25)" stroke-linecap="round">
+<path d="M118 206 V186 M118 194 C108 192 104 184 105 177 C113 178 118 185 118 194Z M118 190 C127 187 131 180 130 173 C122 174 118 181 118 190Z"></path>
+<path d="M150 206 V174 M150 190 C138 187 133 177 135 168 C145 170 150 179 150 190Z M150 182 C161 178 166 169 164 160 C154 162 150 171 150 182Z"></path>
+<path d="M182 206 V188 M182 196 C173 194 169 187 170 180 C178 181 182 188 182 196Z M182 192 C190 189 194 183 193 176 C186 177 182 184 182 192Z"></path>
+</g>
+<rect x="92" y="206" width="116" height="12" rx="3" fill="rgba(56,189,248,0.25)" stroke="#38BDF8" stroke-width="1"></rect>
+<text x="150" y="20" text-anchor="middle" font-size="9" fill="#7FBFA5" font-family="IBM Plex Mono, monospace">00</text>
+<text x="284" y="153" text-anchor="middle" font-size="9" fill="#7FBFA5" font-family="IBM Plex Mono, monospace">06</text>
+<text x="150" y="288" text-anchor="middle" font-size="9" fill="#7FBFA5" font-family="IBM Plex Mono, monospace">12</text>
+<text x="16" y="153" text-anchor="middle" font-size="9" fill="#7FBFA5" font-family="IBM Plex Mono, monospace">18</text>
+</svg>
+</section>
+
+<div style="position: relative; display: flex; align-items: flex-end; justify-content: space-between; margin-top: -4px">
+<div style="display: flex; flex-direction: column">
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1.2px; color: #B6FF3C">FOTOPERIODO · {{label}}</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 52px; font-weight: 600; letter-spacing: -2px; line-height: 1.05">14:20</span>
+</div>
+<div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.6; color: #A8D9C4">
+<div>OFF {{end}}</div>
+<div>T− {{left}}</div>
+</div>
+</div>
+
+<div role="radiogroup" aria-label="Scegli il ciclo" style="position: relative; margin-top: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{cycles}}" as="c" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="{{c.style}}">
+<span style="font-size: 14px; font-weight: 700">{{c.name}}</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">{{c.ratio}}</span>
+</button>
+</sc-for>
+</div>
+
+<section aria-label="Canali" style="position: relative; margin-top: 12px; display: flex; flex-direction: column; gap: 9px; padding: 14px; border-radius: 16px; background: rgba(16,245,160,0.05); border: 1px solid rgba(16,245,160,0.22); backdrop-filter: blur(12px)">
+<div style="display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px"><span style="width: 96px; color: #A8D9C4">W BIANCO/ROSSO</span><div style="flex: 1; height: 6px; background: rgba(230,255,244,0.10)"><div style="{{wBar}}"></div></div><span style="width: 44px; text-align: right">{{w}}</span></div>
+<div style="display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px"><span style="width: 96px; color: #A8D9C4">B BLU</span><div style="flex: 1; height: 6px; background: rgba(230,255,244,0.10)"><div style="{{bBar}}"></div></div><span style="width: 44px; text-align: right">{{b}}</span></div>
+<div style="display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px"><span style="width: 96px; color: #A8D9C4">P POMPA</span><div style="flex: 1; height: 6px; background: rgba(230,255,244,0.10)"><div style="width: 66%; height: 100%; background: #38BDF8"></div></div><span style="width: 44px; text-align: right">10:00</span></div>
+</section>
+
+<div style="position: relative; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px">
+<button type="button" style="min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(182,255,60,0.5); background: rgba(182,255,60,0.08); color: #E6FFF4; display: flex; align-items: center; gap: 10px"><span style="font-size: 12px; color: #A8D9C4">Avvio</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 600; color: #B6FF3C">07:00</span></button>
+<div aria-label="Baie: 4 occupate su 7" style="display: flex; gap: 5px">
+<sc-for list="{{bays}}" as="y" hint-placeholder-count="7">
+<span title="{{y.name}}" style="{{y.style}}">{{y.code}}</span>
+</sc-for>
+</div>
+</div>
+
+<nav aria-label="Sezioni" style="position: relative; margin-top: auto; margin-inline: -18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 6px 8px 24px; border-top: 1px solid rgba(16,245,160,0.22); background: rgba(4,7,6,0.85)">
+<a href="#" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 50px; text-decoration: none; color: #B6FF3C; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 1px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="3"></circle></svg>CICLO</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 50px; text-decoration: none; color: #7FBFA5; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path></svg>PROVE</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 50px; text-decoration: none; color: #7FBFA5; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 1px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>DIAGNOSI</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: 'normale' }; }
+  renderVals() {
+    const C = 791.68;
+    const list = [
+      { id: 'normale', name: 'Normale', ratio: '14/10', h: 14, w: 100, b: 100, beam: 'rgba(196,140,255,0.38)' },
+      { id: 'corto', name: 'Corto', ratio: '12/12', h: 12, w: 50, b: 0, beam: 'rgba(253,186,116,0.22)' },
+      { id: 'lungo', name: 'Lungo', ratio: '16/8', h: 16, w: 100, b: 0, beam: 'rgba(255,150,130,0.40)' }
+    ];
+    const cur = list.find((c) => c.id === this.state.picked);
+    const endH = 7 + cur.h;
+    const leftMin = endH * 60 - 860;
+    const pad = (n) => String(n).padStart(2, '0');
+    const plants = ['Basilico', 'Menta', '', 'Prezzemolo', '', 'Timo', ''];
+    const base = 'display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:11px 12px;min-height:58px;border-radius:12px;text-align:left;';
+    return {
+      dash: (cur.h / 24 * C).toFixed(1) + ' ' + C,
+      beam: cur.beam,
+      label: cur.name.toUpperCase(),
+      end: pad(endH) + ':00',
+      left: pad(Math.floor(leftMin / 60)) + ':' + pad(leftMin % 60),
+      orbLabel: 'Luce accesa dalle 07:00 alle ' + pad(endH) + ':00, pompa attiva, ora 14:20',
+      w: cur.w + '%', b: cur.b ? cur.b + '%' : 'OFF',
+      wBar: 'width:' + cur.w + '%;height:100%;background:#B6FF3C;box-shadow:0 0 8px rgba(182,255,60,0.7);transition:width 400ms ease',
+      bBar: 'width:' + cur.b + '%;height:100%;background:#818CF8;transition:width 400ms ease',
+      bays: plants.map((n, i) => ({
+        name: n || 'Libera', code: n ? n.slice(0, 2).toUpperCase() : '',
+        style: 'width:30px;height:30px;border-radius:8px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-family:IBM Plex Mono,monospace;font-size:10px;font-weight:600;' + (n ? 'background:rgba(16,245,160,0.16);border:1px solid #10F5A0;color:#E6FFF4' : 'border:1px dashed rgba(168,217,196,0.45)')
+      })),
+      cycles: list.map((c) => ({
+        ...c,
+        checked: c.id === cur.id ? 'true' : 'false',
+        pick: () => this.setState({ picked: c.id }),
+        style: base + (c.id === cur.id ? 'background:#10F5A0;color:#02130C;border:1px solid #10F5A0;box-shadow:0 0 22px rgba(16,245,160,0.45)' : 'background:rgba(230,255,244,0.04);color:#E6FFF4;border:1px solid rgba(230,255,244,0.16)')
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>
