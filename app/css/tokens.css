@@ -1,0 +1,52 @@
+/* SmartGarden design tokens. Sampled from docs/design/reference/smartgarden-ui-reference.webp. */
+:root {
+  /* colour */
+  --c-primary: #7a8467;
+  --c-primary-dark: #555e46;
+  --c-primary-light: #a5ad91;
+  --c-bg: #efebe4;
+  --c-surface: #f7f4ee;
+  --c-surface-2: #e6e1d8;
+  --c-track: #dedad1;
+  --c-text: #191c17;
+  --c-text-2: #666a60;
+  --c-border: #e1ddd4;
+  --c-warm: #e9d2a3;
+  --c-white: #ffffff;
+  --c-media: #56634f;
+
+  /* type */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --fs-display: 40px;
+  --fs-title: 24px;
+  --fs-section: 18px;
+  --fs-body: 15px;
+  --fs-small: 13px;
+  --fs-micro: 12px;
+  --fs-number: 40px;
+
+  /* geometry */
+  --pad: 24px;
+  --gap: 12px;
+  --r-card: 18px;
+  --r-thumb: 12px;
+  --r-sheet: 30px;
+  --r-pill: 999px;
+  --h-control: 48px;
+
+  /* elevation: warm, barely there */
+  --shadow-card: 0 1px 2px rgba(74, 64, 44, .05), 0 6px 18px rgba(74, 64, 44, .06);
+  --shadow-sheet: 0 -8px 30px rgba(40, 36, 26, .12);
+  --shadow-knob: 0 1px 3px rgba(40, 36, 26, .25);
+
+  /* motion */
+  --t-press: 150ms;
+  --t-comp: 250ms;
+  --t-screen: 350ms;
+  --t-atmo: 700ms;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-press: 0ms; --t-comp: 0ms; --t-screen: 0ms; --t-atmo: 0ms; }
+}

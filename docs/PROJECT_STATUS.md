@@ -89,7 +89,12 @@ firmware, then the final firmware (D-002). The table and blockers below date fro
     placed on the object, no dashboard cards and no dominant clock. Blocked on the image
     source: two real photos of the unit (lamp on / lamp off, same framing) are the
     proposed route; no image generator is installed on the Mac.
-15. Spec 003 not yet updated with items 13–14; no app code written.
+15. Spec 003 not yet updated with items 13–14.
+16. 2026-11-24 evening: mobile app in `app/` (see `app/README.md`), served by the lamp from
+    LittleFS at http://smartgarden.local; `firmware/web-test` now persists an activity log in
+    LittleFS (`/log`) and accepts a PWM duty on W/B. CONFIRMED (observed by Nicola, 22:25):
+    W at 50 % duty visibly dims the white LEDs with no visible flicker (ESP8266 default PWM,
+    1 kHz), so the 12/12 scene (W 50 %, B off) is feasible.
 
 ## History
 

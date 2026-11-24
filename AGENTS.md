@@ -88,6 +88,13 @@ source is a defect.
   explicit go-ahead for that step.
 - No purchases unless a spec shows the part is necessary and nothing on hand works.
 
+## README
+
+`README.md` is the project's front page. Keep it current: every change that alters what
+the device or the app can do, the hardware state, the screenshots or how to run, test or
+update anything updates the README in the same change. When app screens change visibly,
+retake the screenshots in `docs/images/app/` (390 × 844, served by `app/dev/server.mjs`).
+
 ## Git
 
 - Never commit or push without Nicola's explicit authorisation.

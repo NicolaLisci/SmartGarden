@@ -1,0 +1,10 @@
+{
+  "name": "smartgarden-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev/server.mjs",
+    "test": "node --test js/*.test.mjs",
+    "coverage": "node --test --experimental-test-coverage --test-coverage-exclude='js/*.test.mjs' js/*.test.mjs"
+  }
+}
