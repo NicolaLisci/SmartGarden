@@ -1,2 +1,9 @@
 node_modules
 output
+
+# ESPHome
+firmware/secrets.yaml
+firmware/.esphome/
+
+# Arduino firmware credentials
+firmware/*/secrets.h

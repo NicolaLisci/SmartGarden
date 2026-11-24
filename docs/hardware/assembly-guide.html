@@ -1,0 +1,837 @@
+<title>Scheda SmartGarden</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap">
+<style>
+/* Layout: bench companion. Board stage left (sticky on desktop), step card right; one column on phones. */
+:root {
+  --bg: #eceff1; --surface: #ffffff; --fg: #1a2127; --muted: #5a6670; --line: #d3d9de;
+  --accent: #a85a22; --hl: #1f6feb; --power: #c62828; --power-bg: #fdecea; --ok: #2e7d32;
+  --stage: #dfe4e7;
+  --f-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  /* physical object colours: identical in both themes */
+  --pb: #cfa96c; --pb-edge: #8c6732; --hole: #4b3a22; --copper: #c98a4f; --solder: #d3d7da;
+  --pcb: #1e2227; --pcb2: #2c323a; --lm: #2458a8; --silver: #c3c8cc; --gold: #d9b45a;
+  --w-red: #d42a2a; --w-black: #191919; --w-yellow: #e0ae00; --w-orange: #f07a00; --bare: #aeb4b9;
+  --w-violet: #8e44ad; --res: #5d9be0; --term: #e6e6e1; --term-edge: #9b9b95; --ink: #2a1f10;
+  --c-orange: #f08a00; --c-black: #151515; --c-brown: #7b4a1e; --c-red: #d22b2b; --c-yellow: #ecc11b; --c-violet: #7a3fb3;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11161a; --surface: #1a2026; --fg: #e5ebee; --muted: #9aa6af; --line: #2b353d;
+  --accent: #d79a62; --hl: #5aa6ff; --power: #ff7b72; --power-bg: #3a1d1c; --ok: #7bd389;
+  --stage: #222a31; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #11161a; --surface: #1a2026; --fg: #e5ebee; --muted: #9aa6af; --line: #2b353d;
+  --accent: #d79a62; --hl: #5aa6ff; --power: #ff7b72; --power-bg: #3a1d1c; --ok: #7bd389;
+  --stage: #222a31; color-scheme: dark; }
+
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 18px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; margin-bottom: 14px; }
+h1 { font-family: var(--f-display); font-size: 1.7rem; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 2px 0 0; max-width: 62ch; }
+.tabs { flex-wrap: wrap; }
+.wires { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px; }
+.wires button { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left; font: 400 0.9rem var(--f-body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; cursor: pointer; }
+.wires button[aria-pressed="true"] { border-color: var(--hl); box-shadow: 0 0 0 1px var(--hl); }
+.wires i { flex: none; width: 26px; height: 6px; border-radius: 3px; margin-top: 8px; }
+.wires b { display: block; font-weight: 600; }
+.wires small { color: var(--muted); font-size: 0.82rem; }
+.tag { display: inline-block; font: 500 0.7rem var(--f-mono); border-radius: 5px; padding: 0 6px; margin-left: 4px; border: 1px solid var(--line); color: var(--muted); }
+.tag.ok { color: var(--ok); border-color: var(--ok); }
+#scene g[data-w] { transition: opacity .2s; }
+#scene g[data-w].dim { opacity: .1; }
+.tabs, .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+.tabs button, .seg button { font: 500 0.9rem var(--f-body); color: var(--muted); background: transparent; border: 0; border-radius: 7px; padding: 7px 12px; cursor: pointer; }
+.tabs button[aria-pressed="true"], .seg button[aria-pressed="true"] { background: var(--fg); color: var(--surface); }
+button:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--hl); outline-offset: 2px; }
+
+.rules { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; padding: 0; list-style: none; }
+.rules li { font-size: 0.82rem; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; }
+.rules li b { color: var(--power); font-weight: 600; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.stage { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 10px); background: var(--stage); border-radius: 14px; padding: 10px; min-width: 0; }
+.stagebar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.viewname { font: 600 0.82rem var(--f-mono); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+svg#board { display: block; width: 100%; height: auto; aspect-ratio: 128 / 88; border-radius: 9px; background: var(--stage); touch-action: manipulation; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 0.78rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { display: inline-block; width: 22px; height: 5px; border-radius: 3px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; min-width: 0; }
+.count { font: 500 0.8rem var(--f-mono); color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.bar { height: 4px; background: var(--line); border-radius: 4px; margin: 6px 0 12px; overflow: hidden; }
+.bar > div { height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+h2 { font-family: var(--f-display); font-size: 1.35rem; margin: 0 0 6px; text-wrap: balance; }
+.power { display: flex; gap: 8px; align-items: flex-start; background: var(--power-bg); color: var(--power); border-radius: 9px; padding: 8px 11px; font-size: 0.88rem; font-weight: 500; margin: 8px 0; }
+.side { display: inline-block; font: 500 0.75rem var(--f-mono); color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; margin-bottom: 8px; }
+ol.do { padding-left: 1.2em; margin: 6px 0 10px; display: grid; gap: 6px; }
+ol.do li::marker { color: var(--accent); font-weight: 600; }
+h3 { font: 600 0.78rem var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 14px 0 6px; }
+.checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.checks label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 3px; accent-color: var(--ok); width: 17px; height: 17px; flex: none; }
+.checks .exp { font-family: var(--f-mono); font-size: 0.85rem; color: var(--accent); white-space: nowrap; }
+.note { border-left: 3px solid var(--accent); padding: 6px 10px; margin-top: 12px; font-size: 0.9rem; color: var(--fg); background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 0 8px 8px 0; }
+.nav { display: flex; gap: 8px; margin-top: 16px; position: sticky; bottom: calc(env(safe-area-inset-bottom, 0px) + 8px); }
+.nav button { flex: 1; font: 600 0.95rem var(--f-body); padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.nav button.next { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+.nav button:disabled { opacity: .4; cursor: default; }
+details.all { margin-top: 14px; }
+details.all summary { cursor: pointer; font-weight: 500; color: var(--muted); }
+details.all ol { padding-left: 1.4em; margin: 8px 0 0; display: grid; gap: 2px; font-size: 0.88rem; }
+details.all button { all: unset; cursor: pointer; color: var(--fg); }
+details.all button.cur { color: var(--accent); font-weight: 600; }
+details.all .done { color: var(--ok); }
+
+.schem { display: grid; gap: 16px; }
+.schem .card svg { width: 100%; height: auto; display: block; }
+.scroll { overflow-x: auto; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.tbl th, .tbl td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl th { font: 600 0.75rem var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.tbl td.m { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.today { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.today div { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.today b { display: block; font-family: var(--f-display); margin-bottom: 4px; }
+.yes b { color: var(--ok); } .no b { color: var(--power); }
+
+@media (max-width: 920px) {
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .stage { position: relative; top: 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@keyframes march { to { stroke-dashoffset: -4; } }
+.halo { animation: march 0.9s linear infinite; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Scheda SmartGarden</h1>
+      <p class="sub">Controller ESP8266 per il Duronic GHS37, da montare dentro la lampada: NodeMCU e LM2596 sul pezzo di millefori che hai già, con tre uscite verso la scheda della lampada.</p>
+    </div>
+    <div class="tabs" role="group" aria-label="Sezione">
+      <button id="tab-guide" aria-pressed="true">Guida di montaggio</button>
+      <button id="tab-schem" aria-pressed="false">Schema elettrico</button>
+      <button id="tab-conn" aria-pressed="false">Collegamento alla lampada</button>
+    </div>
+  </header>
+
+  <ul class="rules">
+    <li><b>⚡</b> Corrente solo nei passi segnati, dopo il mio via libera</li>
+    <li><b>USB</b> mai collegato insieme ai 24 V</li>
+    <li><b>Lampada</b> si collega solo dopo le prove a banco</li>
+    <li>Spazio nella lampada <b>da misurare</b> prima di tagliare</li>
+  </ul>
+
+  <section id="guide">
+    <div class="main">
+      <div class="stage">
+        <div class="stagebar">
+          <span class="viewname" id="viewname">Lato componenti</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="seg" role="group" aria-label="Lato della scheda">
+              <button id="v-top" aria-pressed="true">Componenti</button>
+              <button id="v-bot" aria-pressed="false">Saldature</button>
+            </div>
+            <div class="seg" role="group" aria-label="Inquadratura">
+              <button id="z-on" aria-pressed="true">Zoom passo</button>
+              <button id="z-off" aria-pressed="false">Intera</button>
+            </div>
+          </div>
+        </div>
+        <svg id="board" viewBox="-16 -8 128 88" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Disegno della scheda"></svg>
+        <div class="legend">
+          <span><i style="background:var(--w-red)"></i>+24 V</span>
+          <span><i style="background:var(--w-black)"></i>massa (GND)</span>
+          <span><i style="background:var(--bare)"></i>filo nudo rigido</span>
+          <span><i style="background:var(--w-yellow)"></i>uscite verso la lampada</span>
+          <span><i style="background:var(--w-orange)"></i>5 V al NodeMCU</span>
+          <span><i style="background:var(--hl)"></i>da fare in questo passo</span>
+        </div>
+      </div>
+
+      <div class="card" id="stepcard">
+        <div class="count"><span id="stepno">Passo 1 di 24</span><span id="phase"></span></div>
+        <div class="bar"><div id="progress"></div></div>
+        <span class="side" id="sidehint"></span>
+        <h2 id="title"></h2>
+        <div id="powerbox"></div>
+        <ol class="do" id="do"></ol>
+        <div id="checkwrap"><h3>Controllo</h3><ul class="checks" id="checks"></ul></div>
+        <div id="notebox"></div>
+        <div class="nav">
+          <button id="prev">‹ Indietro</button>
+          <button id="next" class="next">Avanti ›</button>
+        </div>
+        <details class="all">
+          <summary>Tutti i passi</summary>
+          <ol id="alllist"></ol>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="schem" class="schem" hidden>
+    <div class="card">
+      <h2>Schema elettrico</h2>
+      <p class="sub">A sinistra la tua scheda, a destra quello che c'è già nella lampada. I due canali LED si comandano direttamente dal NodeMCU con una resistenza. La pompa passa da un PC817C alimentato a 5 V, per darle un comando forte almeno quanto quello originale.</p>
+      <div class="scroll"><svg id="schematic" viewBox="0 0 860 460" style="min-width:720px" role="img" aria-label="Schema elettrico"></svg></div>
+    </div>
+    <div class="card">
+      <h2>Uscite</h2>
+      <div class="scroll"><table class="tbl">
+        <thead><tr><th>Uscita</th><th>Pin NodeMCU</th><th>Sulla tua scheda</th><th>Filo</th><th>Dove va nella lampada</th></tr></thead>
+        <tbody>
+          <tr><td>W</td><td class="m">D1 · GPIO5</td><td>resistenza 330 Ω</td><td>giallo</td><td>comando del transistor dei LED bianchi</td></tr>
+          <tr><td>B</td><td class="m">D5 · GPIO14</td><td>resistenza 330 Ω</td><td>verde</td><td>comando del transistor dei LED del canale B</td></tr>
+          <tr><td>P</td><td class="m">D7 · GPIO13</td><td>resistenza 330 Ω + PC817C</td><td>blu</td><td>piedino C del connettore J3 (pompa)</td></tr>
+          <tr><td>24 V</td><td class="m">—</td><td>ingresso del LM2596</td><td>rosso</td><td>piedino + di J3</td></tr>
+          <tr><td>Massa</td><td class="m">—</td><td>ingresso del LM2596</td><td>nero</td><td>piedino − di J3</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <h2>Componenti</h2>
+      <div class="scroll"><table class="tbl">
+        <thead><tr><th>Componente</th><th>Q.tà</th><th>Da dove</th></tr></thead>
+        <tbody>
+          <tr><td>NodeMCU V3 (CH340)</td><td class="m">1</td><td>Già sulla scheda</td></tr>
+          <tr><td>Modulo LM2596, regolato a 5,0 V</td><td class="m">1</td><td>Già sulla scheda</td></tr>
+          <tr><td>Resistenza 330 Ω · arancio arancio nero nero marrone</td><td class="m">3</td><td>Kit resistenze</td></tr>
+          <tr><td>PC817C</td><td class="m">1</td><td>Ne hai 20</td></tr>
+          <tr><td>Resistenza 10 kΩ, solo per le prove</td><td class="m">1</td><td>Kit resistenze</td></tr>
+          <tr><td>Fili sottili: rosso, nero, blu, giallo, verde, 15–20 cm</td><td class="m">5</td><td>Da verificare</td></tr>
+          <tr><td>Biadesivo spesso e nastro isolante</td><td class="m">—</td><td>Da verificare</td></tr>
+        </tbody>
+      </table></div>
+      <p class="sub" style="margin-top:10px">Non servono più: i tre IRFZ44N, i morsetti, il diodo e la scatola. Nulla da comprare.</p>
+    </div>
+  </section>
+
+  <section id="conn" class="schem" hidden>
+    <div class="card">
+      <h2>Come si collega alla scheda della lampada</h2>
+      <p class="sub">Cinque fili sottili vanno dalla tua scheda a cinque punti della scheda della lampada. I punti esatti si confermano col tester prima di saldare (passo 17). Tocca un filo nell'elenco per evidenziarlo.</p>
+      <div class="scroll"><svg id="scene" viewBox="0 0 1100 720" style="min-width:820px" role="img" aria-label="Collegamento tra la tua scheda e la scheda della lampada"></svg></div>
+      <ul class="wires" id="wires">
+        <li><button data-k="red" aria-pressed="false"><i style="background:var(--w-red)"></i><span><b>Rosso · +24 V</b><small>Dal piedino + di J3 all'ingresso IN+ del LM2596.</small></span></button></li>
+        <li><button data-k="black" aria-pressed="false"><i style="background:var(--w-black)"></i><span><b>Nero · massa</b><small>Dal piedino − di J3 all'ingresso IN− del LM2596.</small></span></button></li>
+        <li><button data-k="blue" aria-pressed="false"><i style="background:var(--hl)"></i><span><b>Blu · pompa</b><small>Dal piedino 3 del PC817C al piedino C di J3. Da lì il comando scende lungo l'asta fino al modulo nella base.</small></span></button></li>
+        <li><button data-k="yellow" aria-pressed="false"><i style="background:var(--w-yellow)"></i><span><b>Giallo · LED bianchi (W)</b><small>Dalla resistenza sulla riga di D1 al comando del transistor del canale W.</small></span></button></li>
+        <li><button data-k="green" aria-pressed="false"><i style="background:#2e9e4f"></i><span><b>Verde · LED canale B</b><small>Dalla resistenza sulla riga di D5 al comando del transistor del canale B.</small></span></button></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Cosa resta da verificare</h2>
+      <ol class="do">
+        <li>Quale piedino di J3 è +, quale − e quale C: sulla scheda sono stampati C, − e +, ma si conferma col tester.</li>
+        <li>Quale dei due transistor (Q4, Q5) comanda i LED bianchi e quale il canale B.</li>
+        <li>Lo spazio nella lampada: la scheda finita misura circa 74 × 70 mm ed è alta circa 18 mm. Se non ci sta intera si divide in due pezzi.</li>
+        <li>La temperatura dentro la lampada con i LED accesi.</li>
+      </ol>
+      <div class="note">I LED del pannello non hanno resistenze: lavorano a 24 V esatti. Non alimentarli mai con una tensione più alta e non collegarli direttamente a nient'altro.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+// ---------- geometry (mm). Holes on a 2.54 mm grid; component side seen from above. ----------
+const P = 2.54, X = i => 1.5 + P * i, Y = j => 1.5 + P * j;
+const BW_OLD = 107, BW = 74, BH = 70, FULL = [-16, -8, 128, 88];
+const C = c => 23 + c;                                      // c0 = first column right of the NodeMCU right header
+const R_PINS = ["D0","D1","D2","D3","D4","3V3","GND","D5","D6","D7","D8","RX","TX","GND","3V3"];
+const L_PINS = ["A0","GND","VV","S3","S2","S1","SC","S0","SK","GND","3V3","EN","RST","GND","Vin"];
+const PJ = n => 6 + n;                                      // header pin n -> row
+const MCU = { iL: 11, iR: 22, x0: 27.91, x1: 58.91, y0: 5.52, y1: 63.52 };
+const LM = { x0: 2.4, x1: 23.4, y0: 9.2, y1: 52.2, outP: [1, 4], outN: [8, 4], inP: [1, 19], inN: [8, 19] };
+const IN24 = [1, 24], INGND = [3, 24];
+const RW = 7, RB = 13, RP = 15, O1 = 17, O2 = 18, RG = 19, RV = 20;   // rows of D1, D5, D7, opto pins, GND, Vin/3V3
+
+// ---------- drawing state + helpers ----------
+let MIR = false, BWc = BW;
+const mx = x => MIR ? BWc - x : x;
+const st = o => Object.entries(o).map(([k, v]) => `${k}:${v}`).join(";");
+const rect = (x, y, w, h, s, rx = 0, extra = "") => { const a = mx(x), b = mx(x + w); return `<rect x="${Math.min(a, b).toFixed(2)}" y="${y.toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${rx}" style="${st(s)}" ${extra}/>`; };
+const circ = (x, y, r, s) => `<circle cx="${mx(x).toFixed(2)}" cy="${y.toFixed(2)}" r="${r}" style="${st(s)}"/>`;
+const poly = (pts, s) => `<polyline points="${pts.map(([x, y]) => `${mx(x).toFixed(2)},${y.toFixed(2)}`).join(" ")}" style="${st(Object.assign({ fill: "none", "stroke-linecap": "round", "stroke-linejoin": "round" }, s))}"/>`;
+const txt = (x, y, t, s = {}, anchor = "start", size = 1.4, rot = 0) => {
+  let a = anchor; if (MIR && a !== "middle") a = a === "start" ? "end" : "start";
+  const tr = rot ? ` transform="rotate(${MIR ? -rot : rot} ${mx(x).toFixed(2)} ${y.toFixed(2)})"` : "";
+  return `<text x="${mx(x).toFixed(2)}" y="${y.toFixed(2)}" text-anchor="${a}" style="${st(Object.assign({ "font-size": size + "px", "font-family": "IBM Plex Sans, sans-serif", fill: "var(--ink)" }, s))}"${tr}>${t}</text>`;
+};
+const H = (i, j) => [X(i), Y(j)];
+const joint = (i, j) => circ(X(i), Y(j), 0.75, { fill: "var(--solder)", stroke: "#8b9196", "stroke-width": 0.15 });
+const wire = (holes, color, w, bare = false) => {
+  const pts = holes.map(([i, j]) => H(i, j));
+  let s = "";
+  if (bare) s += poly(pts, { stroke: "#7d8388", "stroke-width": w + 0.3 });
+  else s += poly(pts, { stroke: "rgba(0,0,0,.35)", "stroke-width": w + 0.35 });
+  s += poly(pts, { stroke: color, "stroke-width": w });
+  return s;
+};
+const ends = holes => joint(...holes[0]) + joint(...holes[holes.length - 1]);
+const bb = (holes, pad = 1.4) => { const xs = holes.map(h => X(h[0])), ys = holes.map(h => Y(h[1])); return [Math.min(...xs) - pad, Math.min(...ys) - pad, Math.max(...xs) + pad, Math.max(...ys) + pad]; };
+const ghost = (x0, y0, x1, y1, label) => rect(x0, y0, x1 - x0, y1 - y0, { fill: "none", stroke: "var(--pb-edge)", "stroke-width": 0.3, "stroke-dasharray": "1 0.8" }, 1) + (label ? txt((x0 + x1) / 2, (y0 + y1) / 2, label, { fill: "var(--pb-edge)", "font-weight": 600 }, "middle", 1.8) : "");
+
+// resistor body spanning two holes (standing part drawn as seen from above, with colour bands)
+const BANDS = { "470": ["c-yellow", "c-violet", "c-black", "c-black", "c-brown"], "10k": ["c-brown", "c-black", "c-black", "c-red", "c-brown"] };
+function resistor(a, b, val, label, labelSide = 1) {
+  const [x1, y1] = H(...a), [x2, y2] = H(...b), cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
+  const vert = a[0] === b[0], L = 5.6, W = 2.1;
+  let s = "";
+  if (vert) {
+    s += rect(cx - W / 2, cy - L / 2, W, L, { fill: "var(--res)", stroke: "#2f5e93", "stroke-width": 0.2 }, 1);
+    BANDS[val].forEach((c, n) => { const yy = cy - L / 2 + 0.75 + n * 0.85 + (n === 4 ? 0.6 : 0); s += rect(cx - W / 2, yy, W, 0.42, { fill: `var(--${c})` }); });
+    s += labelSide === 0 ? txt(cx, cy - L / 2 - 0.6, label, { "font-weight": 600 }, "middle", 1.25)
+      : txt(cx + labelSide * 1.7, cy + 0.5, label, { "font-weight": 600 }, labelSide > 0 ? "start" : "end", 1.25);
+  }
+  return s;
+}
+
+// ---------- element registry ----------
+// each: id, from (first step index it exists), until (step index it disappears), only (visible only in its own step),
+// top(), bot() renderers, box [x0,y0,x1,y1] for zoom/halo
+const E = {};
+const add = (id, o) => { E[id] = Object.assign({ id, from: 0, until: 999 }, o); };
+
+// fixed: NodeMCU
+add("mcu", {
+  box: [MCU.x0, MCU.y0, MCU.x1, MCU.y1],
+  top() {
+    let s = rect(MCU.x0, MCU.y0, MCU.x1 - MCU.x0, MCU.y1 - MCU.y0, { fill: "var(--pcb)", stroke: "#000", "stroke-width": 0.2 }, 1.2);
+    s += rect(33.4, 7.2, 20, 3.2, { fill: "none", stroke: "var(--gold)", "stroke-width": 0.35 });
+    s += rect(33.4, 10.6, 20, 14.5, { fill: "var(--silver)", stroke: "#8f959a", "stroke-width": 0.2 }, 0.5);
+    s += txt(43.4, 18.6, "ESP-12", { fill: "#4b5157", "font-weight": 600 }, "middle", 1.6);
+    s += rect(39.5, 40, 8, 4, { fill: "#111" }, 0.3) + txt(43.5, 46.5, "CH340", { fill: "#9aa0a6" }, "middle", 1.1);
+    s += rect(39.6, 60.3, 7.6, 4.4, { fill: "var(--silver)", stroke: "#7e8489", "stroke-width": 0.2 }, 0.4) + txt(43.4, 67.2, "USB", { fill: "var(--ink)" }, "middle", 1.2);
+    s += txt(43.4, 33, "NodeMCU", { fill: "#fff", "font-weight": 600 }, "middle", 2.2);
+    R_PINS.forEach((n, k) => { s += rect(X(MCU.iR) - 0.6, Y(PJ(k)) - 0.6, 1.2, 1.2, { fill: "var(--gold)" }) + txt(X(MCU.iR) - 1.3, Y(PJ(k)) + 0.45, n, { fill: "#e9edf0" }, "end", 1.1); });
+    L_PINS.forEach((n, k) => { s += rect(X(MCU.iL) - 0.6, Y(PJ(k)) - 0.6, 1.2, 1.2, { fill: "var(--gold)" }) + txt(X(MCU.iL) + 1.3, Y(PJ(k)) + 0.45, n, { fill: "#e9edf0" }, "start", 1.1); });
+    return s;
+  },
+  bot() {
+    let s = ghost(MCU.x0, MCU.y0, MCU.x1, MCU.y1);
+    R_PINS.forEach((n, k) => { s += joint(MCU.iR, PJ(k)) + txt(X(MCU.iR) - 1.3, Y(PJ(k)) + 0.45, n, { fill: "var(--ink)" }, "end", 1.1); });
+    L_PINS.forEach((n, k) => { s += joint(MCU.iL, PJ(k)) + txt(X(MCU.iL) + 1.3, Y(PJ(k)) + 0.45, n, { fill: "var(--ink)" }, "start", 1.1); });
+    s += txt(43.4, 34, "NodeMCU (sotto)", { fill: "var(--pb-edge)", "font-weight": 600 }, "middle", 1.8);
+    return s;
+  }
+});
+// fixed: LM2596
+add("lm", {
+  box: [LM.x0, LM.y0, LM.x1, LM.y1],
+  top() {
+    let s = rect(LM.x0, LM.y0, LM.x1 - LM.x0, LM.y1 - LM.y0, { fill: "var(--lm)", stroke: "#173a70", "stroke-width": 0.2 }, 0.8);
+    s += circ(16.8, 15.5, 3.6, { fill: "var(--silver)", stroke: "#555", "stroke-width": 0.3 }) + txt(16.8, 16, "220µF", { fill: "#333" }, "middle", 1.1);
+    s += rect(7.3, 23, 12, 12, { fill: "#2b2b2b", stroke: "#000", "stroke-width": 0.2 }, 1) + txt(13.3, 29.6, "470", { fill: "#ddd" }, "middle", 1.6);
+    s += rect(4.6, 37, 7, 6, { fill: "#111" }, 0.3) + txt(8.1, 40.4, "LM2596", { fill: "#aaa" }, "middle", 0.9);
+    s += circ(16.8, 45.5, 3.3, { fill: "var(--silver)", stroke: "#555", "stroke-width": 0.3 }) + txt(16.8, 46, "100µF", { fill: "#333" }, "middle", 1.1);
+    s += rect(4.3, 13.2, 4, 4, { fill: "#3f74c9", stroke: "#1b3f7a", "stroke-width": 0.2 }) + circ(6.3, 15.2, 1, { fill: "var(--gold)" });
+    s += txt(6.3, 20, "trimmer", { fill: "#cfe0ff" }, "middle", 1.0);
+    [["OUT+", LM.outP], ["OUT−", LM.outN], ["IN+", LM.inP], ["IN−", LM.inN]].forEach(([n, h]) => {
+      s += circ(...H(...h), 0.7, { fill: "var(--gold)" }) + txt(X(h[0]) + (h[0] === 1 ? 1.2 : -1.2), Y(h[1]) + (h[1] === 4 ? 2.4 : -1.4), n, { fill: "#fff", "font-weight": 600 }, h[0] === 1 ? "start" : "end", 1.2);
+    });
+    return s;
+  },
+  bot() {
+    let s = ghost(LM.x0, LM.y0, LM.x1, LM.y1, "LM2596 (sotto)");
+    [["OUT+", LM.outP], ["OUT−", LM.outN], ["IN+", LM.inP], ["IN−", LM.inN]].forEach(([n, h]) => {
+      s += joint(...h) + txt(X(h[0]) + (h[0] === 1 ? 1.2 : -1.2), Y(h[1]) + (h[1] === 4 ? 2.4 : -1.4), n, { "font-weight": 600 }, h[0] === 1 ? "start" : "end", 1.25);
+    });
+    return s;
+  }
+});
+add("trim", { only: true, box: [3, 12, 10, 18], top: () => "" });
+
+// old parts (before the strip-down)
+add("old", {
+  until: 2, box: [68, 8, 107, 50],
+  top() {
+    let s = "";
+    [12, 25, 38].forEach((y, n) => {
+      s += rect(77, y, 3.1, 10.2, { fill: "#1b1b1b" }) + rect(80.1, y, 1.3, 10.2, { fill: "#b7bcc0" });
+      s += rect(96, y, 7.5, 10.2, { fill: "var(--term)", stroke: "var(--term-edge)", "stroke-width": 0.3 }, 0.8);
+      s += rect(71, y + 1, 1.6, 4.5, { fill: "var(--res)" }) + rect(73.2, y + 4, 1.6, 4.5, { fill: "var(--res)" });
+    });
+    s += txt(87, 6.2, "vecchi componenti da togliere", { fill: "var(--power)", "font-weight": 600 }, "middle", 1.6);
+    return s;
+  },
+  bot() {
+    let s = "";
+    const sp = [[[30, 20], [50, 15], [70, 30], [80, 18]], [[24, 40], [45, 48], [66, 35], [88, 42]], [[35, 60], [55, 55], [75, 62], [95, 30]], [[40, 8], [60, 22], [72, 10], [100, 20]]];
+    sp.forEach((p, n) => { s += `<polyline points="${p.map(([x, y]) => `${mx(x)},${y}`).join(" ")}" style="fill:none;stroke:${["var(--w-red)", "var(--w-black)", "var(--w-yellow)", "var(--w-red)"][n]};stroke-width:0.8;stroke-linecap:round;opacity:.85"/>`; });
+    s += txt(60, 70, "vecchi fili da togliere", { fill: "var(--power)", "font-weight": 600 }, "middle", 1.6);
+    return s;
+  }
+});
+add("cut", {
+  until: 3, box: [70, -2, 108, 74],
+  top() {
+    let s = rect(BW, 0, BW_OLD - BW, BH, { fill: "rgba(198,40,40,.12)" });
+    s += poly([[BW, -3], [BW, BH + 3]], { stroke: "var(--power)", "stroke-width": 0.5, "stroke-dasharray": "1.6 1" });
+    s += txt(BW + 1, -1.2, "✂ taglio a 74 mm", { fill: "var(--power)", "font-weight": 600 }, "start", 1.6);
+    return s;
+  },
+  bot() { return this.top(); }
+});
+
+// power input and supply wiring
+add("jack", {
+  from: 3, box: [-14, 57, 8, 66],
+  top() {
+    let s = rect(-14.5, 59.6, 5, 5.2, { fill: "#2a2a2a", stroke: "#000", "stroke-width": 0.2 }, 1) + txt(-12, 57.8, "jack 24 V", { fill: "var(--ink)", "font-weight": 600 }, "middle", 1.3);
+    s += txt(-12, 67.6, "(parete sx)", { fill: "var(--ink)" }, "middle", 1.1);
+    s += poly([[-9.5, 61], [-4, 61], [X(1), 61], [X(1), Y(24)]], { stroke: "var(--w-red)", "stroke-width": 1.1 });
+    s += poly([[-9.5, 63.4], [-4, 63.4], [X(3), 63.4], [X(3), Y(24)]], { stroke: "var(--w-black)", "stroke-width": 1.1 });
+    s += circ(X(1), Y(24), 0.8, { fill: "var(--solder)" }) + circ(X(3), Y(24), 0.8, { fill: "var(--solder)" });
+    s += txt(X(1) - 0.2, Y(24) + 2.6, "+24 IN", { "font-weight": 600 }, "middle", 1.15) + txt(X(3) + 1.8, Y(24) + 2.6, "GND IN", { "font-weight": 600 }, "middle", 1.15);
+    return s;
+  },
+  bot() { return joint(...IN24) + joint(...INGND) + txt(X(1), Y(24) + 2.6, "+24 IN", { "font-weight": 600 }, "middle", 1.15) + txt(X(3) + 1.8, Y(24) + 2.6, "GND IN", { "font-weight": 600 }, "middle", 1.15); }
+});
+const W = (id, from, holes, color, w, opts = {}) => add(id, Object.assign({ from, box: bb(holes), bot: () => wire(holes, color, w, opts.bare) + ends(holes) + (opts.extra ? opts.extra() : "") }, opts.top ? { top: opts.top } : {}));
+W("in-red", 4, [IN24, LM.inP], "var(--w-red)", 1.1);
+W("in-black", 4, [INGND, [3, 21], [8, 21], LM.inN], "var(--w-black)", 1.1);
+W("out-gnd", 4, [LM.outN, [10, 4], [10, 19], [11, 19]], "var(--w-black)", 0.6);
+W("v5", 6, [LM.outP, [1, 17], [9, 17], [9, 20], [11, 20]], "var(--w-orange)", 0.7);
+// ---------- Rev B: three outputs beside the NodeMCU ----------
+BANDS["330"] = ["c-orange", "c-orange", "c-black", "c-black", "c-brown"];
+E["jack"].until = 15; E["in-red"].until = 15; E["in-black"].until = 15;
+function resistorH(row, label) {
+  const x1 = X(C(0)), x2 = X(C(4)), y = Y(row), cx = (x1 + x2) / 2, L = 6.3, Wd = 2.3;
+  let s = poly([[x1, y], [x2, y]], { stroke: "var(--silver)", "stroke-width": 0.45 });
+  s += rect(cx - L / 2, y - Wd / 2, L, Wd, { fill: "var(--res)", stroke: "#2f5e93", "stroke-width": 0.2 }, 1);
+  BANDS["330"].forEach((c, n) => { s += rect(cx - L / 2 + 0.8 + n * 0.95 + (n === 4 ? 0.7 : 0), y - Wd / 2, 0.45, Wd, { fill: `var(--${c})` }); });
+  s += circ(x1, y, 0.5, { fill: "var(--solder)" }) + circ(x2, y, 0.5, { fill: "var(--solder)" });
+  s += txt(BW + 1.2, y + 0.45, label, { "font-weight": 600, fill: "var(--fg)" }, "start", 1.2);
+  return s;
+}
+const rowBox = row => [X(C(0)) - 2.4, Y(row) - 2.4, X(C(4)) + 2.4, Y(row) + 2.4];
+add("rw", { from: 7, box: rowBox(RW), top: () => resistorH(RW, "330 Ω · W"), bot: () => joint(C(0), RW) + joint(C(4), RW) });
+add("rb", { from: 7, box: rowBox(RB), top: () => resistorH(RB, "330 Ω · B"), bot: () => joint(C(0), RB) + joint(C(4), RB) });
+add("rp", { from: 8, box: rowBox(RP), top: () => resistorH(RP, "330 Ω · pompa"), bot: () => joint(C(0), RP) + joint(C(4), RP) });
+add("u", {
+  from: 8, box: [X(C(1)) - 2.6, Y(O1) - 2.8, X(C(4)) + 2.6, Y(O2) + 2.8],
+  top() {
+    const xm = (X(C(1)) + X(C(4))) / 2, y0 = Y(O1) - 1.45, y1 = Y(O2) + 1.45;
+    let s = "";
+    [[C(4), O1, "1"], [C(4), O2, "2"], [C(1), O2, "3"], [C(1), O1, "4"]].forEach(([i, j, n]) => {
+      s += poly([[X(i), Y(j)], [xm, Y(j)]], { stroke: "var(--silver)", "stroke-width": 0.7 });
+      s += txt(X(i) + (i === C(4) ? 1.2 : -1.2), Y(j) + 0.45, n, { "font-weight": 700 }, i === C(4) ? "start" : "end", 1.1);
+    });
+    s += rect(xm - 3.25, y0, 6.5, y1 - y0, { fill: "#202020", stroke: "#000", "stroke-width": 0.2 }, 0.5);
+    s += circ(xm + 2.4, y0 + 0.9, 0.45, { fill: "#f2f2f2" });
+    s += txt(xm, (y0 + y1) / 2 + 0.45, "PC817C", { fill: "#d8d8d8", "font-weight": 600 }, "middle", 1.05);
+    s += txt(BW + 1.2, Y(O1) + 0.45, "← pallino", { fill: "var(--fg)", "font-weight": 600 }, "start", 1.1);
+    return s;
+  },
+  bot: () => joint(C(1), O1) + joint(C(1), O2) + joint(C(4), O1) + joint(C(4), O2) + txt(X(C(1)) - 1.2, Y(O2) + 0.45, "3", { "font-weight": 700 }, "end", 1.1) + txt(X(C(1)) - 1.2, Y(O1) + 0.45, "4", { "font-weight": 700 }, "end", 1.1)
+});
+const BR = row => [[MCU.iR, row], [C(0), row]];
+const lkA = [[C(4), RP], [C(4), O1]], lkG = [[C(4), O2], [C(4), RG], [MCU.iR, RG]];
+const v5c = [[MCU.iL, RV], [MCU.iL, 21], [C(0), 21], [C(0), 16], [C(1), 16], [C(1), O1]];
+add("links", {
+  from: 9, box: bb([[MCU.iR, RW], [C(4), RG]], 2.6),
+  bot() {
+    let s = "";
+    [BR(RW), BR(RB), lkA, lkG].forEach(l => { s += wire(l, "var(--bare)", 0.7, true); });
+    [BR(RW), BR(RB), lkA, lkG].forEach(l => l.forEach(h => { s += joint(...h); }));
+    return s;
+  }
+});
+add("v5c", { from: 9, box: bb(v5c, 2), bot: () => wire(v5c, "var(--w-orange)", 0.6) + ends(v5c) });
+add("brp", { from: 12, box: bb(BR(RP), 2.8), bot: () => wire(BR(RP), "var(--bare)", 0.7, true) + joint(...BR(RP)[0]) + joint(...BR(RP)[1]) });
+const oW = [[C(4), RW], [C(5), RW], [33, RW]], oB = [[C(4), RB], [C(5), RB], [33, RB]], oP = [[C(1), O2], [C(2), 20.6], [33, 20.6]];
+const oR = [LM.inP, [1, 21], [-4, 21]], oK = [LM.inN, [8, 23], [-4, 23]];
+add("outw", {
+  from: 15, box: [-12, 14, 88, 62],
+  bot() {
+    let s = wire(oW, "var(--w-yellow)", 0.7) + wire(oB, "#2e9e4f", 0.7) + wire(oP, "var(--hl)", 0.7) + wire(oR, "var(--w-red)", 0.9) + wire(oK, "var(--w-black)", 0.9);
+    [oW, oB, oP, oR, oK].forEach(l => { s += joint(...l[0]); });
+    s += joint(C(5), RW) + joint(C(5), RB);
+    [["giallo · W", RW], ["verde · B", RB], ["blu · pompa", 20.6]].forEach(([t, r]) => { s += txt(X(33) + 1, Y(r) + 0.45, t, { "font-weight": 600, fill: "var(--fg)" }, "start", 1.2); });
+    s += txt(X(-4) - 1, Y(21) + 0.45, "rosso · +24 V", { "font-weight": 600, fill: "var(--fg)" }, "end", 1.2) + txt(X(-4) - 1, Y(23) + 0.45, "nero · massa", { "font-weight": 600, fill: "var(--fg)" }, "end", 1.2);
+    return s;
+  },
+  top() {
+    let s = "";
+    [["W →", RW, "var(--w-yellow)"], ["B →", RB, "#2e9e4f"], ["P →", O2, "var(--hl)"]].forEach(([t, r, col]) => {
+      s += rect(BW + 0.6, Y(r) - 1.1, 1.2, 2.2, { fill: col }) + txt(BW + 2.6, Y(r) + 3.2, t, { "font-weight": 700, fill: "var(--fg)" }, "start", 1.3);
+    });
+    return s;
+  }
+});
+add("probeP", {
+  only: true, box: [X(MCU.iR) - 3, Y(RP) - 3, X(C(5)) + 3, Y(RV) + 4],
+  top() {
+    const ring = (i, j) => circ(X(i), Y(j), 1.35, { fill: "none", stroke: "var(--hl)", "stroke-width": 0.4 });
+    return ring(C(1), O2) + ring(MCU.iR, RG) + txt(X(C(2)), Y(22) + 0.6, "misura tra il piedino 3 e il pin GND", { fill: "var(--hl)", "font-weight": 600 }, "middle", 1.15);
+  }
+});
+add("jumpP", {
+  only: true, box: [X(MCU.iR) - 3, Y(RP) - 3, X(C(1)) + 3, Y(RV) + 3],
+  top() {
+    const a = [X(MCU.iR), Y(RV)], z = [X(C(0)), Y(RP)];
+    return poly([a, [X(C(0)), a[1]], z], { stroke: "var(--w-violet)", "stroke-width": 0.6, "stroke-dasharray": "1.2 0.7" }) +
+      txt(X(MCU.iR) - 1.5, Y(RV) + 3, "filo dal pin 3V3: tocca e togli", { fill: "var(--w-violet)", "font-weight": 600 }, "end", 1.1);
+  }
+});
+
+// ---------- steps ----------
+const STEPS = [
+  { t: "Prima di iniziare", ph: "Preparazione", v: "top", f: [], doo: [
+      "Misura lo spazio nella lampada: altezza interna dal fondo al bordo del guscio, e una zona libera da nervature.",
+      "La scheda finita misura circa 74 × 70 mm ed è alta circa 18 mm, per via dei condensatori del LM2596.",
+      "Prepara: 3 resistenze da 330 Ω (arancio, arancio, nero, nero, marrone), 1 PC817C, 1 resistenza da 10 kΩ per le prove, filo di rame rigido nudo, cinque fili sottili da 15–20 cm, biadesivo spesso e nastro isolante.",
+      "Tieni da parte il jack con i suoi fili: serve per le prove a banco."],
+    note: "Se la scheda intera non entra nella lampada, si può dividere in due pezzi tagliando tra LM2596 e NodeMCU. Dimmelo prima di tagliare." },
+  { t: "Smonta i vecchi componenti", ph: "Preparazione", v: "top", f: ["old"], doo: [
+      "Dissalda e togli tutti i fili sul lato saldature (premi «Saldature» per vederli).",
+      "Togli le 6 resistenze, i 3 MOSFET e i 3 morsetti: non servono più.",
+      "Lascia al loro posto NodeMCU e modulo LM2596."],
+    checks: [["Sul lato saldature restano solo i pin di NodeMCU e LM2596", ""]] },
+  { t: "Taglia la scheda", ph: "Preparazione", v: "top", f: ["cut"], doo: [
+      "Taglia la millefori lungo la linea rossa, lasciando 6 colonne di fori a destra del NodeMCU.",
+      "La scheda finale misura circa 74 × 70 mm. Lima il bordo."],
+    note: "Taglia solo dopo aver controllato che 74 × 70 mm entrino nella lampada." },
+  { t: "Jack provvisorio per le prove", ph: "Alimentazione", v: "top", f: ["jack"], doo: [
+      "Salda i due fili del jack ai fori «+24 IN» e «GND IN»: serve solo per le prove a banco, poi si toglie.",
+      "Col tester verifica che il pin centrale del jack sia il +, confrontandolo col simbolo stampato sull'alimentatore.",
+      "Il filo rosso volante del jack: se non è collegato al pin centrale, isolalo e lascialo libero."] },
+  { t: "Alimentazione del LM2596", ph: "Alimentazione", v: "bot", f: ["in-red", "in-black", "out-gnd"], doo: [
+      "Gira la scheda: il disegno ora è specchiato, come lo vedi tu.",
+      "Leggi la serigrafia del modulo (IN+, IN−, OUT+, OUT−). Se non corrisponde al disegno, fermati e dimmelo.",
+      "Rosso da «+24 IN» a IN+. Nero da «GND IN» a IN−.",
+      "Nero sottile da OUT− al pin GND del NodeMCU accanto a Vin.",
+      "OUT+ non va ancora collegato al NodeMCU."],
+    checks: [["+24 IN ↔ GND IN", "nessun corto"]] },
+  { t: "Regola i 5 V", ph: "Alimentazione", v: "top", pw: true, f: ["lm", "trim"], doo: [
+      "Collega l'alimentatore a 24 V (USB scollegato).",
+      "Misura tra OUT+ e OUT− del LM2596.",
+      "Gira piano la vite del trimmer blu finché leggi 5,0 V.",
+      "Scollega l'alimentatore."],
+    checks: [["OUT+ ↔ OUT−", "4,9–5,2 V"]] },
+  { t: "Filo 5 V al NodeMCU", ph: "Alimentazione", v: "bot", pw: true, f: ["v5"], doo: [
+      "Arancione sottile da OUT+ al pin Vin del NodeMCU, seguendo il percorso del disegno.",
+      "Collega i 24 V, mai insieme all'USB: il LED del NodeMCU si accende.",
+      "Misura il pin 3V3 rispetto a GND, poi scollega."],
+    checks: [["3V3 ↔ GND", "3,2–3,4 V"]] },
+  { t: "Resistenze dei due canali LED", ph: "Uscite", v: "top", f: ["rw", "rb"], doo: [
+      "Due resistenze da 330 Ω (arancio, arancio, nero, nero, marrone), distese sulla scheda.",
+      "La prima sulla riga del pin D1, la seconda sulla riga del pin D5.",
+      "Ognuna va dal primo foro accanto al pin (colonna c0) al quinto (colonna c4).",
+      "Misurale col tester prima di saldarle."] },
+  { t: "Stadio della pompa", ph: "Uscite", v: "top", f: ["rp", "u"], doo: [
+      "Terza resistenza da 330 Ω distesa sulla riga del pin D7, da c0 a c4.",
+      "PC817C due righe più sotto, sulle righe di RX e TX: i piedini vanno nelle colonne c1 e c4.",
+      "Il pallino (piedino 1) va in alto a destra, sotto la gamba destra della resistenza.",
+      "Nella colonna c0, accanto ai pin RX e TX, non va saldato nulla."] },
+  { t: "Collegamenti sotto", ph: "Uscite", v: "bot", f: ["links", "v5c"], doo: [
+      "Gira la scheda. I tratti argento si fanno col filo nudo o piegando la gamba del componente fino al foro vicino.",
+      "Pin D1 → gamba della prima resistenza. Pin D5 → gamba della seconda.",
+      "Gamba destra della terza resistenza → piedino 1 del PC817C, due fori più sotto.",
+      "Piedino 2 del PC817C → un foro più sotto, poi lungo la riga fino al pin GND del NodeMCU.",
+      "Filo arancione isolato dal pin Vin al piedino 4 del PC817C, seguendo il percorso del disegno.",
+      "Il pin D7 per ora NON si collega alla sua resistenza."],
+    note: "Attenzione ai pin RX e TX: nessuna goccia di stagno deve unirli ai fori vicini." },
+  { t: "Controlli col tester", ph: "Uscite", v: "top", f: ["rw", "rb", "rp", "u"], doo: [
+      "Scheda scollegata. Misura con il tester tra i punti indicati."],
+    checks: [["Pin D1 ↔ gamba destra della resistenza W", "330 Ω"], ["Pin D5 ↔ gamba destra della resistenza B", "330 Ω"],
+      ["Gamba sinistra della resistenza pompa ↔ piedino 1 del PC817C", "330 Ω"], ["Piedino 2 del PC817C ↔ pin GND", "0 Ω"],
+      ["Piedino 4 del PC817C ↔ pin Vin", "0 Ω"], ["Piedino 3 del PC817C ↔ GND, Vin, RX, TX", "nessun collegamento"],
+      ["Pin RX e TX ↔ fori vicini", "nessun collegamento"]] },
+  { t: "Prova dello stadio pompa", ph: "Uscite", v: "top", pw: true, f: ["probeP", "jumpP"], doo: [
+      "Tieni la resistenza da 10 kΩ tra il piedino 3 del PC817C e il pin GND: fa da carico di prova.",
+      "Collega i 24 V (USB scollegato) e misura tra piedino 3 e GND: circa 0 V.",
+      "Con un filo tocca il pin 3V3 e la gamba sinistra della resistenza pompa: il piedino 3 sale a 4,5–5 V.",
+      "Togli il filo: torna a 0 V. Scollega l'alimentatore."],
+    checks: [["Senza filo: piedino 3", "≈ 0 V"], ["Con il filo: piedino 3", "4,5–5 V"]] },
+  { t: "Ponticello del pin D7", ph: "Uscite", v: "bot", f: ["brp"], doo: [
+      "Ora collega il pin D7 alla gamba sinistra della sua resistenza, nel foro accanto."],
+    checks: [["Pin D7 ↔ piedino 1 del PC817C", "330 Ω"]] },
+  { t: "Programma di prova", ph: "Prove a banco", v: "top", f: [], doo: [
+      "Serve un programma di prova: all'avvio lascia libere le tre uscite, poi le accende una alla volta per 5 secondi.",
+      "Lo preparo io quando arrivi qui.",
+      "Caricalo via USB con l'alimentatore a 24 V scollegato. Poi stacca l'USB."] },
+  { t: "Prova a banco delle tre uscite", ph: "Prove a banco", v: "top", pw: true, f: ["rw", "rb", "rp", "u"], doo: [
+      "Resistenza da 10 kΩ di prova tra piedino 3 del PC817C e GND. Collega i 24 V.",
+      "Misura rispetto a GND: gamba destra della resistenza W, gamba destra della resistenza B, piedino 3 del PC817C.",
+      "Le tre uscite si accendono una alla volta, mai due insieme.",
+      "Stacca e riattacca l'alimentatore 10 volte: nessuna uscita sale prima che parta il ciclo."],
+    checks: [["Uscita W accesa", "≈ 3,3 V"], ["Uscita B accesa", "≈ 3,3 V"], ["Uscita pompa accesa", "4,5–5 V"], ["Nessuna uscita attiva all'avvio (10 prove)", "OK"]] },
+  { t: "Fili verso la lampada", ph: "Installazione", v: "bot", f: ["outw"], doo: [
+      "Togli il jack provvisorio e i suoi due fili.",
+      "Rosso su IN+ del LM2596, nero su IN−.",
+      "Giallo nel foro accanto alla gamba destra della resistenza W, unito alla gamba con lo stagno. Verde allo stesso modo sulla resistenza B.",
+      "Blu sul piedino 3 del PC817C.",
+      "Lascia i cinque fili lunghi 15–20 cm: li accorci quando decidi dove fissare la scheda."] },
+  { t: "Trova i cinque punti sulla lampada", ph: "Installazione", v: "top", f: [], doo: [
+      "Lampada staccata dalla base. Apri la scheda «Collegamento alla lampada», in alto.",
+      "J3: col tester trova quale piedino è la massa (suona con la linguetta dei due componenti neri grandi), quale è il +24 V e quale è C.",
+      "Transistor dei LED: il punto giusto per giallo e verde è il capo della resistenza «472» dal lato del transistor.",
+      "Con la continuità tra il piedino «−» di J1-W e il piedino singolo di Q4 o di Q5 capisci quale transistor comanda i LED bianchi."],
+    checks: [["J3: piedino di massa ↔ linguetta dei regolatori", "0 Ω"], ["Punto del giallo ↔ massa", "10 kΩ"], ["Punto del verde ↔ massa", "10 kΩ"], ["J1-W «−» ↔ piedino singolo del transistor W", "0 Ω"]],
+    note: "Scrivimi le misure prima di saldare: uno scambio tra + e C danneggerebbe la scheda." },
+  { t: "Salda i fili sulla scheda della lampada", ph: "Installazione", v: "top", f: [], doo: [
+      "A corrente staccata. Rosso sul piedino + di J3, nero sul −, blu su C.",
+      "Giallo sul punto del transistor dei LED bianchi, verde su quello del canale B.",
+      "Usa poco stagno e la punta fine: i componenti sono piccoli e vicini.",
+      "Tieni i fili lontani dalla zona centrale dei tasti a sfioro."],
+    checks: [["+ e − di J3 dopo la saldatura", "nessun corto"], ["Ogni filo ↔ punto vicino", "nessun corto"]] },
+  { t: "Fissa la scheda nella lampada", ph: "Installazione", v: "top", f: [], doo: [
+      "Copri il lato saldature con nastro isolante.",
+      "Fissa la scheda con biadesivo spesso in una zona libera, lontano dai tasti a sfioro e senza toccare il pannello LED.",
+      "Tieni l'antenna del NodeMCU verso il bordo della lampada, non sopra il pannello LED.",
+      "Non chiudere ancora la lampada."] },
+  { t: "Prima accensione", ph: "Installazione", v: "top", pw: true, f: [], doo: [
+      "Rimetti la lampada sulla base e collega l'alimentatore: i LED devono restare spenti, come prima.",
+      "Il programma di prova accende a turno LED bianchi, LED del canale B e pompa.",
+      "Con i LED accesi misura tra il piedino «−» del connettore dei LED e la massa: deve restare sotto 0,3 V.",
+      "Dopo 30 minuti con i LED accesi tocca NodeMCU e LM2596: tiepidi, non roventi.",
+      "Se tutto torna, chiudi la lampada."],
+    checks: [["LED spenti all'accensione", "OK"], ["LED accesi: «−» del connettore ↔ massa", "< 0,3 V"], ["Pompa accesa su comando", "OK"], ["Temperatura dopo 30 minuti", "tiepida"]],
+    note: "Se la tensione sul «−» è più alta di 0,3 V, spegni e dimmelo: si passa al comando con il PC817C anche per i LED." },
+];
+
+// ---------- state ----------
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+let checks = store.get("sg-checks-v1", {});
+let idx = 0, view = "top", zoom = true, vb = FULL.slice(), anim = null;
+const fromHash = () => { const m = /^#passo-(\d+)$/.exec(location.hash); return m ? Math.min(STEPS.length, Math.max(1, +m[1])) - 1 : null; };
+const h0 = fromHash(); idx = h0 !== null ? h0 : Math.min(store.get("sg-step-v1", 0), STEPS.length - 1);
+
+const $ = id => document.getElementById(id);
+const svg = $("board");
+
+function visible(e) { if (e.only) return STEPS[idx].f.includes(e.id); return e.from <= idx && idx < e.until; }
+
+function drawBoard() {
+  BWc = idx < 3 ? BW_OLD : BW; MIR = view === "bot";
+  const step = STEPS[idx], cur = new Set(step.f);
+  let s = "";
+  // board + holes
+  s += rect(0, 0, BWc, BH, { fill: "var(--pb)", stroke: "var(--pb-edge)", "stroke-width": 0.4 }, 0.6);
+  const ni = Math.floor((BWc - 1.5) / P) + 1, nj = 27;
+  let holes = "";
+  for (let i = 0; i < ni; i++) for (let j = 0; j < nj; j++) {
+    const x = mx(X(i)).toFixed(2), y = Y(j).toFixed(2);
+    holes += MIR ? `<circle cx="${x}" cy="${y}" r="0.85" style="fill:var(--copper)"/><circle cx="${x}" cy="${y}" r="0.38" style="fill:var(--hole)"/>` : `<circle cx="${x}" cy="${y}" r="0.42" style="fill:var(--hole)"/>`;
+  }
+  s += holes;
+  // column ruler for the strip beside the NodeMCU
+  if (idx >= 3) for (let c = 0; c <= 5; c++) s += txt(X(C(c)), -1.4, "c" + c, { fill: "var(--muted)", "font-family": "IBM Plex Mono, monospace" }, "middle", 1.05);
+  const ordered = Object.values(E).filter(visible);
+  const draw = (e, isCur) => { const fn = MIR ? e.bot : e.top; if (!fn) return ""; const out = fn.call(e); return out ? `<g style="opacity:${cur.size && !isCur && !["mcu", "lm"].includes(e.id) ? 0.55 : 1}">${out}</g>` : ""; };
+  // components first, then wires so wires stay readable
+  ordered.filter(e => !cur.has(e.id)).forEach(e => { s += draw(e, false); });
+  ordered.filter(e => cur.has(e.id)).forEach(e => { s += draw(e, true); });
+  // halo around focus
+  step.f.forEach(id => { const e = E[id]; if (!e || !e.box) return; const [x0, y0, x1, y1] = e.box; const a = mx(x0), b = mx(x1);
+    s += `<rect class="halo" x="${Math.min(a, b) - 0.8}" y="${y0 - 0.8}" width="${Math.abs(b - a) + 1.6}" height="${y1 - y0 + 1.6}" rx="1.5" style="fill:none;stroke:var(--hl);stroke-width:0.45;stroke-dasharray:2 2"/>`; });
+  svg.innerHTML = s;
+  setViewBox(targetBox());
+}
+
+function targetBox() {
+  const f = STEPS[idx].f.map(id => E[id]).filter(e => e && e.box);
+  if (!zoom || !f.length) return FULL.slice();
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  f.forEach(e => { const [a, b, c, d] = e.box; const p = mx(a), q = mx(c); x0 = Math.min(x0, p, q); x1 = Math.max(x1, p, q); y0 = Math.min(y0, b); y1 = Math.max(y1, d); });
+  const pad = 7; x0 -= pad; y0 -= pad; x1 += pad; y1 += pad;
+  let w = Math.max(x1 - x0, 36), h = Math.max(y1 - y0, 26); const ar = FULL[2] / FULL[3];
+  if (w / h > ar) h = w / ar; else w = h * ar;
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  return [cx - w / 2, cy - h / 2, w, h];
+}
+function setViewBox(t) {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (anim) cancelAnimationFrame(anim);
+  if (reduce) { vb = t; svg.setAttribute("viewBox", vb.join(" ")); return; }
+  const s0 = vb.slice(), t0 = performance.now(), D = 380;
+  const tick = now => { const p = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - p, 3);
+    vb = s0.map((v, n) => v + (t[n] - v) * e); svg.setAttribute("viewBox", vb.map(v => v.toFixed(2)).join(" "));
+    if (p < 1) anim = requestAnimationFrame(tick); };
+  anim = requestAnimationFrame(tick);
+}
+
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+function renderStep() {
+  const st_ = STEPS[idx];
+  $("stepno").textContent = `Passo ${idx + 1} di ${STEPS.length}`;
+  $("phase").textContent = st_.ph;
+  $("progress").style.width = ((idx + 1) / STEPS.length * 100) + "%";
+  $("title").textContent = (st_.pw ? "⚡ " : "") + st_.t;
+  $("sidehint").textContent = st_.v === "bot" ? "Lavori sul lato saldature" : "Lavori sul lato componenti";
+  $("powerbox").innerHTML = st_.pw ? `<div class="power">⚡ In questo passo si dà corrente. Prima scrivimi «pronto» e aspetta il via libera. USB scollegato.</div>` : "";
+  $("do").innerHTML = (st_.doo || []).map(d => `<li>${esc(d)}</li>`).join("");
+  const cs = st_.checks || [];
+  $("checkwrap").hidden = !cs.length;
+  $("checks").innerHTML = cs.map(([w, e], n) => { const id = `ck-${idx}-${n}`; return `<li><label for="${id}"><input type="checkbox" id="${id}" ${checks[id] ? "checked" : ""}><span>${esc(w)} ${e ? `<span class="exp">→ ${esc(e)}</span>` : ""}</span></label></li>`; }).join("");
+  $("checks").querySelectorAll("input").forEach(inp => inp.addEventListener("change", () => { checks[inp.id] = inp.checked; store.set("sg-checks-v1", checks); renderList(); }));
+  $("notebox").innerHTML = st_.note ? `<div class="note">${esc(st_.note)}</div>` : "";
+  $("prev").disabled = idx === 0; $("next").disabled = idx === STEPS.length - 1;
+  renderList();
+}
+function stepDone(n) { const cs = STEPS[n].checks || []; return cs.length > 0 && cs.every((_, m) => checks[`ck-${n}-${m}`]); }
+function renderList() {
+  $("alllist").innerHTML = STEPS.map((s, n) => `<li><button data-n="${n}" class="${n === idx ? "cur" : ""}">${(s.pw ? "⚡ " : "") + esc(s.t)}</button>${stepDone(n) ? ' <span class="done">✓</span>' : ""}</li>`).join("");
+  $("alllist").querySelectorAll("button").forEach(b => b.addEventListener("click", () => go(+b.dataset.n)));
+}
+function setView(v) { view = v; $("v-top").setAttribute("aria-pressed", v === "top"); $("v-bot").setAttribute("aria-pressed", v === "bot"); $("viewname").textContent = v === "bot" ? "Lato saldature · specchiato" : "Lato componenti"; drawBoard(); }
+function go(n) {
+  idx = Math.max(0, Math.min(STEPS.length - 1, n)); store.set("sg-step-v1", idx);
+  if (location.hash !== `#passo-${idx + 1}`) history.replaceState(null, "", `#passo-${idx + 1}`);
+  renderStep(); setView(STEPS[idx].v);
+}
+$("prev").onclick = () => go(idx - 1); $("next").onclick = () => go(idx + 1);
+$("v-top").onclick = () => setView("top"); $("v-bot").onclick = () => setView("bot");
+$("z-on").onclick = () => { zoom = true; $("z-on").setAttribute("aria-pressed", true); $("z-off").setAttribute("aria-pressed", false); setViewBox(targetBox()); };
+$("z-off").onclick = () => { zoom = false; $("z-on").setAttribute("aria-pressed", false); $("z-off").setAttribute("aria-pressed", true); setViewBox(targetBox()); };
+document.addEventListener("keydown", e => { if (e.target.tagName === "INPUT") return; if (e.key === "ArrowRight") go(idx + 1); if (e.key === "ArrowLeft") go(idx - 1); });
+window.addEventListener("hashchange", () => { const h = fromHash(); if (h !== null && h !== idx) go(h); });
+
+// tabs
+const tab = t => { ["guide", "schem", "conn"].forEach(n => { $(n).hidden = t !== n; $("tab-" + n).setAttribute("aria-pressed", t === n); }); };
+$("tab-guide").onclick = () => tab("guide"); $("tab-schem").onclick = () => tab("schem"); $("tab-conn").onclick = () => tab("conn");
+if (location.hash === "#collegamento") tab("conn");
+window.addEventListener("hashchange", () => { if (location.hash === "#collegamento") tab("conn"); });
+
+// ---------- schematic ----------
+(function schematic() {
+  const s = [], MUT = "var(--muted)";
+  const L = (pts, c = "var(--fg)", w = 1.6, d = "") => s.push(`<polyline points="${pts.map(p => p.join(",")).join(" ")}" style="fill:none;stroke:${c};stroke-width:${w};stroke-linejoin:round;stroke-linecap:round${d ? ";stroke-dasharray:" + d : ""}"/>`);
+  const T = (x, y, t, o = {}) => s.push(`<text x="${x}" y="${y}" text-anchor="${o.a || "start"}" style="font-family:${o.mono ? "IBM Plex Mono, monospace" : "IBM Plex Sans, sans-serif"};font-size:${o.sz || 13}px;font-weight:${o.w || 400};fill:${o.c || "var(--fg)"}">${t}</text>`);
+  const Rh = (x, y, label) => { s.push(`<rect x="${x}" y="${y - 7}" width="44" height="14" rx="2" style="fill:var(--surface);stroke:var(--fg);stroke-width:1.6"/>`); T(x + 22, y - 12, label, { a: "middle", sz: 12, w: 600 }); };
+  const dot = (x, y) => s.push(`<circle cx="${x}" cy="${y}" r="3.4" style="fill:var(--fg)"/>`);
+  const term = (x, y, n, c = "var(--fg)") => { s.push(`<circle cx="${x}" cy="${y}" r="7" style="fill:var(--surface);stroke:${c};stroke-width:2"/>`); T(x, y - 12, n, { a: "middle", sz: 12, w: 700, c }); };
+  const box = (x, y, w, h, title) => { s.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" style="fill:var(--surface);stroke:var(--fg);stroke-width:1.6"/>`); T(x + w / 2, y + 20, title, { a: "middle", w: 700, sz: 14 }); };
+  const lamp = (y, t1, t2) => { s.push(`<rect x="668" y="${y - 22}" width="166" height="44" rx="6" style="fill:none;stroke:${MUT};stroke-width:1.4;stroke-dasharray:5 4"/>`); T(751, y - 3, t1, { a: "middle", sz: 12, w: 600 }); T(751, y + 13, t2, { a: "middle", sz: 11, c: MUT }); };
+  T(40, 20, "La tua scheda", { w: 700, sz: 14 }); T(751, 20, "Nella lampada (già esistente)", { a: "middle", w: 700, sz: 14, c: MUT });
+  // rails
+  L([[40, 44], [612, 44]], "var(--w-red)", 2.4); term(619, 44, "+24 V", "var(--w-red)"); L([[626, 44], [668, 44]], "var(--w-red)", 1.6, "5 4"); lamp(44, "J3 piedino +", "24 V dall'asta");
+  L([[40, 436], [612, 436]], "var(--fg)", 2.4); term(619, 436, "massa"); L([[626, 436], [668, 436]], "var(--fg)", 1.6, "5 4"); lamp(436, "J3 piedino −", "massa");
+  // LM2596
+  box(60, 74, 120, 62, "LM2596"); T(120, 116, "24 → 5,0 V", { a: "middle", sz: 12, mono: true });
+  L([[84, 74], [84, 44]], "var(--w-red)", 2); dot(84, 44); L([[84, 136], [84, 156], [46, 156], [46, 436]]); dot(46, 436);
+  L([[160, 136], [160, 196]], "var(--w-orange)", 2.2); L([[160, 166], [546, 166], [546, 316]], "var(--w-orange)", 2.2); dot(160, 166);
+  T(170, 160, "5 V", { sz: 12, w: 700, c: "var(--w-orange)" });
+  // NodeMCU
+  box(60, 196, 120, 190, "NodeMCU");
+  [["D1", 240], ["D5", 290], ["D7", 340]].forEach(([n, y]) => T(172, y + 4, n, { a: "end", sz: 12, mono: true, w: 600 }));
+  T(120, 372, "Vin ← 5 V", { a: "middle", sz: 11, c: MUT, mono: true });
+  L([[120, 386], [120, 436]]); dot(120, 436);
+  // W and B
+  [[240, "W", "var(--w-yellow)", "comando transistor W", "LED bianchi"], [290, "B", "#2e9e4f", "comando transistor B", "LED canale B"]].forEach(([y, n, col, t1, t2]) => {
+    L([[180, y], [232, y]], col, 2.2); Rh(232, y, "330 Ω"); L([[276, y], [612, y]], col, 2.2); term(619, y, n, col);
+    L([[626, y], [668, y]], col, 1.6, "5 4"); lamp(y, t1, t2);
+  });
+  // pump through PC817C
+  L([[180, 340], [232, 340]], "var(--hl)", 2.2); Rh(232, 340, "330 Ω"); L([[276, 340], [446, 340]], "var(--hl)", 2.2);
+  s.push(`<rect x="430" y="300" width="140" height="84" rx="6" style="fill:none;stroke:${MUT};stroke-width:1.2;stroke-dasharray:5 4"/>`); T(500, 400, "PC817C", { a: "middle", w: 700, sz: 12 });
+  s.push(`<polygon points="446,329 446,351 466,340" style="fill:var(--surface);stroke:var(--fg);stroke-width:1.6"/>`); L([[466, 329], [466, 351]]);
+  L([[466, 340], [486, 340], [486, 436]]); dot(486, 436); T(442, 324, "1", { a: "end", sz: 11 }); T(492, 358, "2", { sz: 11 });
+  [[334], [346]].forEach(([y]) => { L([[474, y - 14], [492, y - 20]], "var(--fg)", 1.2); });
+  L([[526, 322], [526, 358]], "var(--fg)", 2.4); L([[526, 330], [546, 316]]); L([[526, 350], [546, 364], [612, 364]], "var(--hl)", 2.2);
+  s.push(`<polygon points="546,364 536,362 541,355" style="fill:var(--fg)"/>`); T(552, 312, "4", { sz: 11 }); T(552, 382, "3", { sz: 11 });
+  term(619, 364, "P", "var(--hl)"); L([[626, 364], [668, 364]], "var(--hl)", 1.6, "5 4"); lamp(364, "J3 piedino C", "asta → modulo → pompa");
+  T(751, 98, "Ogni transistor ha già", { a: "middle", sz: 11, c: MUT }); T(751, 113, "4,7 kΩ dal suo chip e", { a: "middle", sz: 11, c: MUT }); T(751, 128, "10 kΩ verso massa.", { a: "middle", sz: 11, c: MUT });
+  $("schematic").innerHTML = s.join("");
+})();
+
+// ---------- connection scene ----------
+(function connection() {
+  const s = [], INK = "#2a2f33", MUT = "var(--muted)", PALE = "#d6f0dc";
+  const R = (x, y, w, h, f, st = "none", rx = 0, sw = 1.5, dash = "") => s.push(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="${rx}" style="fill:${f};stroke:${st};stroke-width:${sw}${dash ? ";stroke-dasharray:" + dash : ""}"/>`);
+  const Ci = (x, y, r, f, st = "none", sw = 1.2) => s.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" style="fill:${f};stroke:${st};stroke-width:${sw}"/>`);
+  const Pa = (d, st, sw = 2, dash = "") => s.push(`<path d="${d}" style="fill:none;stroke:${st};stroke-width:${sw};stroke-linecap:round;stroke-linejoin:round${dash ? ";stroke-dasharray:" + dash : ""}"/>`);
+  const T = (x, y, t, o = {}) => s.push(`<text x="${x}" y="${y}" text-anchor="${o.a || "start"}" style="font-family:IBM Plex Sans,sans-serif;font-size:${o.sz || 14}px;font-weight:${o.w || 400};fill:${o.c || "var(--fg)"}">${t}</text>`);
+  const Wr = (key, d, color) => s.push(`<g data-w="${key}"><path d="${d}" style="fill:none;stroke:rgba(255,255,255,.9);stroke-width:6.5;stroke-linecap:round;stroke-linejoin:round"/><path d="${d}" style="fill:none;stroke:${color};stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round"/></g>`);
+  const px = x => 70 + (x - 305) * 0.44, py = y => 50 + y * 0.3616;      // photo pixels -> scene
+  const smd = (x, y, w, h, label) => { R(x, y, w, h, "#c9cdd0", "none", 1, 0); R(x + w * 0.22, y, w * 0.56, h, "#1a1a1a", "none", 1, 0); if (label) T(x + w / 2, y + h - 2, label, { a: "middle", sz: 7, c: "#eee" }); };
+
+  R(0, 0, 1100, 720, "var(--stage)", "none", 12);
+  // ===== lamp board =====
+  T(200, 32, "Scheda della lampada (c'è già)", { a: "middle", w: 700, sz: 16 });
+  R(70, 50, 260, 640, "#1f6b3a", "#0f3d20", 5);
+  R(px(480), py(360), 97, 354, "#17532c", "none", 4); T(196, py(820), "zona dei tasti", { a: "middle", sz: 12, c: PALE, w: 600 }); T(196, py(820) + 16, "a sfioro:", { a: "middle", sz: 12, c: PALE }); T(196, py(820) + 32, "niente fili qui", { a: "middle", sz: 12, c: PALE });
+  Ci(px(655), py(45) + 8, 9, "#eceae4", "#8d9398"); Ci(px(640), py(1720), 9, "#eceae4", "#8d9398");
+  // J3 with rod wires
+  [75, 95, 111].forEach(y => Pa(`M22 ${y} L66 ${y}`, "#9aa1a7", 3));
+  T(20, 62, "dall'asta", { sz: 11, c: MUT });
+  R(64, py(20), 62, 60, "#e9e6dc", "#a9a69c", 3); [75, 95, 111].forEach(y => R(126, y - 4, 16, 8, "var(--gold)"));
+  T(96, 140, "J3", { a: "middle", sz: 13, c: "#fff", w: 700 });
+  // regulators and caps
+  R(px(380), py(215), 62, 45, "#141414", "#000", 2, 1); T(px(380) + 31, py(215) + 28, "78M12", { a: "middle", sz: 10, c: "#ddd" });
+  R(px(760), py(215), 50, 40, "#141414", "#000", 2, 1); T(px(760) + 25, py(215) + 25, "78M05", { a: "middle", sz: 10, c: "#ddd" });
+  Ci(px(660), py(175), 14, "#c3c8cc", "#666"); Ci(px(640), py(300), 14, "#c3c8cc", "#666"); Ci(px(780), py(410), 14, "#c3c8cc", "#666");
+  smd(px(770), py(95), 34, 9); smd(px(760), py(132), 40, 10, "202");
+  R(px(730), py(830), 32, 46, "#141414", "#000", 2, 1);
+  // LED connectors
+  R(64, py(1130), 62, 46, "#e9e6dc", "#a9a69c", 3); T(134, py(1130) + 20, "J1-W", { sz: 12, c: "#fff", w: 700 }); T(134, py(1130) + 35, "LED bianchi", { sz: 10, c: PALE });
+  R(64, py(1370), 62, 54, "#e9e6dc", "#a9a69c", 3); T(134, py(1370) + 16, "J2-B", { sz: 12, c: "#fff", w: 700 });
+  // transistors, resistors, MCU, buzzer
+  [1410, 1480, 1550].forEach((y, n) => { R(px(530), py(y), 15, 12, "#141414", "#000", 1, 0.8); T(px(530) - 4, py(y) + 10, ["Q5", "Q4", "Q3"][n], { a: "end", sz: 9, c: "#fff" }); });
+  [[1415, "103"], [1447, "472"], [1482, "472"], [1514, "103"], [1556, ""], [1588, ""]].forEach(([y, l]) => smd(px(620), py(y), 30, 8, l));
+  R(px(700), py(1420), 74, 30, "#141414", "#000", 2, 1); T(px(700) + 37, py(1420) + 20, "U6", { a: "middle", sz: 11, c: "#ddd" });
+  R(px(370), py(1600), 64, 52, "#1c1c1c", "#000", 6);
+  // tap areas
+  R(150, 64, 54, 56, "none", "#fff", 6, 1.6, "4 3"); T(177, 136, "+, − e C", { a: "middle", sz: 11, c: "#fff", w: 600 });
+  R(203, 556, 40, 52, "none", "#fff", 6, 1.6, "4 3");
+
+  // ===== inset =====
+  Pa("M243 556 L450 190", MUT, 1.2, "4 5"); Pa("M243 608 L450 470", MUT, 1.2, "4 5");
+  R(450, 190, 250, 280, "var(--surface)", "var(--line)", 10, 1.5);
+  T(575, 214, "Ingrandimento: transistor dei LED", { a: "middle", w: 700, sz: 13 });
+  const big = (x, y, label, tap) => { R(x, y, 12, 20, "#c9cdd0"); R(x + 12, y, 44, 20, "#1a1a1a"); R(x + 56, y, 12, 20, "#c9cdd0"); T(x + 34, y + 15, label, { a: "middle", sz: 12, c: "#fff", w: 600 }); if (tap) { Ci(x + 6, y + 10, 7, "var(--surface)", "var(--hl)", 2.4); } };
+  [[244, "Q5"], [330, "Q4"]].forEach(([y, n]) => { R(478, y, 30, 44, "#141414", "#000", 3, 1); T(493, y + 20, n, { a: "middle", sz: 11, c: "#fff", w: 700 }); T(493, y + 34, "R0", { a: "middle", sz: 10, c: "#bbb" }); });
+  big(560, 240, "103"); big(560, 266, "472", true); big(560, 328, "472", true); big(560, 354, "103");
+  T(636, 281, "← qui", { sz: 12, w: 700, c: "var(--hl)" }); T(636, 343, "← qui", { sz: 12, w: 700, c: "var(--hl)" });
+  T(575, 398, "Giallo e verde si saldano sul capo della", { a: "middle", sz: 12 }); T(575, 414, "«472» dal lato del transistor.", { a: "middle", sz: 12 });
+  T(575, 436, "Prima verifica: da quel punto alla massa", { a: "middle", sz: 12, c: MUT }); T(575, 452, "il tester legge 10 kΩ.", { a: "middle", sz: 12, c: MUT });
+
+  // ===== your board =====
+  T(895, 206, "La tua scheda", { a: "middle", w: 700, sz: 16 });
+  const k = 4.19, bx = x => 740 + x * k, by = y => 230 + y * k;
+  R(740, 230, 74 * k, 70 * k, "var(--pb)", "var(--pb-edge)", 2);
+  R(bx(2.4), by(9.2), 21 * k, 43 * k, "var(--lm)", "#173a70", 3); Ci(bx(16.8), by(15.5), 13, "#c3c8cc", "#555"); R(bx(7.3), by(23), 12 * k, 12 * k, "#2b2b2b", "#000", 4); Ci(bx(16.8), by(45.5), 12, "#c3c8cc", "#555");
+  T(bx(12.9), by(56.5), "LM2596", { a: "middle", sz: 11, c: INK, w: 600 });
+  R(bx(27.9), by(5.5), 31 * k, 58 * k, "var(--pcb)", "#000", 5); R(bx(33.4), by(10.6), 20 * k, 14.5 * k, "#c3c8cc", "#8f959a", 2); T(bx(43.4), by(19), "ESP-12", { a: "middle", sz: 11, c: "#4b5157", w: 600 });
+  T(bx(43.4), by(36), "NodeMCU", { a: "middle", sz: 14, c: "#fff", w: 600 }); R(bx(39.6), by(60.3), 7.6 * k, 4.4 * k, "#c3c8cc", "#7e8489", 2, 1);
+  for (let n = 0; n < 15; n++) { R(bx(X(22)) - 2.5, by(Y(6 + n)) - 2.5, 5, 5, "var(--gold)"); R(bx(X(11)) - 2.5, by(Y(6 + n)) - 2.5, 5, 5, "var(--gold)"); }
+  [[RW, "D1"], [RB, "D5"], [RP, "D7"]].forEach(([r, n]) => {
+    Pa(`M${bx(X(23))} ${by(Y(r))} L${bx(X(27))} ${by(Y(r))}`, "#c3c8cc", 2); R(bx(X(25)) - 13, by(Y(r)) - 5, 26, 10, "var(--res)", "#2f5e93", 3, 0.8);
+    T(bx(X(22)) - 6, by(Y(r)) + 3, n, { a: "end", sz: 9, c: "#e9edf0" });
+  });
+  R(bx(X(24)) + 2, by(Y(O1)) - 6, bx(X(27)) - bx(X(24)) - 4, by(Y(O2)) - by(Y(O1)) + 12, "#202020", "#000", 2, 0.8); Ci(bx(X(27)) - 7, by(Y(O1)) - 2, 1.8, "#f2f2f2");
+  T(bx(74) + 6, by(Y(RW)) + 4, "W", { w: 700, sz: 12 }); T(bx(74) + 6, by(Y(RB)) + 4, "B", { w: 700, sz: 12 }); T(bx(X(25.5)), by(Y(O2)) + 22, "PC817C", { a: "middle", sz: 10, c: INK, w: 600 });
+
+  // ===== wires =====
+  const yW = by(Y(RW)), yB = by(Y(RB)), xo = bx(X(27)), xp = bx(X(24)), yp = by(Y(O2)), xr = bx(X(1)), xk = bx(X(8)), yi = by(Y(19));
+  Wr("red", `M${xr} ${yi} V536 H424 V78 H204`, "var(--w-red)");
+  Wr("black", `M${xk} ${yi} V548 H412 V93 H204`, "var(--w-black)");
+  Wr("blue", `M${xp} ${yp} V560 H400 V108 H204`, "var(--hl)");
+  Wr("green", `M${xo} ${yB} H1066 V632 H268 V596 H243`, "#2e9e4f");
+  Wr("yellow", `M${xo} ${yW} H1082 V644 H223 V608`, "var(--w-yellow)");
+  [[xr, yi], [xk, yi], [xp, yp], [xo, yW], [xo, yB]].forEach(([x, y]) => Ci(x, y, 4, "#d3d7da", "#7f868b", 1));
+  T(600, 600, "cinque fili sottili, lunghi 15–20 cm", { a: "middle", sz: 13, c: MUT });
+
+  $("scene").innerHTML = s.join("");
+  let hl = null;
+  $("wires").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    hl = hl === b.dataset.k ? null : b.dataset.k;
+    $("wires").querySelectorAll("button").forEach(o => o.setAttribute("aria-pressed", o.dataset.k === hl));
+    $("scene").querySelectorAll("g[data-w]").forEach(g => g.classList.toggle("dim", hl !== null && g.dataset.w !== hl));
+  }));
+})();
+
+go(idx);
+})();
+</script>

@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" font-family="Helvetica, Arial, sans-serif">
+<defs><marker id="ah" markerWidth="10" markerHeight="10" refX="6" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#1f6feb"/></marker></defs>
+<rect x="0" y="0" width="1600" height="980" rx="0" fill="#eceff1" stroke="none" stroke-width="1.5"/>
+<text x="40" y="54" font-size="32" text-anchor="start" fill="#1c2227" font-weight="700">Regolare il LM2596 a 5,0 V</text>
+<text x="40" y="88" font-size="20" text-anchor="start" fill="#5b6770" font-weight="400">Solo il modulo blu sul tavolo. Il NodeMCU resta scollegato.</text>
+<rect x="50" y="330" width="120" height="150" rx="12" fill="#1c1c1c" stroke="#000" stroke-width="1.5"/>
+<text x="110" y="398" font-size="24" text-anchor="middle" fill="#fff" font-weight="700">24 V</text>
+<text x="110" y="426" font-size="14" text-anchor="middle" fill="#bbb" font-weight="400">alimentatore</text>
+<rect x="72" y="306" width="12" height="26" rx="0" fill="#c3c8cc" stroke="none" stroke-width="1.5"/>
+<rect x="136" y="306" width="12" height="26" rx="0" fill="#c3c8cc" stroke="none" stroke-width="1.5"/>
+<path d="M170 405 C 230 405 230 405 270 405" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M170 405 C 230 405 230 405 270 405" fill="none" stroke="#1c1c1c" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="268" y="388" width="60" height="34" rx="6" fill="#2a2a2a" stroke="#000" stroke-width="1.5"/>
+<rect x="326" y="396" width="22" height="18" rx="2" fill="#c3c8cc" stroke="#777" stroke-width="1.5"/>
+<rect x="352" y="372" width="70" height="66" rx="10" fill="#111" stroke="#000" stroke-width="1.5"/>
+<text x="387" y="462" font-size="16" text-anchor="middle" fill="#5b6770" font-weight="400">jack</text>
+<path d="M422 392 C 480 392 500 322 582 322" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M422 392 C 480 392 500 322 582 322" fill="none" stroke="#d42a2a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M422 418 C 480 418 500 493 582 493" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M422 418 C 480 418 500 493 582 493" fill="none" stroke="#161616" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="470" y="318" font-size="15" text-anchor="middle" fill="#d42a2a" font-weight="700">centro del jack</text>
+<text x="470" y="520" font-size="15" text-anchor="middle" fill="#1c2227" font-weight="700">esterno del jack</text>
+<rect x="560" y="300" width="440" height="215" rx="8" fill="#2458a8" stroke="#173a70" stroke-width="2"/>
+<circle cx="652" cy="408" r="46" fill="#c3c8cc" stroke="#555" stroke-width="1.5"/>
+<text x="652" y="404" font-size="15" text-anchor="middle" fill="#333" font-weight="400">100 µF</text>
+<text x="652" y="423" font-size="13" text-anchor="middle" fill="#333" font-weight="400">50 V</text>
+<rect x="710" y="352" width="86" height="110" rx="4" fill="#111" stroke="none" stroke-width="1.5"/>
+<text x="753" y="412" font-size="14" text-anchor="middle" fill="#aaa" font-weight="400">LM2596</text>
+<rect x="810" y="378" width="96" height="96" rx="10" fill="#2b2b2b" stroke="#000" stroke-width="1.5"/>
+<text x="858" y="435" font-size="24" text-anchor="middle" fill="#ddd" font-weight="700">470</text>
+<circle cx="952" cy="450" r="36" fill="#c3c8cc" stroke="#555" stroke-width="1.5"/>
+<text x="952" y="455" font-size="13" text-anchor="middle" fill="#333" font-weight="400">220 µF</text>
+<rect x="812" y="314" width="92" height="50" rx="4" fill="#3f74c9" stroke="#1b3f7a" stroke-width="2"/>
+<circle cx="882" cy="339" r="15" fill="#d9b45a" stroke="#7a6427" stroke-width="2"/>
+<path d="M871 339 L893 339" fill="none" stroke="#5c4a1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="567" y="307" width="30" height="30" rx="4" fill="#d9b45a" stroke="#7a6427" stroke-width="1.5"/>
+<circle cx="582" cy="322" r="5" fill="#2458a8" stroke="none" stroke-width="1.5"/>
+<rect x="567" y="478" width="30" height="30" rx="4" fill="#d9b45a" stroke="#7a6427" stroke-width="1.5"/>
+<circle cx="582" cy="493" r="5" fill="#2458a8" stroke="none" stroke-width="1.5"/>
+<rect x="963" y="307" width="30" height="30" rx="4" fill="#d9b45a" stroke="#7a6427" stroke-width="1.5"/>
+<circle cx="978" cy="322" r="5" fill="#2458a8" stroke="none" stroke-width="1.5"/>
+<rect x="963" y="478" width="30" height="30" rx="4" fill="#d9b45a" stroke="#7a6427" stroke-width="1.5"/>
+<circle cx="978" cy="493" r="5" fill="#2458a8" stroke="none" stroke-width="1.5"/>
+<text x="600" y="292" font-size="20" text-anchor="start" fill="#1c2227" font-weight="700">IN+</text>
+<text x="600" y="540" font-size="20" text-anchor="start" fill="#1c2227" font-weight="700">IN−</text>
+<text x="960" y="292" font-size="20" text-anchor="end" fill="#1c2227" font-weight="700">OUT+</text>
+<text x="960" y="540" font-size="20" text-anchor="end" fill="#1c2227" font-weight="700">OUT−</text>
+<path d="M882 333 L842 209" fill="none" stroke="#9aa1a7" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M842 209 L812 119" fill="none" stroke="#f08a00" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M916 313 A 42 42 0 1 1 842 323" fill="none" stroke="#1f6feb" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M830 309 L844 331 L858 309 Z" fill="#1f6feb"/>
+<text x="942" y="189" font-size="17" text-anchor="start" fill="#1f6feb" font-weight="700">vite del trimmer:</text>
+<text x="942" y="211" font-size="17" text-anchor="start" fill="#1f6feb" font-weight="400">tanti giri, piano</text>
+<rect x="1180" y="170" width="300" height="500" rx="26" fill="#f2b632" stroke="#a87410" stroke-width="3"/>
+<rect x="1210" y="204" width="240" height="110" rx="8" fill="#c9d6c0" stroke="#56604f" stroke-width="3"/>
+<text x="1330" y="288" font-size="78" text-anchor="middle" fill="#1f2a1c" font-weight="700">5.00</text>
+<circle cx="1330" cy="450" r="86" fill="#2b2b2b" stroke="#111" stroke-width="3"/>
+<path d="M1330 450 L1276 388" fill="none" stroke="#f5f5f5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1234" y="374" font-size="26" text-anchor="middle" fill="#1c2227" font-weight="700">V</text>
+<path d="M1246 360 h18 M1246 367 h4 m4 0 h4 m4 0 h2" fill="none" stroke="#1c2227" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1228" y="402" font-size="18" text-anchor="middle" fill="#1c2227" font-weight="700">20</text>
+<circle cx="1276" cy="610" r="20" fill="#111" stroke="#000" stroke-width="1.5"/>
+<circle cx="1384" cy="610" r="20" fill="#d42a2a" stroke="#7d1414" stroke-width="1.5"/>
+<text x="1276" y="652" font-size="15" text-anchor="middle" fill="#1c2227" font-weight="700">COM</text>
+<text x="1384" y="652" font-size="15" text-anchor="middle" fill="#1c2227" font-weight="700">V Ω</text>
+<path d="M1384 610 C 1384 705, 1150 705, 1058 392" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1384 610 C 1384 705, 1150 705, 1058 392" fill="none" stroke="#d42a2a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1276 610 C 1276 690, 1130 690, 1062 562" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1276 610 C 1276 690, 1130 690, 1062 562" fill="none" stroke="#161616" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1040 345 L990 326" fill="none" stroke="#9aa1a7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1042 515 L990 497" fill="none" stroke="#9aa1a7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1058 392 L1040 345" fill="none" stroke="#d42a2a" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1062 562 L1042 515" fill="none" stroke="#161616" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="505" cy="250" r="24" fill="#1f6feb" stroke="#fff" stroke-width="4"/>
+<text x="505" y="259" font-size="26" text-anchor="middle" fill="#fff" font-weight="700">1</text>
+<circle cx="1110" cy="250" r="24" fill="#1f6feb" stroke="#fff" stroke-width="4"/>
+<text x="1110" y="259" font-size="26" text-anchor="middle" fill="#fff" font-weight="700">2</text>
+<circle cx="762" cy="149" r="24" fill="#1f6feb" stroke="#fff" stroke-width="4"/>
+<text x="762" y="158" font-size="26" text-anchor="middle" fill="#fff" font-weight="700">3</text>
+<rect x="40" y="720" width="1520" height="232" rx="14" fill="#fff" stroke="#d3d9de" stroke-width="1.5"/>
+<circle cx="84" cy="763" r="19" fill="#1f6feb" stroke="none" stroke-width="1.5"/>
+<text x="84" y="770" font-size="21" text-anchor="middle" fill="#fff" font-weight="700">1</text>
+<text x="120" y="770" font-size="20" text-anchor="start" fill="#1c2227" font-weight="400">Collega l'ingresso, a corrente staccata: il filo del centro del jack su IN+, quello dell'esterno su IN−.</text>
+<circle cx="84" cy="813" r="19" fill="#1f6feb" stroke="none" stroke-width="1.5"/>
+<text x="84" y="820" font-size="21" text-anchor="middle" fill="#fff" font-weight="700">2</text>
+<text x="120" y="820" font-size="20" text-anchor="start" fill="#1c2227" font-weight="400">Tester su tensione continua, portata 20 V: puntale rosso su OUT+, puntale nero su OUT−. Poi attacca l'alimentatore.</text>
+<circle cx="84" cy="863" r="19" fill="#1f6feb" stroke="none" stroke-width="1.5"/>
+<text x="84" y="870" font-size="21" text-anchor="middle" fill="#fff" font-weight="700">3</text>
+<text x="120" y="870" font-size="20" text-anchor="start" fill="#1c2227" font-weight="400">Gira piano la vite del trimmer finché il tester segna 5,0 V (va bene da 4,9 a 5,2). Poi stacca l'alimentatore.</text>
+<text x="84" y="928" font-size="16" text-anchor="start" fill="#5b6770" font-weight="400">Su OUT+ e OUT− non c'è collegato nulla, solo i puntali. Se il tester segna un valore negativo, i due fili d'ingresso sono invertiti: stacca e scambiali.</text>
+</svg>
