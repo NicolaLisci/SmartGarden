@@ -46,7 +46,8 @@ button small{font-weight:500;font-size:14px}
 <script>
 let s={};
 function show(j){s=j;for(const k of['w','b','p']){const e=document.getElementById(k),on=j[k];e.classList.toggle('on',on);e.setAttribute('aria-pressed',on);
-e.querySelector('small').textContent=on?(k=='p'?'acceso · '+Math.ceil(j.pumpLeft/1000)+' s':'acceso'):'libero'}
+const l=j['l'+k];
+e.querySelector('small').textContent=on?(k=='p'?'acceso · '+Math.ceil(j.pumpLeft/1000)+' s':'acceso'):(l===undefined?'libero':'libero · lampada: '+(l?'accesa':'spenta'))}
 document.getElementById('st').textContent='collegato · IP '+location.host}
 function go(u){return fetch(u,{method:'POST'}).then(r=>r.json()).then(show).catch(()=>st.textContent='non raggiungibile')}
 function t(k){if(navigator.vibrate)navigator.vibrate(10);go('/set?ch='+k+'&on='+(s[k]?0:1))}
@@ -56,10 +57,15 @@ poll();setInterval(poll,1000);
 
 void sendState() {
   const uint32_t left = forced[2] ? pumpUntil - millis() : 0;
-  char json[64];
-  snprintf(json, sizeof json, "{\"w\":%s,\"b\":%s,\"p\":%s,\"pumpLeft\":%lu}",
+  // While a light pin is free (INPUT) it reads the lamp's own command line through 330 Ω.
+  // Meaningful only if the lamp's stage keeps that line above ~2.5 V when on (unverified).
+  // The pump pin drives the PC817C LED and cannot read anything back.
+  const int lw = forced[0] ? -1 : digitalRead(PINS[0]);
+  const int lb = forced[1] ? -1 : digitalRead(PINS[1]);
+  char json[96];
+  snprintf(json, sizeof json, "{\"w\":%s,\"b\":%s,\"p\":%s,\"pumpLeft\":%lu,\"lw\":%d,\"lb\":%d}",
            forced[0] ? "true" : "false", forced[1] ? "true" : "false", forced[2] ? "true" : "false",
-           (unsigned long)left);
+           (unsigned long)left, lw, lb);
   server.send(200, "application/json", json);
 }
 
