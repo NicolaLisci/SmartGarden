@@ -55,8 +55,9 @@ mobile app over Wi-Fi at `http://smartgarden.local`, and keeps a log of everythi
 
 Warm off-white surfaces, a muted olive green taken from a ceramic pot, and nothing on
 screen that the device cannot actually do: controls without a function are not shown and
-no number is made up. The garden image is a generated render (lights on and off cross-fade
-with the real light state); its olive finish is a design choice, the real unit is white.
+no number is made up. The garden is a generated top-down render with the real pod layout
+(lights on and off cross-fade with the real light state); its olive finish is a design
+choice, the real unit is white.
 
 ## How it works
 
