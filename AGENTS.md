@@ -116,8 +116,13 @@ NodeMCU on USB and the lamp **off the base** (never USB and 24 V together). The 
 firmware (spec 003, ESPHome or Arduino: decision D-002) is not written yet.
 
 `firmware/ota-base` is the OTA-capable base (outputs released, Wi-Fi + ArduinoOTA). It
-needs `firmware/ota-base/secrets.h` (git-ignored; copy `secrets.h.example`). Once it runs,
-upload any sketch over Wi-Fi, lamp on its base, with
-`upload -p <ip> --protocol network --fqbn esp8266:esp8266:nodemcuv2 --upload-field password=<OTA_PASSWORD> <sketch>`.
-Every sketch sent this way must itself include ArduinoOTA with the same credentials, or
-the next update needs the USB cable again.
+needs `firmware/ota-base/secrets.h` (git-ignored; copy `secrets.h.example`).
+
+The board is closed inside the lamp head, so OTA must never be lost. **Every Wi-Fi
+update goes through `firmware/tools/ota-upload.sh <sketch-dir>`**, never through
+`arduino-cli upload --protocol network` or `espota.py` directly. The script blocks a
+build whose OTA password differs from `firmware/ota-base/secrets.h` or that does not link
+ArduinoOTA `begin`/`setPassword`/`handle`, and after the upload it checks that the board
+answers again. Never work around a `BLOCKED:` message. New sketches start from
+`ota-base.ino` and call `ArduinoOTA.handle()` on every `loop()` pass without blocking.
+Details: `.claude/skills/ota-upload/SKILL.md`.
