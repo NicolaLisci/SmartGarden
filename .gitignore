@@ -7,3 +7,4 @@ firmware/.esphome/
 
 # Arduino firmware credentials
 firmware/*/secrets.h
+firmware/build/
