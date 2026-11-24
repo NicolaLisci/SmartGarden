@@ -59,8 +59,23 @@ firmware, then the final firmware (D-002). The table and blockers below date fro
     (outputs always released, Wi-Fi + ArduinoOTA with password; credentials in
     `firmware/ota-base/secrets.h`, git-ignored, entered by Nicola). The board joined the
     home Wi-Fi (IP 192.168.1.17 from DHCP, hostname `smartgarden`) and one upload over the
-    network succeeded with the board on USB power. Not yet checked: Wi-Fi reception with
-    the board inside the lamp head on the 24 V supply.
+    network succeeded with the board on USB power. Checked 2026-11-24 evening: Wi-Fi works
+    with the board mounted in the lamp head on 24 V; two OTA uploads went through
+    `firmware/tools/ota-upload.sh` (the only allowed path: it refuses builds without
+    ArduinoOTA and checks the board answers afterwards; a Claude Code hook blocks direct
+    network uploads). The board now runs `firmware/web-test` (page at
+    `http://192.168.1.17/`: force W, B, pump on; pump auto-off after 10 s). The lamp was
+    closed without a safe-mode fallback (Nicola's choice): a crashing sketch or a Wi-Fi
+    change would need the lamp opened.
+    Open, 2026-11-24: the pump does not start from our D7 command although the firmware
+    drives D7 high for 10 s; the lamp starts the pump itself at power-up, so pump and Q2
+    work. Hypothesis, not measured: while the lamp holds the pump off it pulls J3 C low and
+    the PC817C cannot overcome it. Next check: volts J3 C ↔ J3 − while D7 is on. If it is
+    ~0 V, move our command after the lamp MCU (Q2 control pin), which would also let the
+    app switch the pump off; today our outputs can only add "on". Needs the lamp opened.
+    Observed by Nicola the same evening: W and B turn on and off from the page; the pump
+    ran at power-up (lamp), stopped, and the lamp restarted it at about 20:57 and kept it
+    running after our 10 s command ended. Timing the lamp's pump cycle is still open.
 13. App design, 2026-11-24. Agreed requirements: a web page served by the lamp
     (Arduino firmware, D-002 option A); the three cycles 14/10, 12/12, 16/8, one at a
     time, with a chosen start hour; intensities from Schmidt's scenes on the two channels

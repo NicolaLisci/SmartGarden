@@ -125,4 +125,6 @@ build whose OTA password differs from `firmware/ota-base/secrets.h` or that does
 ArduinoOTA `begin`/`setPassword`/`handle`, and after the upload it checks that the board
 answers again. Never work around a `BLOCKED:` message. New sketches start from
 `ota-base.ino` and call `ArduinoOTA.handle()` on every `loop()` pass without blocking.
-Details: `.claude/skills/ota-upload/SKILL.md`.
+Details: `.claude/skills/ota-upload/SKILL.md`. On Claude Code the PreToolUse hook
+`.claude/hooks/guard-ota.py` blocks any direct network upload. `firmware/web-test` is a
+test page at `http://smartgarden.local/` to force W, B and the pump (10 s max) on.
