@@ -128,3 +128,5 @@ answers again. Never work around a `BLOCKED:` message. New sketches start from
 Details: `.claude/skills/ota-upload/SKILL.md`. On Claude Code the PreToolUse hook
 `.claude/hooks/guard-ota.py` blocks any direct network upload. `firmware/web-test` is a
 test page at `http://smartgarden.local/` to force W, B and the pump (10 s max) on.
+When Nicola reports a lamp pump start or stop time, append it to
+`docs/hardware/pump-timing-log.md` and update its analysis.
