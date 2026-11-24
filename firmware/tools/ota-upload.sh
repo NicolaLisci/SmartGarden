@@ -25,6 +25,11 @@ if [[ "${1:-}" == "--app" ]]; then
   # Only what the browser needs: no tests, no dev server, no docs.
   (cd "$ROOT/app" && find index.html manifest.json apple-touch-icon.png apple-touch-icon-precomposed.png css js assets -type f ! -name '*.test.mjs' ! -name '*.svg' -print0 | xargs -0 -I{} cp -p --parents {} "$OUT/data/www/" 2>/dev/null) \
     || (cd "$ROOT/app" && find index.html manifest.json apple-touch-icon.png apple-touch-icon-precomposed.png css js assets -type f ! -name '*.test.mjs' ! -name '*.svg' | while read -r f; do mkdir -p "$OUT/data/www/$(dirname "$f")"; cp "$f" "$OUT/data/www/$f"; done)
+  # Cache busting: the board serves css/js with max-age, so each upload gets new URLs.
+  # index.html is served no-cache; it and every module import carry ?v=<stamp>.
+  STAMP="$(date +%s)"
+  sed -i '' -E "s#(href=\"css/[a-z]+\.css)\"#\1?v=$STAMP\"#g; s#(src=\"js/app\.js)\"#\1?v=$STAMP\"#" "$OUT/data/www/index.html"
+  sed -i '' -E "s#(from '\./[a-z]+\.js)'#\1?v=$STAMP'#g" "$OUT/data/www/js/"*.js
   find "$OUT/data/www/css" "$OUT/data/www/js" -type f \( -name '*.css' -o -name '*.js' \) -exec gzip -9 {} \;
   # Layout of eesz=4M2M (boards.txt): FS 0x200000–0x3FA000, page 256, block 8192.
   "$MKFS" -c "$OUT/data" -p 256 -b 8192 -s $((0x3FA000 - 0x200000)) "$OUT/fs.bin" >/dev/null

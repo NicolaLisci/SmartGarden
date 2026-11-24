@@ -319,7 +319,7 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
 .tag-soon { margin: 0 0 0 auto; padding: 4px 10px; font-size: 12px; white-space: nowrap; }
 
 /* ---------- home dashboard (bento) ---------- */
-.home .display { margin-top: 18px; font-size: 32px; }
+.home .display { margin-top: 14px; font-size: 30px; }
 .home .hero { flex: none; min-height: 0; margin-top: 0; }
 .home .hero img { width: min(80%, 330px); max-height: 30dvh; }
 .hero-chip {
@@ -378,7 +378,9 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
 
 /* garden render: lights-off and lights-on images cross-fade with the real light state */
 .home .hero { display: block; margin: 4px calc(var(--pad) * -1) 0; }
-.hero-stack { position: relative; display: block; width: 100%; aspect-ratio: 4 / 3; max-height: 34dvh; margin: 0 auto; }
+.hero { overflow: hidden; }
+/* The render has ~8 % empty margin: bleed it past the screen edges so the garden itself is larger. */
+.hero-stack { position: relative; display: block; width: 122%; margin-left: -11%; aspect-ratio: 4 / 3; }
 .hero-stack img {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; max-height: none; filter: none;
   --fade: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent), linear-gradient(transparent, #000 8%, #000 92%, transparent);

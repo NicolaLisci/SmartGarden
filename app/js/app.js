@@ -321,7 +321,9 @@ function update() {
   set('offline', el => { el.hidden = device.status !== 'offline'; });
   app.querySelectorAll('[data-action]').forEach(el => {
     if (['cycle', 'start', 'period'].includes(el.dataset.action)) return; // local, not device commands
-    el.disabled = !ok || pending;
+    // Only an offline lamp disables controls; a command in flight must not flash every button.
+    el.disabled = !ok;
+    el.toggleAttribute('aria-busy', pending);
   });
 
   const sp0 = spectrum();
@@ -398,6 +400,7 @@ app.addEventListener('click', e => {
   }
   const el = e.target.closest('button[data-action]');
   if (!el || el.disabled) return;
+  if (device.pending && !['cycle', 'period'].includes(el.dataset.action)) return; // one command at a time
   const { action, value } = el.dataset;
   if (action === 'spectrum') {
     // Each card is a toggle: tapping the lit one switches the light back off.
