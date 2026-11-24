@@ -30,6 +30,8 @@ if [[ "${1:-}" == "--app" ]]; then
   STAMP="$(date +%s)"
   sed -i '' -E "s#(href=\"css/[a-z]+\.css)\"#\1?v=$STAMP\"#g; s#(src=\"js/app\.js)\"#\1?v=$STAMP\"#" "$OUT/data/www/index.html"
   sed -i '' -E "s#(from '\./[a-z]+\.js)'#\1?v=$STAMP'#g" "$OUT/data/www/js/"*.js
+  # Images too (the garden renders change between uploads): every assets/...png|jpg in the code.
+  sed -i '' -E "s#(assets/[^\"' ]+\.(png|jpg))#\1?v=$STAMP#g" "$OUT/data/www/js/"*.js
   find "$OUT/data/www/css" "$OUT/data/www/js" -type f \( -name '*.css' -o -name '*.js' \) -exec gzip -9 {} \;
   # Layout of eesz=4M2M (boards.txt): FS 0x200000–0x3FA000, page 256, block 8192.
   "$MKFS" -c "$OUT/data" -p 256 -b 8192 -s $((0x3FA000 - 0x200000)) "$OUT/fs.bin" >/dev/null
