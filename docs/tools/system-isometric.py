@@ -233,60 +233,58 @@ for s in body:
 xs, ys = nums[0::2], nums[1::2]
 DW = max(xs) - min(xs)
 ox, oy = -min(xs) + 40, -min(ys) + 110
-LX = DW + 110                                     # legend column
-W = LX + 360
-H = max(max(ys) + oy + 40, 900)
+W, H = 1200, 990
+TOP = 150                                          # below the title block
+DH = max(ys) - min(ys)
+SC = min(700 / DW, (H - TOP - 40) / DH)            # fit the drawing in the left 700 units
+ox, oy = 40 - min(xs) * SC, TOP - min(ys) * SC
+LX, CW, CH, GAP = 770, 390, 64, 8                  # legend column: fixed cards
 
 LEGEND = [
-    ('Base', 'Water tank with seven pods; the plants grow here.'),
-    ('Pump', 'Sits in the water, plugged into socket DC2.'),
-    ('Power module', 'DC1 adapter in, DC2 pump, DC3 rod plug. Its Q2 switches the pump on command C.'),
-    ('24 V adapter', 'The only power input: 24 V DC, 25 W.'),
-    ('Telescopic rod', 'Three wires only: +24 V, GND and the pump command C.'),
-    ('LED panel', 'Faces down: W = white + red LEDs, B = blue LEDs. No resistors, fed by the lamp board.'),
-    ('Lamp board "Y2020"', 'The original: touch keys, its own MCU, J3 from the rod, Q4/Q5 for W and B.'),
-    ('LM2596', '24 V from J3 down to 5.0 V for the NodeMCU.'),
-    ('NodeMCU (ESP8266)', 'Wi-Fi, the app, the light cycle, settings and log. Added by SmartGarden.'),
-    ('Our three commands', 'D1 → 330 Ω → W · D5 → 330 Ω → B · D7 → PC817C → J3 C (pump: still open).'),
-    ('Cover', 'Top of the head with the lamp\'s touch keys, which keep working.'),
+    ('Base', 'Water tank, seven pods'),
+    ('Pump', 'In the water, socket DC2'),
+    ('Power module', 'DC1 in · DC2 pump · DC3 rod'),
+    ('24 V adapter', 'The only power input'),
+    ('Telescopic rod', 'Three wires: +24 V · GND · C'),
+    ('LED panel', 'Faces down: W white + red, B blue'),
+    ('Lamp board Y2020', 'Original: keys, MCU, Q4 / Q5'),
+    ('LM2596', '24 V → 5 V for the NodeMCU'),
+    ('NodeMCU ESP8266', 'Wi-Fi, app, light cycle, log'),
+    ('Our three commands', 'D1 → W · D5 → B · D7 → pump'),
+    ('Cover', 'Touch keys keep working'),
 ]
+OURS = {8, 9, 10}
 
-def wrap(t, n=46):
-    words, lines, cur = t.split(), [], ''
-    for w in words:
-        if len(cur) + len(w) + 1 > n: lines.append(cur); cur = w
-        else: cur = f'{cur} {w}'.strip()
-    return lines + [cur]
-
-out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W:.0f} {H:.0f}" width="{W:.0f}" height="{H:.0f}" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif">',
+out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif">',
+       '<title id="t">Where SmartGarden lives in the Duronic GHS37</title>',
+       '<desc id="d">Exploded isometric view: base with water, pods, pump and power module; the rod with three wires; the lamp head with the LED panel underneath, the original lamp board, and the added LM2596, NodeMCU and command wiring; the cover with touch keys.</desc>',
        '<defs>',
        '<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbfaf6"/><stop offset="1" stop-color="#eeeadf"/></linearGradient>',
        '<radialGradient id="ground"><stop offset="0" stop-color="#3d3a33" stop-opacity=".18"/><stop offset="1" stop-color="#3d3a33" stop-opacity="0"/></radialGradient>',
        '<linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3c4" stop-opacity=".75"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></linearGradient>',
-       '<filter id="soft" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#3d3a33" flood-opacity=".14"/></filter>',
        '</defs>',
-       f'<rect width="{W:.0f}" height="{H:.0f}" rx="22" fill="url(#bg)"/>',
-       f'<text x="40" y="52" font-size="26" font-weight="700" fill="#24221e" letter-spacing="-.3">Where SmartGarden lives</text>',
-       f'<text x="40" y="78" font-size="15" fill="#6b665c">An exploded view of the Duronic GHS37. The controller sits in the lamp head, above the LEDs.</text>',
-       f'<g transform="translate({ox:.1f},{oy:.1f})">', *body]
-for nmb, X, Y, col in badges:
-    out.append(f'<g filter="url(#soft)"><circle cx="{X:.1f}" cy="{Y:.1f}" r="11" fill="{col}"/><text x="{X:.1f}" y="{Y + 4.3:.1f}" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">{nmb}</text></g>')
-out.append('</g>')
-y = 112
+       f'<rect width="{W}" height="{H}" rx="26" fill="url(#bg)"/>',
+       '<text x="56" y="78" font-size="42" font-weight="750" fill="#24221e" letter-spacing="-.6">Where SmartGarden lives</text>',
+       '<text x="56" y="114" font-size="21" fill="#6b665c">The controller sits in the lamp head, right above the LEDs.</text>',
+       f'<g transform="translate({ox:.1f},{oy:.1f}) scale({SC:.4f})">', *body, '</g>']
+
+def chip(n, X, Y, ours):
+    col = '#b07a12' if ours else '#3f4a33'
+    return (f'<circle cx="{X:.1f}" cy="{Y:.1f}" r="16" fill="#ffffff" fill-opacity=".9"/>'
+            f'<circle cx="{X:.1f}" cy="{Y:.1f}" r="13.5" fill="{col}"/>'
+            f'<text x="{X:.1f}" y="{Y + 6:.1f}" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">{n}</text>')
+
+for n, X, Y, _ in badges:
+    out.append(chip(n, ox + X * SC, oy + Y * SC, n in OURS))
+y = TOP - 6
 for i, (title, text) in enumerate(LEGEND, 1):
-    lines = wrap(text)
-    h = 30 + 17 * len(lines)
-    col = '#9a6a12' if i == 10 else '#3f4a33'
-    ours = i in (8, 9, 10)
-    out.append(f'<g filter="url(#soft)"><rect x="{LX}" y="{y}" width="330" height="{h}" rx="12" fill="{"#f3f6ee" if ours else "#ffffff"}" stroke="{"#b9c9a6" if ours else "#e6e1d6"}"/></g>')
-    out.append(f'<circle cx="{LX + 22}" cy="{y + 21}" r="11" fill="{col}"/><text x="{LX + 22}" y="{y + 25.3}" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">{i}</text>')
-    out.append(f'<text x="{LX + 42}" y="{y + 26}" font-size="14.5" font-weight="650" fill="#24221e">{title}</text>')
-    for j, ln in enumerate(lines):
-        out.append(f'<text x="{LX + 42}" y="{y + 45 + 17 * j}" font-size="12.5" fill="#5c574d">{ln.replace("&", "&amp;")}</text>')
-    y += h + 10
-out.append(f'<text x="{LX}" y="{y + 18}" font-size="11.5" fill="#8a8478">Green cards: added by SmartGarden. Everything else is the original lamp.</text>')
+    ours = i in OURS
+    out.append(f'<rect x="{LX}" y="{y}" width="{CW}" height="{CH}" rx="14" fill="{"#f5efe0" if ours else "#ffffff"}" stroke="{"#e2c68e" if ours else "#e6e1d6"}"/>')
+    out.append(chip(i, LX + 30, y + CH / 2, ours))
+    out.append(f'<text x="{LX + 58}" y="{y + 28}" font-size="20" font-weight="650" fill="#24221e">{title}</text>')
+    out.append(f'<text x="{LX + 58}" y="{y + 51}" font-size="18" fill="#5c574d">{text}</text>')
+    y += CH + GAP
+out.append(f'<text x="{LX}" y="{y + 22}" font-size="18" fill="#8a6a2a">Amber: added by SmartGarden</text>')
 out.append('</svg>')
-H2 = max(H, y + 50)
-svg = '\n'.join(out).replace(f'height="{H:.0f}"', f'height="{H2:.0f}"').replace(f'0 0 {W:.0f} {H:.0f}', f'0 0 {W:.0f} {H2:.0f}')
-OUT.write_text(svg + '\n')
-print(OUT, f'{W:.0f}x{H2:.0f}')
+OUT.write_text('\n'.join(out) + '\n')
+print(OUT, f'{W}x{H}', f'scale {SC:.2f}', f'legend ends at {y + 30}')

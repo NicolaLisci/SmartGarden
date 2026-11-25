@@ -1,14 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 899 925" width="899" height="925" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 990" width="1200" height="990" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif">
+<title id="t">Where SmartGarden lives in the Duronic GHS37</title>
+<desc id="d">Exploded isometric view: base with water, pods, pump and power module; the rod with three wires; the lamp head with the LED panel underneath, the original lamp board, and the added LM2596, NodeMCU and command wiring; the cover with touch keys.</desc>
 <defs>
 <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbfaf6"/><stop offset="1" stop-color="#eeeadf"/></linearGradient>
 <radialGradient id="ground"><stop offset="0" stop-color="#3d3a33" stop-opacity=".18"/><stop offset="1" stop-color="#3d3a33" stop-opacity="0"/></radialGradient>
 <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3c4" stop-opacity=".75"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></linearGradient>
-<filter id="soft" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#3d3a33" flood-opacity=".14"/></filter>
 </defs>
-<rect width="899" height="925" rx="22" fill="url(#bg)"/>
-<text x="40" y="52" font-size="26" font-weight="700" fill="#24221e" letter-spacing="-.3">Where SmartGarden lives</text>
-<text x="40" y="78" font-size="15" fill="#6b665c">An exploded view of the Duronic GHS37. The controller sits in the lamp head, above the LEDs.</text>
-<g transform="translate(131.7,643.4)">
+<rect width="1200" height="990" rx="26" fill="url(#bg)"/>
+<text x="56" y="78" font-size="42" font-weight="750" fill="#24221e" letter-spacing="-.6">Where SmartGarden lives</text>
+<text x="56" y="114" font-size="21" fill="#6b665c">The controller sits in the lamp head, right above the LEDs.</text>
+<g transform="translate(139.6,729.5) scale(1.0864)">
 <ellipse cx="77.9" cy="111.0" rx="300" ry="95" fill="url(#ground)"/>
 <polygon points="-77.0,58.5 -77.5,56.0 -77.5,16.0 -77.0,18.5" fill="#88abbb" stroke="#88abbb" stroke-width="0.6" stroke-linejoin="round" fill-opacity="0.55" stroke-opacity="0.55"/>
 <polygon points="-75.8,60.9 -77.0,58.5 -77.0,18.5 -75.8,20.9" fill="#8aadbe" stroke="#8aadbe" stroke-width="0.6" stroke-linejoin="round" fill-opacity="0.55" stroke-opacity="0.55"/>
@@ -676,69 +677,61 @@
 <ellipse cx="110.9" cy="-446.3" rx="2.7" ry="1.6" fill="#8f897d" />
 <ellipse cx="129.9" cy="-435.3" rx="8.6" ry="4.9" fill="#00000000" stroke="#8f897d" stroke-width="1"/>
 <ellipse cx="129.9" cy="-435.3" rx="2.7" ry="1.6" fill="#8f897d" />
-<g filter="url(#soft)"><circle cx="-103.9" cy="3.0" r="11" fill="#3f4a33"/><text x="-103.9" y="7.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">1</text></g>
-<g filter="url(#soft)"><circle cx="114.1" cy="159.5" r="11" fill="#3f4a33"/><text x="114.1" y="163.8" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">2</text></g>
-<g filter="url(#soft)"><circle cx="256.4" cy="133.0" r="11" fill="#3f4a33"/><text x="256.4" y="137.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">3</text></g>
-<g filter="url(#soft)"><circle cx="373.7" cy="103.0" r="11" fill="#3f4a33"/><text x="373.7" y="107.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">4</text></g>
-<g filter="url(#soft)"><circle cx="140.7" cy="-112.0" r="11" fill="#3f4a33"/><text x="140.7" y="-107.7" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">5</text></g>
-<g filter="url(#soft)"><circle cx="204.1" cy="-96.0" r="11" fill="#3f4a33"/><text x="204.1" y="-91.7" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">6</text></g>
-<g filter="url(#soft)"><circle cx="151.9" cy="-211.0" r="11" fill="#3f4a33"/><text x="151.9" y="-206.7" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">7</text></g>
-<g filter="url(#soft)"><circle cx="-88.6" cy="-347.0" r="11" fill="#3f4a33"/><text x="-88.6" y="-342.7" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">8</text></g>
-<g filter="url(#soft)"><circle cx="51.2" cy="-363.0" r="11" fill="#3f4a33"/><text x="51.2" y="-358.7" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">9</text></g>
-<g filter="url(#soft)"><circle cx="129.0" cy="-309.0" r="11" fill="#9a6a12"/><text x="129.0" y="-304.7" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">10</text></g>
-<g filter="url(#soft)"><circle cx="252.9" cy="-351.0" r="11" fill="#3f4a33"/><text x="252.9" y="-346.7" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">11</text></g>
 </g>
-<g filter="url(#soft)"><rect x="539.4" y="112" width="330" height="64" rx="12" fill="#ffffff" stroke="#e6e1d6"/></g>
-<circle cx="561.4" cy="133" r="11" fill="#3f4a33"/><text x="561.4" y="137.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">1</text>
-<text x="581.4" y="138" font-size="14.5" font-weight="650" fill="#24221e">Base</text>
-<text x="581.4" y="157" font-size="12.5" fill="#5c574d">Water tank with seven pods; the plants grow</text>
-<text x="581.4" y="174" font-size="12.5" fill="#5c574d">here.</text>
-<g filter="url(#soft)"><rect x="539.4" y="186" width="330" height="47" rx="12" fill="#ffffff" stroke="#e6e1d6"/></g>
-<circle cx="561.4" cy="207" r="11" fill="#3f4a33"/><text x="561.4" y="211.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">2</text>
-<text x="581.4" y="212" font-size="14.5" font-weight="650" fill="#24221e">Pump</text>
-<text x="581.4" y="231" font-size="12.5" fill="#5c574d">Sits in the water, plugged into socket DC2.</text>
-<g filter="url(#soft)"><rect x="539.4" y="243" width="330" height="64" rx="12" fill="#ffffff" stroke="#e6e1d6"/></g>
-<circle cx="561.4" cy="264" r="11" fill="#3f4a33"/><text x="561.4" y="268.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">3</text>
-<text x="581.4" y="269" font-size="14.5" font-weight="650" fill="#24221e">Power module</text>
-<text x="581.4" y="288" font-size="12.5" fill="#5c574d">DC1 adapter in, DC2 pump, DC3 rod plug. Its Q2</text>
-<text x="581.4" y="305" font-size="12.5" fill="#5c574d">switches the pump on command C.</text>
-<g filter="url(#soft)"><rect x="539.4" y="317" width="330" height="47" rx="12" fill="#ffffff" stroke="#e6e1d6"/></g>
-<circle cx="561.4" cy="338" r="11" fill="#3f4a33"/><text x="561.4" y="342.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">4</text>
-<text x="581.4" y="343" font-size="14.5" font-weight="650" fill="#24221e">24 V adapter</text>
-<text x="581.4" y="362" font-size="12.5" fill="#5c574d">The only power input: 24 V DC, 25 W.</text>
-<g filter="url(#soft)"><rect x="539.4" y="374" width="330" height="64" rx="12" fill="#ffffff" stroke="#e6e1d6"/></g>
-<circle cx="561.4" cy="395" r="11" fill="#3f4a33"/><text x="561.4" y="399.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">5</text>
-<text x="581.4" y="400" font-size="14.5" font-weight="650" fill="#24221e">Telescopic rod</text>
-<text x="581.4" y="419" font-size="12.5" fill="#5c574d">Three wires only: +24 V, GND and the pump</text>
-<text x="581.4" y="436" font-size="12.5" fill="#5c574d">command C.</text>
-<g filter="url(#soft)"><rect x="539.4" y="448" width="330" height="64" rx="12" fill="#ffffff" stroke="#e6e1d6"/></g>
-<circle cx="561.4" cy="469" r="11" fill="#3f4a33"/><text x="561.4" y="473.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">6</text>
-<text x="581.4" y="474" font-size="14.5" font-weight="650" fill="#24221e">LED panel</text>
-<text x="581.4" y="493" font-size="12.5" fill="#5c574d">Faces down: W = white + red LEDs, B = blue</text>
-<text x="581.4" y="510" font-size="12.5" fill="#5c574d">LEDs. No resistors, fed by the lamp board.</text>
-<g filter="url(#soft)"><rect x="539.4" y="522" width="330" height="64" rx="12" fill="#ffffff" stroke="#e6e1d6"/></g>
-<circle cx="561.4" cy="543" r="11" fill="#3f4a33"/><text x="561.4" y="547.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">7</text>
-<text x="581.4" y="548" font-size="14.5" font-weight="650" fill="#24221e">Lamp board "Y2020"</text>
-<text x="581.4" y="567" font-size="12.5" fill="#5c574d">The original: touch keys, its own MCU, J3 from</text>
-<text x="581.4" y="584" font-size="12.5" fill="#5c574d">the rod, Q4/Q5 for W and B.</text>
-<g filter="url(#soft)"><rect x="539.4" y="596" width="330" height="47" rx="12" fill="#f3f6ee" stroke="#b9c9a6"/></g>
-<circle cx="561.4" cy="617" r="11" fill="#3f4a33"/><text x="561.4" y="621.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">8</text>
-<text x="581.4" y="622" font-size="14.5" font-weight="650" fill="#24221e">LM2596</text>
-<text x="581.4" y="641" font-size="12.5" fill="#5c574d">24 V from J3 down to 5.0 V for the NodeMCU.</text>
-<g filter="url(#soft)"><rect x="539.4" y="653" width="330" height="64" rx="12" fill="#f3f6ee" stroke="#b9c9a6"/></g>
-<circle cx="561.4" cy="674" r="11" fill="#3f4a33"/><text x="561.4" y="678.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">9</text>
-<text x="581.4" y="679" font-size="14.5" font-weight="650" fill="#24221e">NodeMCU (ESP8266)</text>
-<text x="581.4" y="698" font-size="12.5" fill="#5c574d">Wi-Fi, the app, the light cycle, settings and</text>
-<text x="581.4" y="715" font-size="12.5" fill="#5c574d">log. Added by SmartGarden.</text>
-<g filter="url(#soft)"><rect x="539.4" y="727" width="330" height="64" rx="12" fill="#f3f6ee" stroke="#b9c9a6"/></g>
-<circle cx="561.4" cy="748" r="11" fill="#9a6a12"/><text x="561.4" y="752.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">10</text>
-<text x="581.4" y="753" font-size="14.5" font-weight="650" fill="#24221e">Our three commands</text>
-<text x="581.4" y="772" font-size="12.5" fill="#5c574d">D1 → 330 Ω → W · D5 → 330 Ω → B · D7 → PC817C</text>
-<text x="581.4" y="789" font-size="12.5" fill="#5c574d">→ J3 C (pump: still open).</text>
-<g filter="url(#soft)"><rect x="539.4" y="801" width="330" height="64" rx="12" fill="#ffffff" stroke="#e6e1d6"/></g>
-<circle cx="561.4" cy="822" r="11" fill="#3f4a33"/><text x="561.4" y="826.3" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">11</text>
-<text x="581.4" y="827" font-size="14.5" font-weight="650" fill="#24221e">Cover</text>
-<text x="581.4" y="846" font-size="12.5" fill="#5c574d">Top of the head with the lamp's touch keys,</text>
-<text x="581.4" y="863" font-size="12.5" fill="#5c574d">which keep working.</text>
-<text x="539.4" y="893" font-size="11.5" fill="#8a8478">Green cards: added by SmartGarden. Everything else is the original lamp.</text>
+<circle cx="26.7" cy="732.7" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="26.7" cy="732.7" r="13.5" fill="#3f4a33"/><text x="26.7" y="738.7" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<circle cx="263.6" cy="902.7" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="263.6" cy="902.7" r="13.5" fill="#3f4a33"/><text x="263.6" y="908.7" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+<circle cx="418.1" cy="874.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="418.1" cy="874.0" r="13.5" fill="#3f4a33"/><text x="418.1" y="880.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+<circle cx="545.6" cy="841.4" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="545.6" cy="841.4" r="13.5" fill="#3f4a33"/><text x="545.6" y="847.4" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+<circle cx="292.5" cy="607.8" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="292.5" cy="607.8" r="13.5" fill="#3f4a33"/><text x="292.5" y="613.8" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+<circle cx="361.4" cy="625.2" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="361.4" cy="625.2" r="13.5" fill="#3f4a33"/><text x="361.4" y="631.2" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">6</text>
+<circle cx="304.6" cy="500.2" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="304.6" cy="500.2" r="13.5" fill="#3f4a33"/><text x="304.6" y="506.2" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">7</text>
+<circle cx="43.3" cy="352.5" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="43.3" cy="352.5" r="13.5" fill="#b07a12"/><text x="43.3" y="358.5" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">8</text>
+<circle cx="195.2" cy="335.1" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="195.2" cy="335.1" r="13.5" fill="#b07a12"/><text x="195.2" y="341.1" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">9</text>
+<circle cx="279.7" cy="393.8" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="279.7" cy="393.8" r="13.5" fill="#b07a12"/><text x="279.7" y="399.8" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">10</text>
+<circle cx="414.4" cy="348.2" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="414.4" cy="348.2" r="13.5" fill="#3f4a33"/><text x="414.4" y="354.2" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">11</text>
+<rect x="770" y="144" width="390" height="64" rx="14" fill="#ffffff" stroke="#e6e1d6"/>
+<circle cx="800.0" cy="176.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="176.0" r="13.5" fill="#3f4a33"/><text x="800.0" y="182.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<text x="828" y="172" font-size="20" font-weight="650" fill="#24221e">Base</text>
+<text x="828" y="195" font-size="18" fill="#5c574d">Water tank, seven pods</text>
+<rect x="770" y="216" width="390" height="64" rx="14" fill="#ffffff" stroke="#e6e1d6"/>
+<circle cx="800.0" cy="248.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="248.0" r="13.5" fill="#3f4a33"/><text x="800.0" y="254.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+<text x="828" y="244" font-size="20" font-weight="650" fill="#24221e">Pump</text>
+<text x="828" y="267" font-size="18" fill="#5c574d">In the water, socket DC2</text>
+<rect x="770" y="288" width="390" height="64" rx="14" fill="#ffffff" stroke="#e6e1d6"/>
+<circle cx="800.0" cy="320.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="320.0" r="13.5" fill="#3f4a33"/><text x="800.0" y="326.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+<text x="828" y="316" font-size="20" font-weight="650" fill="#24221e">Power module</text>
+<text x="828" y="339" font-size="18" fill="#5c574d">DC1 in · DC2 pump · DC3 rod</text>
+<rect x="770" y="360" width="390" height="64" rx="14" fill="#ffffff" stroke="#e6e1d6"/>
+<circle cx="800.0" cy="392.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="392.0" r="13.5" fill="#3f4a33"/><text x="800.0" y="398.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+<text x="828" y="388" font-size="20" font-weight="650" fill="#24221e">24 V adapter</text>
+<text x="828" y="411" font-size="18" fill="#5c574d">The only power input</text>
+<rect x="770" y="432" width="390" height="64" rx="14" fill="#ffffff" stroke="#e6e1d6"/>
+<circle cx="800.0" cy="464.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="464.0" r="13.5" fill="#3f4a33"/><text x="800.0" y="470.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+<text x="828" y="460" font-size="20" font-weight="650" fill="#24221e">Telescopic rod</text>
+<text x="828" y="483" font-size="18" fill="#5c574d">Three wires: +24 V · GND · C</text>
+<rect x="770" y="504" width="390" height="64" rx="14" fill="#ffffff" stroke="#e6e1d6"/>
+<circle cx="800.0" cy="536.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="536.0" r="13.5" fill="#3f4a33"/><text x="800.0" y="542.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">6</text>
+<text x="828" y="532" font-size="20" font-weight="650" fill="#24221e">LED panel</text>
+<text x="828" y="555" font-size="18" fill="#5c574d">Faces down: W white + red, B blue</text>
+<rect x="770" y="576" width="390" height="64" rx="14" fill="#ffffff" stroke="#e6e1d6"/>
+<circle cx="800.0" cy="608.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="608.0" r="13.5" fill="#3f4a33"/><text x="800.0" y="614.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">7</text>
+<text x="828" y="604" font-size="20" font-weight="650" fill="#24221e">Lamp board Y2020</text>
+<text x="828" y="627" font-size="18" fill="#5c574d">Original: keys, MCU, Q4 / Q5</text>
+<rect x="770" y="648" width="390" height="64" rx="14" fill="#f5efe0" stroke="#e2c68e"/>
+<circle cx="800.0" cy="680.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="680.0" r="13.5" fill="#b07a12"/><text x="800.0" y="686.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">8</text>
+<text x="828" y="676" font-size="20" font-weight="650" fill="#24221e">LM2596</text>
+<text x="828" y="699" font-size="18" fill="#5c574d">24 V → 5 V for the NodeMCU</text>
+<rect x="770" y="720" width="390" height="64" rx="14" fill="#f5efe0" stroke="#e2c68e"/>
+<circle cx="800.0" cy="752.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="752.0" r="13.5" fill="#b07a12"/><text x="800.0" y="758.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">9</text>
+<text x="828" y="748" font-size="20" font-weight="650" fill="#24221e">NodeMCU ESP8266</text>
+<text x="828" y="771" font-size="18" fill="#5c574d">Wi-Fi, app, light cycle, log</text>
+<rect x="770" y="792" width="390" height="64" rx="14" fill="#f5efe0" stroke="#e2c68e"/>
+<circle cx="800.0" cy="824.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="824.0" r="13.5" fill="#b07a12"/><text x="800.0" y="830.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">10</text>
+<text x="828" y="820" font-size="20" font-weight="650" fill="#24221e">Our three commands</text>
+<text x="828" y="843" font-size="18" fill="#5c574d">D1 → W · D5 → B · D7 → pump</text>
+<rect x="770" y="864" width="390" height="64" rx="14" fill="#ffffff" stroke="#e6e1d6"/>
+<circle cx="800.0" cy="896.0" r="16" fill="#ffffff" fill-opacity=".9"/><circle cx="800.0" cy="896.0" r="13.5" fill="#3f4a33"/><text x="800.0" y="902.0" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">11</text>
+<text x="828" y="892" font-size="20" font-weight="650" fill="#24221e">Cover</text>
+<text x="828" y="915" font-size="18" fill="#5c574d">Touch keys keep working</text>
+<text x="770" y="958" font-size="18" fill="#8a6a2a">Amber: added by SmartGarden</text>
 </svg>

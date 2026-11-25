@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif">
+<title id="t">The SmartGarden app</title>
+<desc id="d">Five real screens of the app: light cycle, lighting, home, plants and history.</desc>
+<defs><linearGradient id="sbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7f4ec"/><stop offset="1" stop-color="#e9e4d6"/></linearGradient></defs>
+<rect width="1200" height="600" rx="28" fill="url(#sbg)"/>
+<ellipse cx="600.0" cy="508" rx="500" ry="26" fill="#6f7a5a" fill-opacity=".10"/>
+<rect x="96.2" y="114.8" width="163.5" height="338.5" rx="28.5" fill="#2b2a22" fill-opacity=".16"/>
+<rect x="90.2" y="92.8" width="163.5" height="338.5" rx="28.5" fill="#1c1c1e"/>
+<clipPath id="c582824"><rect x="97.0" y="99.5" width="150.0" height="325.0" rx="23.2"/></clipPath>
+<image href="../app/ciclo.jpg" x="97.0" y="99.5" width="150.0" height="325.0" clip-path="url(#c582824)" preserveAspectRatio="xMidYMid slice"/>
+<rect x="151.0" y="104.8" width="42.0" height="12.8" rx="6.4" fill="#1c1c1e"/>
+<text x="172.0" y="566" font-size="20" font-weight="600" fill="#6b665c" text-anchor="middle">Light cycle</text>
+<rect x="952.2" y="114.8" width="163.5" height="338.5" rx="28.5" fill="#2b2a22" fill-opacity=".16"/>
+<rect x="946.2" y="92.8" width="163.5" height="338.5" rx="28.5" fill="#1c1c1e"/>
+<clipPath id="c382554"><rect x="953.0" y="99.5" width="150.0" height="325.0" rx="23.2"/></clipPath>
+<image href="../app/andamento.jpg" x="953.0" y="99.5" width="150.0" height="325.0" clip-path="url(#c382554)" preserveAspectRatio="xMidYMid slice"/>
+<rect x="1007.0" y="104.8" width="42.0" height="12.8" rx="6.4" fill="#1c1c1e"/>
+<text x="1028.0" y="566" font-size="20" font-weight="600" fill="#6b665c" text-anchor="middle">History</text>
+<rect x="298.3" y="89.9" width="187.5" height="388.1" rx="32.7" fill="#2b2a22" fill-opacity=".16"/>
+<rect x="292.3" y="67.9" width="187.5" height="388.1" rx="32.7" fill="#1c1c1e"/>
+<clipPath id="c829010"><rect x="300.0" y="75.7" width="172.0" height="372.7" rx="26.7"/></clipPath>
+<image href="../app/luce.jpg" x="300.0" y="75.7" width="172.0" height="372.7" clip-path="url(#c829010)" preserveAspectRatio="xMidYMid slice"/>
+<rect x="361.9" y="81.7" width="48.2" height="14.6" rx="7.3" fill="#1c1c1e"/>
+<text x="386.0" y="566" font-size="20" font-weight="600" fill="#6b665c" text-anchor="middle">Lighting</text>
+<rect x="726.3" y="89.9" width="187.5" height="388.1" rx="32.7" fill="#2b2a22" fill-opacity=".16"/>
+<rect x="720.3" y="67.9" width="187.5" height="388.1" rx="32.7" fill="#1c1c1e"/>
+<clipPath id="c452378"><rect x="728.0" y="75.7" width="172.0" height="372.7" rx="26.7"/></clipPath>
+<image href="../app/piante.jpg" x="728.0" y="75.7" width="172.0" height="372.7" clip-path="url(#c452378)" preserveAspectRatio="xMidYMid slice"/>
+<rect x="789.9" y="81.7" width="48.2" height="14.6" rx="7.3" fill="#1c1c1e"/>
+<text x="814.0" y="566" font-size="20" font-weight="600" fill="#6b665c" text-anchor="middle">Plants</text>
+<rect x="499.2" y="62.8" width="213.6" height="442.3" rx="37.2" fill="#2b2a22" fill-opacity=".16"/>
+<rect x="493.2" y="40.8" width="213.6" height="442.3" rx="37.2" fill="#1c1c1e"/>
+<clipPath id="c673531"><rect x="502.0" y="49.7" width="196.0" height="424.7" rx="30.4"/></clipPath>
+<image href="../app/home.jpg" x="502.0" y="49.7" width="196.0" height="424.7" clip-path="url(#c673531)" preserveAspectRatio="xMidYMid slice"/>
+<rect x="572.6" y="56.5" width="54.9" height="16.7" rx="8.3" fill="#1c1c1e"/>
+<text x="600.0" y="566" font-size="22" font-weight="700" fill="#3f4a33" text-anchor="middle">Home</text>
+</svg>
