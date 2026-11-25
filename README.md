@@ -84,19 +84,19 @@ drives it on purpose.
 
 <table>
 <tr>
-<td width="50%"><img src="docs/hardware/photos/duronic-overview-lamp.jpg" alt="The Duronic GHS37"></td>
-<td width="50%"><img src="docs/hardware/photos/build-revc-in-lamp.jpg" alt="The controller fitted in the lamp head"></td>
+<td width="50%"><img src="docs/images/readme-lamp.jpg" alt="The Duronic GHS37"></td>
+<td width="50%"><img src="docs/images/readme-controller-in-head.jpg" alt="The controller fitted in the lamp head"></td>
 </tr>
 <tr>
 <td align="center"><sub>The Duronic GHS37 (seen from behind): seven pods, one pole, flat lamp head.</sub></td>
 <td align="center"><sub>Rev C inside the lamp head: NodeMCU, LM2596, three 330 Ω, one PC817C, wired to the lamp board.</sub></td>
 </tr>
 <tr>
-<td><img src="docs/hardware/photos/duronic-lamp-head-open.jpg" alt="The lamp head opened"></td>
+<td><img src="docs/images/readme-lamp-head-open.jpg" alt="The lamp head opened"></td>
 <td><img src="docs/hardware/wiring-rev-c.jpg" alt="Rev C wiring"></td>
 </tr>
 <tr>
-<td align="center"><sub>The lamp head opened: every power stage is already there.</sub></td>
+<td align="center"><sub>The lamp head opened: its own board already has every power stage; NodeMCU and LM2596 laid out before wiring.</sub></td>
 <td align="center"><sub>Rev C wiring (<a href="docs/hardware/wiring-rev-c.svg">SVG</a>).</sub></td>
 </tr>
 </table>
