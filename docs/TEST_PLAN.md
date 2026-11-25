@@ -1,6 +1,6 @@
 # Test plan
 
-Last updated: 2026-11-22
+Last updated: 2026-11-25
 
 Tests run in order; each one needs the previous to pass. Every test needs Nicola's
 go-ahead before power is applied (constitution V). Results go in the owning spec's
@@ -20,4 +20,5 @@ current limit set to the lowest value that works. Nothing on the mains side is t
 | T7 | Timing | Shortened schedule (minutes instead of hours) then real schedule for 48 h | Log transitions | Durations exact ±1 min; transitions at configured times | RQ-003-01, RQ-003-02 |
 | T8 | Power cut | Full system | Cut 24 V during lights-on and lights-off periods, restore after 1 min and after 1 h | Correct state restored without user action | RQ-003-04, RQ-003-07 |
 | T9 | Wi-Fi down | Full system | Boot with AP off; then turn AP off during operation for 24 h | Defined fallback at boot; no state change and no reboot during outage | RQ-003-05, RQ-003-06 |
+| T11 | Log survives every operation | Full system, log with events from at least two boots | Read the full log (`/log` paged from `since=0`). Then, one at a time: app upload; firmware OTA; reboot; power cut during lights-on. During each upload, trigger events (light command from the app). Read the full log again after each | Every `seq` read before is present after with identical fields; no gap in `seq`; events triggered during the upload are present; an off-board copy of the log exists for each app upload | RQ-003-14, RQ-003-15 |
 | T10 | Long run | Full system installed | 14 days of normal use | No unintended state, no reboot loops, board and MOSFETs at safe temperature, no moisture on the board | All |

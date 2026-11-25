@@ -36,16 +36,27 @@ if [[ "${1:-}" == "--app" ]]; then
   # Keep the history: copy the board's log files into the image (cycle settings live in
   # EEPROM and are untouched anyway). Events logged during the upload itself are lost.
   if [[ $DRY == 0 ]]; then
-    LIP="$(dig +short +time=2 +tries=1 -p 5353 @224.0.0.251 "$HOST.local" A 2>/dev/null | grep -E '^[0-9.]+$' | head -1 || true)"
+    # One lookup, retried, for both the log copy and the upload: a single missed mDNS answer
+    # used to skip the copy and wipe the log (2026-11-25).
+    LIP=""
+    for _ in 1 2 3; do
+      LIP="$(dig +short +time=2 +tries=1 -p 5353 @224.0.0.251 "$HOST.local" A 2>/dev/null | grep -E '^[0-9.]+$' | head -1 || true)"
+      [[ -n "$LIP" ]] && break
+    done
+    [[ -n "$LIP" ]] || fail "$HOST.local does not answer; not uploading, it would wipe the event log"
     mkdir -p "$OUT/data/log"
     for f in a.bin b.bin; do
-      if [[ -n "$LIP" ]] && curl -sf -m 20 -o "$OUT/data/log/$f" "http://$LIP/logfiles/$f"; then
+      if curl -sf -m 20 -o "$OUT/data/log/$f" "http://$LIP/logfiles/$f"; then
         echo "Kept log $f: $(wc -c < "$OUT/data/log/$f" | tr -d ' ') bytes"
       else
         rm -f "$OUT/data/log/$f"
       fi
     done
-    [[ -s "$OUT/data/log/a.bin" || -s "$OUT/data/log/b.bin" ]] || echo "WARNING: no log copied from the board; the upload will start a new log."
+    # RQ-003-14: never upload over a log that was not copied. Only a board with no events yet passes.
+    if [[ ! -s "$OUT/data/log/a.bin" && ! -s "$OUT/data/log/b.bin" ]]; then
+      LAST="$(curl -sf -m 10 "http://$LIP/log?since=999999999" | sed -n 's/.*"last":\([0-9]*\).*/\1/p')"
+      [[ "$LAST" == "0" ]] || fail "log not copied from the board (last seq: ${LAST:-unknown}); not uploading, it would wipe the event log"
+    fi
   fi
   # Layout of eesz=4M2M (boards.txt): FS 0x200000–0x3FA000, page 256, block 8192.
   "$MKFS" -c "$OUT/data" -p 256 -b 8192 -s $((0x3FA000 - 0x200000)) "$OUT/fs.bin" >/dev/null
@@ -53,8 +64,7 @@ if [[ "${1:-}" == "--app" ]]; then
   [[ $DRY == 1 ]] && exit 0
   PASS="$(sed -n 's/^#define OTA_PASSWORD "\(.*\)"/\1/p' "$ROOT/firmware/ota-base/secrets.h")"
   [[ -n "$PASS" ]] || fail "OTA_PASSWORD missing in firmware/ota-base/secrets.h"
-  IP="$(dig +short +time=2 +tries=1 -p 5353 @224.0.0.251 "$HOST.local" A 2>/dev/null | grep -E '^[0-9.]+$' | head -1 || true)"
-  [[ -n "$IP" ]] || fail "$HOST.local does not answer"
+  IP="$LIP"
   echo "Uploading the file system to $HOST ($IP)..."
   python3 "$ESPOTA" -i "$IP" -a "$PASS" -s -f "$OUT/fs.bin"
   echo "Waiting for the board to come back..."; sleep 8

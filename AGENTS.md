@@ -97,7 +97,9 @@ guarded by `static_assert`s, and every stored structure has a validation functio
 the host (`firmware/test/`). Write to EEPROM rarely (on change, or a few times a day): each
 commit erases a flash sector. The one exception is the event log: too large for EEPROM and
 written too often, it stays in LittleFS and `ota-upload.sh --app` carries it across app
-updates.
+updates. Losing logged events is never acceptable (Nicola, 2026-11-25; RQ-003-14, RQ-003-15).
+If an upload cannot preserve the log, it does not run: never upload after a warning that the
+log was not copied, and never work around the tool to get an upload through.
 
 ## README
 

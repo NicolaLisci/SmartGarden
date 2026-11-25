@@ -3,7 +3,7 @@
 Status: Draft — Blocked: needs specs 001 and 002, and decisions D-002 and D-003 in `docs/ARCHITECTURE.md`
 Owner: Nicola
 Depends on: 001, 002
-Last updated: 2026-11-22
+Last updated: 2026-11-25
 
 ## Why
 
@@ -34,6 +34,8 @@ Out: hardware changes (future spec), enclosure, sensors beyond those in the GHS3
 | RQ-003-10 | Firmware updates shall be possible over the air, password-protected. | OTA update succeeds; an update without the password is refused. |
 | RQ-003-11 | Wi-Fi credentials shall be configurable without reflashing. | Fallback access point appears when the configured network is unreachable. |
 | RQ-003-12 | If a water-level signal is available (spec 002), low water shall stop the pump and raise an alert. | Simulated low level: pump off within 5 s, alert visible in UI. |
+| RQ-003-14 | No event written to the activity log shall ever be lost. Events leave the log only through its documented rotation (the oldest file is dropped once both log files are full, about 6 500 events). App uploads, firmware updates, reboots and power cuts shall keep every event, including those written while the operation runs; a power cut may lose only the single record being written at that instant. | T11: before and after each operation, read the full log; every `seq` present before is present after with identical content, and `seq` continues without gaps. An upload tool that cannot prove this stops before writing (BLOCKED) or, if the check fails afterwards, reports FAILED and restores the log. |
+| RQ-003-15 | Before any operation that rewrites the board's file system, a complete copy of the log shall be saved off the board and kept. | T11: after each app upload a timestamped copy of both log files exists on the computer that ran it, and its last `seq` equals the board's last `seq` read before the upload. |
 | RQ-003-13 | Home Assistant integration: [NEEDS CLARIFICATION: Nicola has a plan to install Home Assistant (personal notes, 2026-08-30); is it running, and should integration be in scope now?]. | Entities for light mode, pump mode, states and water level appear in HA. |
 
 ## Known facts
@@ -41,6 +43,11 @@ Out: hardware changes (future spec), enclosure, sensors beyond those in the GHS3
 - CONFIRMED (manual): GHS37 modes and behaviour, see spec 002.
 - CONFIRMED (code review): legacy firmware defects, see ARCHITECTURE.
 - HYPOTHESIS: the LED panel can be dimmed by PWM through a low-side MOSFET. Depends on RQ-002-03.
+- CONFIRMED (2026-11-25, `firmware/tools/ota-upload.sh --app`): an app upload rewrites the
+  whole LittleFS image, log included. When the tool missed the board's mDNS answer it skipped
+  the log copy, only warned, and uploaded anyway: about 30 events of that day were lost. The
+  tool also states that events logged during the upload itself are lost. RQ-003-14 and
+  RQ-003-15 exist because of this.
 
 ## Open questions
 
