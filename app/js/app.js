@@ -4,9 +4,12 @@ import { describe, eventDay } from './activity.js';
 import { placeTimes, lightIntervals, dailyHours, mergeEvents } from './history.js';
 import { CYCLES, SCENES, photoperiod, hhmm, duration, loadSettings, saveSettings } from './schedule.js';
 import { icon } from './icons.js';
+import { createNavigation } from './navigation.js';
+import { createDebug } from './debug.js';
 import { CATALOG, imageFor, daysSince, rowLabel, slotNumber, slotWhere, ORDER, loadPods, savePods, boardToPods, podsToMigrate, hasLocalPods, nameFits } from './plants.js';
 
 const app = document.getElementById('app');
+const debug = createDebug();
 let settings = loadSettings();
 let pods = loadPods();
 const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -327,6 +330,7 @@ const set = (sel, fn) => $(sel).forEach(fn);
 const text = (sel, v) => set(sel, el => { el.textContent = v; });
 
 function update() {
+  debug('update', { status: device.status });
   const st = s(), ok = online(), pending = device.pending;
   set('conn', el => {
     el.dataset.status = device.status;
@@ -429,7 +433,7 @@ app.addEventListener('click', e => {
   if (chip) { app.querySelector('#edName').value = chip.dataset.chip; return; }
   if (e.target.closest('[data-nav="back"]')) {
     // Back returns where the user came from; a deep link has no history, so go home.
-    return navDepth > 0 ? history.back() : (location.hash = '#/home');
+    return navDepth > 0 ? history.back() : navigation.navigate('#/home');
   }
   const el = e.target.closest('button[data-action]');
   if (!el || el.disabled) return;
@@ -550,6 +554,7 @@ function setActiveTab(tab) {
   });
 }
 function route() {
+  debug('route');
   navDepth++;
   render(true);
 }
@@ -574,6 +579,7 @@ function render(navigated = false) {
     view.classList.add('fresh');
     void view.offsetHeight;
     view.classList.remove('fresh');
+    debug('draw', { screen: name, navigated });
   };
   // Push and back keep both screens on stage (the parent slides under, like iOS); where the
   // View Transitions API is missing the new screen still slides in over the background.
@@ -592,7 +598,7 @@ async function checkUpdate() {
   try {
     const html = await (await fetch('/', { cache: 'no-store' })).text();
     const v = html.match(/app\.js\?v=(\d+)/)?.[1];
-    if (v && v !== myVersion) location.reload();
+    if (v && v !== myVersion) { debug('reload', { reason: 'version' }); location.reload(); }
   } catch { /* offline: try again later */ }
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); });
@@ -603,9 +609,8 @@ setInterval(checkUpdate, 60_000);
 // time), and the screen shows empty until it arrives.
 const warmImages = [...CATALOG.map(c => `assets/plants/${c.img}.png`), 'assets/led.png', 'assets/water.png', 'assets/garden-off.jpg', 'assets/garden-on.jpg']
   .map(src => { const img = Object.assign(new Image(), { src }); img.decode().catch(() => {}); return img; });
-window.addEventListener('hashchange', route);
 setInterval(updateDial, 30_000);
-route();
+const navigation = createNavigation({ root: app, onNavigate: route });
 syncPlants();
 subscribe(update);
 startPolling();
