@@ -18,11 +18,11 @@ mobile app over Wi-Fi at `http://smartgarden.local`, and keeps a log of everythi
 | | |
 |---|---|
 | **Light** | Switch the white and blue LED channels from the app: white only, white at 50 % (PWM), or full spectrum. Tap the active choice again to give control back to the lamp. |
-| **Light cycle** | Pick 12/12, 14/10 or 16/8 and the start hour; each cycle carries its light, as in the scenes of the original project. The schedule is stored on the phone; the firmware does not run it yet. |
+| **Light cycle** | The board runs it by itself: 12/12, 14/10 or 16/8 from a chosen hour, each with its light as in the scenes of the original project (12/12 white at 50 %, 14/10 white + blue, 16/8 white). Settings live on the board, so the light follows the cycle after a power cut with no phone and no button press. A manual choice in the app wins until the next scheduled on/off. |
 | **Plants** | A top view of the seven pods, numbered 1–7. Set the plant and the sowing date of each pod; the app counts the days. |
 | **History** | Every command, boot, Wi-Fi change and change on the lamp's own light lines is saved in the board's flash and survives reboots. The app turns it into an activity feed and daily hours of light. |
 | **Pump** | Read-only: the lamp runs it by itself (observed: about 5–6 min on, 30 min off). |
-| **Install** | Open `http://smartgarden.local` in Safari → Share → *Add to Home Screen*: full screen, own icon, no browser bars. |
+| **Install** | Open `http://smartgarden.local` in Safari → Share → *Add to Home Screen*: full screen, own icon, no browser bars. The app reloads itself when a new version is uploaded. |
 
 ## The app
 
@@ -113,6 +113,8 @@ step-by-step build guide in Italian is in
 - W lights the white and red LEDs, B the blue ones; both switch on and off from the app.
 - 50 % PWM on W dims the white LEDs with no visible flicker.
 - Firmware updates over Wi-Fi work, password-protected and guarded (below).
+- The board runs the light cycle from its own clock (NTP) and settings (EEPROM): verified
+  switching on at boot and off/on when the start hour is moved.
 
 **Open**
 - **Pump.** Our D7 command does not start the pump: the lamp seems to hold J3 C low and the
@@ -120,7 +122,6 @@ step-by-step build guide in Italian is in
   MCU, on Q2's control pin, would also let the app switch the pump off. Until then the pump
   is read-only and its timing is logged by hand in
   [docs/hardware/pump-timing-log.md](docs/hardware/pump-timing-log.md).
-- **Schedule.** Running the light cycle on the board itself is spec 003, not started.
 
 ## Repository
 
@@ -149,10 +150,13 @@ Then open `http://localhost:5173`.
 cd app
 npm test            # unit tests
 npm run coverage    # with coverage
+firmware/test/run.sh   # firmware cycle logic, compiled and run on the computer
 ```
 
 The pure logic (light cycle maths, event log, history, plants, settings storage) is at
-100 % line coverage. The UI and the device calls are checked in the browser.
+100 % line coverage; the firmware's cycle logic (`schedule.h`) is checked for every
+minute of the day, every cycle and every start hour. The UI and the device calls are
+checked in the browser.
 
 ### Update the lamp
 
@@ -173,6 +177,8 @@ uploading over the network.
 | `POST /set?ch=w\|b\|p&on=0\|1[&duty=1..99][&src=app]` | Force a channel on (optionally PWM) or release it |
 | `POST /release` | Release everything |
 | `GET /log?since=<seq>` | Persisted events after `seq`, 300 per page |
+| `GET /schedule` | `{cycle, start, enabled, clock, on, next, override}`: the cycle the board runs |
+| `POST /schedule?cycle=14/10&start=7&enabled=1` | Change the cycle (saved in EEPROM, applied at once) |
 | `GET /test` | The bench test page |
 
 ## How this repository is worked on

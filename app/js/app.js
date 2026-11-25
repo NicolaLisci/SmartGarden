@@ -1,5 +1,5 @@
 // SmartGarden companion app: hash router, screens, bindings to the device state.
-import { device, subscribe, setChannels, startPolling, fetchLog } from './device.js';
+import { device, subscribe, setChannels, startPolling, fetchLog, schedule, fetchSchedule, setSchedule } from './device.js';
 import { describe, eventDay } from './activity.js';
 import { placeTimes, lightIntervals, dailyHours, mergeEvents } from './history.js';
 import { CYCLES, SCENES, photoperiod, hhmm, duration, loadSettings, saveSettings } from './schedule.js';
@@ -112,7 +112,7 @@ const screens = {
           ${Array.from({ length: 24 }, (_, h) => `<option value="${h}">Accensione alle ${hhmm(h * 60)}</option>`).join('')}
         </select>
       </label>
-      <p class="footnote">Programma salvato su questo telefono. Il firmware attuale non lo esegue ancora.</p>
+      <p class="footnote" data-slot="schedNote"></p>
     </section>`,
 
   piante: () => `
@@ -335,7 +335,10 @@ function update() {
   app.querySelector('.media-led')?.classList.toggle('is-lit', ok && lightLit());
 
   text('lightBadge', !ok ? '—' : lightForced() ? 'Accesa' : 'Auto');
-  text('lightHint', lightForced() ? 'Accesa a mano: vale finché non tocchi di nuovo lo spettro attivo.' : 'Decide il programma della lampada. Tocca uno spettro per accenderla a mano.');
+  const sch = schedule.value;
+  const until = sch?.override > 0 ? new Date(Date.now() + sch.override * 1000) : null;
+  const ovr = until ? hhmm(until.getHours() * 60 + until.getMinutes()) : null;
+  text('lightHint', ovr ? `Comando a mano: alle ${ovr} riprende il ciclo.` : sch?.enabled ? 'Segue il ciclo eseguito dalla lampada. Tocca uno spettro per cambiarla a mano.' : lightForced() ? 'Accesa a mano.' : 'Decide il programma della lampada. Tocca uno spettro per accenderla a mano.');
   const sc = SCENES[settings.cycle];
   text('programText', `${settings.cycle} · ${sc.light}`);
   app.querySelectorAll('[data-scene]').forEach(el => { el.hidden = el.dataset.scene !== sc.spectrum; });
@@ -363,7 +366,22 @@ function updateToday() {
   set('dayNow', el => { el.setAttribute('transform', `translate(${x(now)} 0)`); });
 }
 
+// The board is the source of truth for the cycle; the phone keeps a copy for offline display.
+async function pushSchedule() {
+  const ok = await setSchedule({ cycle: settings.cycle, start: settings.start, enabled: 1 });
+  toast(ok ? 'Ciclo inviato alla lampada' : 'Lampada non raggiungibile: ciclo non inviato');
+}
+function syncFromBoard() {
+  const sch = schedule.value;
+  if (sch && CYCLES[sch.cycle] && (sch.cycle !== settings.cycle || sch.start !== settings.start)) {
+    settings = { cycle: sch.cycle, start: sch.start };
+    saveSettings(settings);
+  }
+  text('schedNote', !sch ? 'Lampada non raggiungibile: il ciclo mostrato è quello salvato sul telefono.' : !sch.clock ? 'La lampada aspetta l’ora dalla rete per eseguire il ciclo.' : sch.enabled ? 'Ciclo eseguito dalla lampada, anche senza telefono e dopo un’interruzione di corrente.' : 'Ciclo disattivato sulla lampada.');
+}
+
 function updateDial() {
+  syncFromBoard();
   updateToday();
   if (!app.querySelector('.dial')) return;
   const hours = CYCLES[settings.cycle];
@@ -408,13 +426,14 @@ app.addEventListener('click', e => {
     setChannels(SPECTRUM_CMD[value]);
   }
   else if (action === 'period') { period = Number(value); renderLogViews(); }
-  else if (action === 'cycle') { settings = { ...settings, cycle: value }; saveSettings(settings); updateDial(); }
+  else if (action === 'cycle') { settings = { ...settings, cycle: value }; saveSettings(settings); updateDial(); pushSchedule(); }
 });
 app.addEventListener('close', e => { if (e.target.matches('dialog.editor')) closeEditor(e.target); }, true);
 app.addEventListener('change', e => {
   if (e.target.dataset.action !== 'start') return;
   settings = { ...settings, start: Number(e.target.value) };
   saveSettings(settings);
+  pushSchedule();
   updateDial();
 });
 
@@ -525,6 +544,21 @@ function render(navigated = false) {
   update();
   if (['attivita', 'home', 'andamento'].includes(name)) { renderLogViews(); if (!logTimer) { refreshLog(); logTimer = setInterval(refreshLog, 5000); } }
 }
+// Self-update: a Home Screen app on iOS is resumed from memory and never reloads by itself,
+// so it would keep running an old version for days. The board stamps every upload into the
+// app.js URL (?v=…); when the page served now carries another stamp, reload.
+const myVersion = new URL(import.meta.url).searchParams.get('v');
+async function checkUpdate() {
+  if (!myVersion) return; // dev server: no stamps
+  try {
+    const html = await (await fetch('/', { cache: 'no-store' })).text();
+    const v = html.match(/app\.js\?v=(\d+)/)?.[1];
+    if (v && v !== myVersion) location.reload();
+  } catch { /* offline: try again later */ }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); });
+setInterval(checkUpdate, 60_000);
+
 window.addEventListener('hashchange', route);
 setInterval(updateDial, 30_000);
 route();

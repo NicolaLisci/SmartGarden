@@ -25,6 +25,7 @@ export function lightIntervals(events, now) {
     if (e.e === 'set' && (e.ch === 'w' || e.ch === 'b')) forced[e.ch] = e.v > 0 ? 1 : 0;
     else if (e.e === 'release' || e.e === 'boot' || e.e === 'ota') forced = { w: 0, b: 0 };
     else if (e.e === 'lamp' && (e.ch === 'w' || e.ch === 'b')) lamp[e.ch] = e.v > 0 ? 1 : 0;
+    else if (e.e === 'sched') forced = { w: e.v > 0 ? 1 : 0, b: 0 }; // the board drives W (and B) itself
     if (e.ts === null) continue; // state still tracked, but no time to place an edge
     lastTs = e.ts;
     // An edge whose own event had no time is placed at the first event that has one.

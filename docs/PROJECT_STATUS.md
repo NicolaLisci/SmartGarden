@@ -95,6 +95,12 @@ firmware, then the final firmware (D-002). The table and blockers below date fro
     LittleFS (`/log`) and accepts a PWM duty on W/B. CONFIRMED (observed by Nicola, 22:25):
     W at 50 % duty visibly dims the white LEDs with no visible flicker (ESP8266 default PWM,
     1 kHz), so the 12/12 scene (W 50 %, B off) is feasible.
+17. 2026-11-25 morning: the lamp was found dark — it waits in standby after being
+    re-plugged (the original fault) and nothing ran the cycle. The board now runs the light
+    cycle itself (`firmware/web-test/schedule.h`, host tests in `firmware/test/`): settings
+    in EEPROM (default 14/10 from 07:00), NTP clock, manual override until the next edge,
+    `GET/POST /schedule`. Verified on the lamp 08:47–08:48. Open for spec 003: behaviour
+    without a clock (today: the scheduler waits), pump schedule.
 
 ## History
 

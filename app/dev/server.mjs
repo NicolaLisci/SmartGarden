@@ -11,7 +11,7 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const PORT = Number(process.env.PORT || 5173);
 const DEVICE = process.env.DEVICE;
 const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json' };
-const API = new Set(['/state', '/set', '/release', '/log']);
+const API = new Set(['/state', '/set', '/release', '/log', '/schedule']);
 
 const sim = { w: false, b: false, p: false, pumpUntil: 0 };
 const simLog = [];
@@ -29,6 +29,12 @@ function simulate(url, res) {
     res.writeHead(200, { 'content-type': 'application/json' });
     const since = Number(url.searchParams.get('since') || 0), page = simLog.filter(e => e.seq > since).slice(0, 300);
     return res.end(JSON.stringify({ now: Math.floor(Date.now() / 1000), up: Math.round(process.uptime() * 1000), boot: 1, last: simLog.length, events: page, more: (page.at(-1)?.seq || since) < simLog.length, fs: true }));
+  }
+  if (url.pathname === '/schedule') {
+    if (url.searchParams.has('cycle')) sim.cycle = url.searchParams.get('cycle');
+    if (url.searchParams.has('start')) sim.start = Number(url.searchParams.get('start'));
+    res.writeHead(200, { 'content-type': 'application/json' });
+    return res.end(JSON.stringify({ cycle: sim.cycle || '14/10', start: sim.start ?? 7, enabled: true, clock: true, on: true, next: 60, override: 0 }));
   }
   if (url.pathname === '/set') {
     const ch = url.searchParams.get('ch'), on = url.searchParams.get('on') === '1';

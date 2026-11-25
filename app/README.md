@@ -39,7 +39,7 @@ Each one follows from what the device can do today (`docs/PROJECT_STATUS.md`).
 | Spectrum "Crescita (Blu)" / "Fioritura (Rosso + Blu)" | "Solo bianco" (W) / "Completo" (W + B) | The lamp never runs blue alone; Schmidt's scenes use W alone or W + B. W drives white and red LEDs together |
 | Pump switch and modes Auto / ON / OFF | Read-only: always automatic, run by the lamp | Nicola's choice (2026-11-24): no pump settings in the app for now. A forced run from the test page is still shown |
 | Pump "Ciclo attuale 10 min ogni 60", "Prossima attivazione" | Observed cycle "~5 min on, 30 min off · da confermare" | From docs/hardware/pump-timing-log.md, two non-clean runs; no next-run time without a schedule |
-| Ciclo "Ciclo attivo" | "Ciclo selezionato" + footnote | The cycle is stored on the phone; firmware does not run it yet (spec 003) |
+| Ciclo "Ciclo attivo" | Cycle name + footnote on who runs it | The board runs the cycle (`/schedule`); the phone keeps a copy only to display it offline |
 | Ciclo start hour | Set by tapping the "Prossimo evento" row | The reference has no start-hour control; the requirement has one |
 | Plants: list with stage and day, "+" | Top view of the seven pods (geometry from `docs/hardware/photos/duronic-overview-lamp.jpg`) plus the list; tap a pod or row to set plant and optional sowing date; day count from that date | Nicola asked for configurable pods; stored on the phone (`sg.pods`) until the firmware keeps settings. No growth stage: nothing measures it |
 | Bottom nav on Home only, five icons with a settings gear | Same nav on every screen, icon + label: Home, Piante, Ciclo, Andamento, Attività | UX review (ui-ux-pro-max): navigation must stay in one place; Ciclo is a top-level tab, not a detail screen |

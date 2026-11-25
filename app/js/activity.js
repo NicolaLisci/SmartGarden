@@ -3,6 +3,8 @@ const CH = { w: 'luce bianca (W)', b: 'luce blu (B)', p: 'pompa' };
 const SRC = { app: 'dall’app', page: 'dalla pagina di test', other: 'da origine sconosciuta' };
 
 const pad = n => String(n).padStart(2, '0');
+// Same order as CYCLES in firmware/web-test/schedule.h (config events store cycle × 24 + start).
+const CYCLE_NAMES = ['12/12', '14/10', '16/8'];
 export function eventTime(e, data) {
   // ts (ms) comes from history.placeTimes; otherwise t (s) from NTP; otherwise, for the
   // current boot only, uptime relative to the board's clock now.
@@ -27,6 +29,8 @@ export function describe(e, data) {
     case 'wifi_down': return { time, text: 'Wi-Fi perso' };
     case 'set': return { time, text: `${e.v ? 'Accesa' : 'Rilasciata'} ${ch}${e.v > 1 && e.v < 100 ? ` al ${e.v} %` : ''}`, who: SRC[e.src] || '' };
     case 'time': return { time, text: 'Orologio sincronizzato' };
+    case 'sched': return { time, text: e.v ? 'Luce accesa dal ciclo' : 'Luce spenta dal ciclo', who: 'programma della lampada' };
+    case 'config': return { time, text: e.v < 0 ? 'Ciclo disattivato' : `Ciclo impostato: ${CYCLE_NAMES[Math.floor(e.v / 24)] || '?'} dalle ${pad(e.v % 24)}:00`, who: SRC[e.src] || '' };
     case 'release': return { time, text: 'Rilasciate tutte le uscite', who: SRC[e.src] || '' };
     case 'auto_off': return { time, text: 'Pompa rilasciata', who: 'spegnimento automatico dopo 10 s' };
     case 'ota': return { time, text: 'Aggiornamento firmware avviato' };

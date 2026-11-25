@@ -14,6 +14,8 @@
 #include <ESP8266WebServer.h>
 #include <ArduinoOTA.h>
 #include "secrets.h"
+#include "schedule.h"
+#include <EEPROM.h>
 
 const uint8_t PINS[] = { 5, 14, 13 };  // D1 (W), D5 (B), D7 (pump)
 const char *const NAMES[] = { "w", "b", "p" };
@@ -31,8 +33,8 @@ uint32_t pumpUntil = 0;
 // log keeps between LOG_FILE_MAX and 2 × LOG_FILE_MAX of history across reboots.
 // Times: epoch from NTP when known, else 0; uptime and boot number always, and an
 // EV_TIME event at NTP sync lets the app place earlier events of the same boot.
-enum Ev : uint8_t { EV_BOOT, EV_WIFI_UP, EV_WIFI_DOWN, EV_SET, EV_AUTO_OFF, EV_RELEASE, EV_OTA, EV_LAMP, EV_TIME };
-const char *const EV_NAMES[] = { "boot", "wifi_up", "wifi_down", "set", "auto_off", "release", "ota", "lamp", "time" };
+enum Ev : uint8_t { EV_BOOT, EV_WIFI_UP, EV_WIFI_DOWN, EV_SET, EV_AUTO_OFF, EV_RELEASE, EV_OTA, EV_LAMP, EV_TIME, EV_SCHED, EV_CONFIG };
+const char *const EV_NAMES[] = { "boot", "wifi_up", "wifi_down", "set", "auto_off", "release", "ota", "lamp", "time", "sched", "config" };
 enum Src : uint8_t { SRC_NONE, SRC_APP, SRC_PAGE, SRC_OTHER };
 const char *const SRC_NAMES[] = { "", "app", "page", "other" };
 struct __attribute__((packed)) Event { uint32_t seq, epoch, up; uint16_t boot; uint8_t ev, src; int8_t ch, val; uint16_t pad; };
@@ -99,7 +101,7 @@ void sendLog() {
       if (e.seq <= since) continue;
       snprintf(line, sizeof line, "%s{\"seq\":%lu,\"t\":%lu,\"up\":%lu,\"boot\":%u,\"e\":\"%s\",\"src\":\"%s\",\"ch\":\"%s\",\"v\":%d}",
                n ? "," : "", (unsigned long)e.seq, (unsigned long)e.epoch, (unsigned long)e.up, e.boot,
-               e.ev < 9 ? EV_NAMES[e.ev] : "?", e.src < 4 ? SRC_NAMES[e.src] : "", e.ch >= 0 && e.ch < 3 ? NAMES[e.ch] : "", e.val);
+               e.ev < sizeof(EV_NAMES) / sizeof(EV_NAMES[0]) ? EV_NAMES[e.ev] : "?", e.src < 4 ? SRC_NAMES[e.src] : "", e.ch >= 0 && e.ch < 3 ? NAMES[e.ch] : "", e.val);
       server.sendContent(line);
       lastSent = e.seq; n++;
     }
@@ -135,6 +137,86 @@ void drive(uint8_t i, bool on, uint8_t pct = 100) {
 }
 void releaseAll() { for (uint8_t i = 0; i < 3; i++) drive(i, false); }
 void releaseAllLogged(Src src) { releaseAll(); logEvent(EV_RELEASE, src); }
+
+// ---------- light cycle (spec 003) ----------
+// The board runs the light cycle itself, from settings in EEPROM (a flash sector apart from
+// LittleFS, so app uploads keep them) and the NTP clock,
+// so the light follows the cycle after a power cut with no phone and no button press.
+// A manual light command (app or test page) wins until the next scheduled on/off edge.
+// Without a clock (no NTP yet) the scheduler does nothing and the lamp's own controller
+// decides. The pump is never touched here.
+Config cfg = defaultConfig();
+uint32_t overrideUntil = 0;  // epoch seconds; 0 = no manual override
+int8_t schedLast = -1;       // state last applied by the scheduler, -1 = must reapply
+
+void loadConfig() {
+  EEPROM.begin(sizeof(Config));
+  Config c{};
+  EEPROM.get(0, c);
+  if (validConfig(c)) cfg = c;
+}
+void saveConfig() {
+  EEPROM.put(0, cfg);
+  EEPROM.commit();
+}
+bool localMinute(uint16_t &m) {
+  const time_t t = time(nullptr);
+  if (t < 1700000000) return false;
+  struct tm lt;
+  localtime_r(&t, &lt);
+  m = lt.tm_hour * 60 + lt.tm_min;
+  return true;
+}
+uint16_t minutesLeft() {
+  uint16_t m;
+  return localMinute(m) ? minutesToNextEdge(cfg.start, CYCLES[cfg.cycle].hours, m) : 0;
+}
+void manualOverride() {
+  if (!cfg.enabled || !epochNow()) return;
+  overrideUntil = epochNow() + minutesLeft() * 60 - epochNow() % 60;
+  schedLast = -1;  // reapply the cycle when the override ends
+}
+void applyScene(bool on) {
+  const Scene &s = CYCLES[cfg.cycle].scene;
+  if (on) { drive(0, s.w > 0, s.w); drive(1, s.b > 0, s.b); }
+  else { drive(0, false); drive(1, false); }
+}
+void runSchedule() {
+  uint16_t m;
+  if (!cfg.enabled || !localMinute(m)) return;
+  if (overrideUntil && epochNow() < overrideUntil) return;
+  overrideUntil = 0;
+  const bool on = lightOn(cfg.start, CYCLES[cfg.cycle].hours, m);
+  if (schedLast == (int8_t)on) return;
+  schedLast = on;
+  applyScene(on);
+  logEvent(EV_SCHED, SRC_NONE, -1, on);
+}
+void sendSchedule() {
+  uint16_t m;
+  const bool clock = localMinute(m);
+  char json[192];
+  snprintf(json, sizeof json, "{\"cycle\":\"%s\",\"start\":%u,\"enabled\":%s,\"clock\":%s,\"on\":%s,\"next\":%u,\"override\":%lu}",
+           CYCLES[cfg.cycle].name, cfg.start, cfg.enabled ? "true" : "false", clock ? "true" : "false",
+           clock && lightOn(cfg.start, CYCLES[cfg.cycle].hours, m) ? "true" : "false", minutesLeft(),
+           (unsigned long)(overrideUntil > epochNow() ? overrideUntil - epochNow() : 0));
+  server.send(200, "application/json", json);
+}
+// POST /schedule?cycle=14/10&start=7&enabled=1 (each argument optional)
+void handleSchedule() {
+  Config c = cfg;
+  if (server.hasArg("cycle")) { const int i = cycleIndex(server.arg("cycle").c_str()); if (i < 0) return server.send(400, "text/plain", "unknown cycle"); c.cycle = i; }
+  if (server.hasArg("start")) { const long h = server.arg("start").toInt(); if (h < 0 || h > 23 || !server.arg("start").length()) return server.send(400, "text/plain", "start 0-23"); c.start = h; }
+  if (server.hasArg("enabled")) c.enabled = server.arg("enabled") == "1";
+  if (!validConfig(c)) return server.send(400, "text/plain", "invalid");
+  cfg = c;
+  saveConfig();
+  logEvent(EV_CONFIG, srcArg(), -1, cfg.enabled ? (int8_t)(cfg.cycle * 24 + cfg.start) : -1);
+  overrideUntil = 0;
+  schedLast = -1;
+  runSchedule();  // apply at once
+  sendSchedule();
+}
 
 const char PAGE[] PROGMEM = R"HTML(<!doctype html><html lang="it"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>SmartGarden test</title>
@@ -192,6 +274,7 @@ void handleSet() {
       const uint8_t pct = (i < 2 && d >= 1 && d <= 99) ? (uint8_t)d : 100;
       drive(i, on, pct);
       logEvent(EV_SET, srcArg(), i, on ? (pct < 100 ? pct : 1) : 0);
+      if (i < 2) manualOverride();
       return sendState();
     }
   server.send(400, "text/plain", "unknown channel");
@@ -200,6 +283,7 @@ void handleSet() {
 void setup() {
   releaseAll();
   logBegin();
+  loadConfig();
   logEvent(EV_BOOT);
   pinMode(PIN_LED, OUTPUT);
   Serial.begin(115200);
@@ -223,7 +307,9 @@ void setup() {
   });
   server.on("/state", HTTP_GET, sendState);
   server.on("/set", HTTP_POST, handleSet);
-  server.on("/release", HTTP_POST, []() { releaseAllLogged(srcArg()); sendState(); });
+  server.on("/release", HTTP_POST, []() { releaseAllLogged(srcArg()); manualOverride(); sendState(); });
+  server.on("/schedule", HTTP_GET, sendSchedule);
+  server.on("/schedule", HTTP_POST, handleSchedule);
   server.on("/log", HTTP_GET, sendLog);
   // Last: a static handler on "/" would otherwise answer every API route.
   server.serveStatic("/", LittleFS, "/www/", "max-age=3600");
@@ -236,6 +322,8 @@ void loop() {
   server.handleClient();
   if (forced[2] && (int32_t)(millis() - pumpUntil) >= 0) { drive(2, false); logEvent(EV_AUTO_OFF, SRC_NONE, 2, 0); }
   watchLampLines();
+  static uint32_t lastSched = 0;
+  if (millis() - lastSched >= 1000) { lastSched = millis(); runSchedule(); }
   const bool connected = WiFi.status() == WL_CONNECTED;
   static bool timeLogged = false;
   if (!timeLogged && epochNow()) { timeLogged = true; logEvent(EV_TIME); }  // anchors this boot's uptimes to the clock

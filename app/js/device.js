@@ -44,7 +44,23 @@ export async function fetchLog(since = 0) {
   try { return await call(`/log?since=${since}`); } catch { return null; }
 }
 
+// The light cycle runs on the board (GET/POST /schedule). null when unreachable or older firmware.
+export const schedule = { value: null };
+export async function fetchSchedule() {
+  try { schedule.value = await call('/schedule'); } catch { schedule.value = null; }
+  emit();
+  return schedule.value;
+}
+export async function setSchedule(cfg) {
+  const q = new URLSearchParams({ ...cfg, src: 'app' });
+  try { schedule.value = await call(`/schedule?${q}`, { method: 'POST' }); return true; }
+  catch { return false; }
+  finally { emit(); }
+}
+
 export function startPolling() {
+  fetchSchedule();
+  setInterval(() => { if (!document.hidden) fetchSchedule(); }, 15000);
   refresh();
   setInterval(() => { if (!device.pending && !document.hidden) refresh(); }, POLL_MS);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });

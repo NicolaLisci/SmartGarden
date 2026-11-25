@@ -61,6 +61,15 @@ const ev = (seq, boot, up, e, extra = {}) => ({ seq, boot, up, t: 0, e, src: '',
   assert.deepEqual(lightIntervals(events, T0 + 2 * H), [[T0, T0 + 2 * H]]);
 }
 
+// The board's own cycle counts as light.
+{
+  const events = placeTimes([
+    ev(1, 1, 0, 'sched', { t: T0 / 1000, v: 1 }),
+    ev(2, 1, 14 * H, 'sched', { t: (T0 + 14 * H) / 1000, v: 0 }),
+  ]);
+  assert.deepEqual(lightIntervals(events, T0 + 20 * H), [[T0, T0 + 14 * H]]);
+}
+
 // Non-light channels are ignored.
 assert.deepEqual(lightIntervals(placeTimes([ev(1, 1, 0, 'set', { t: T0 / 1000, ch: 'p', v: 1 })]), T0 + H), []);
 

@@ -22,6 +22,11 @@ assert.equal(describe({ e: 'weird', t: now, up: 0 }, data).text, 'weird');
 for (const e of ['boot', 'wifi_up', 'wifi_down', 'auto_off', 'ota', 'lamp']) assert.ok(describe({ e, ch: 'w', v: 1, t: now, up: 0 }, data).text);
 assert.equal(eventDay({}), '');
 assert.match(eventDay({ ts: now * 1000 }), /24/);
+assert.equal(describe({ e: 'sched', v: 1, t: now, up: 0 }, data).text, 'Luce accesa dal ciclo');
+assert.equal(describe({ e: 'sched', v: 0, t: now, up: 0 }, data).text, 'Luce spenta dal ciclo');
+assert.equal(describe({ e: 'config', src: 'app', v: 31, t: now, up: 0 }, data).text, 'Ciclo impostato: 14/10 dalle 07:00');
+assert.equal(describe({ e: 'config', v: 72, t: now, up: 0 }, data).text, 'Ciclo impostato: ? dalle 00:00');
+assert.equal(describe({ e: 'config', v: -1, t: now, up: 0 }, data).text, 'Ciclo disattivato');
 console.log('activity: ok');
 // Remaining branches: unknown source, lamp line B low, channel name passthrough.
 assert.equal(describe({ e: 'set', src: 'x', ch: 'b', v: 0, t: now, up: 0 }, data).text, 'Rilasciata luce blu (B)');
