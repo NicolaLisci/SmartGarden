@@ -1,10 +1,10 @@
 // SmartGarden companion app: hash router, screens, bindings to the device state.
-import { device, subscribe, setChannels, startPolling, fetchLog, schedule, fetchSchedule, setSchedule } from './device.js';
+import { device, subscribe, setChannels, startPolling, fetchLog, fetchHistory, fetchPlants, savePlant, schedule, fetchSchedule, setSchedule } from './device.js';
 import { describe, eventDay } from './activity.js';
 import { placeTimes, lightIntervals, dailyHours, mergeEvents } from './history.js';
 import { CYCLES, SCENES, photoperiod, hhmm, duration, loadSettings, saveSettings } from './schedule.js';
 import { icon } from './icons.js';
-import { CATALOG, imageFor, daysSince, rowLabel, slotNumber, slotWhere, ORDER, loadPods, savePods } from './plants.js';
+import { CATALOG, imageFor, daysSince, rowLabel, slotNumber, slotWhere, ORDER, loadPods, savePods, boardToPods, podsToMigrate, hasLocalPods, nameFits } from './plants.js';
 
 const app = document.getElementById('app');
 let settings = loadSettings();
@@ -197,8 +197,9 @@ const screens = {
       <div class="segmented period" role="radiogroup" aria-label="Periodo">
         ${[7, 14, 30].map(d => `<button class="seg" role="radio" data-action="period" data-value="${d}">${d} giorni</button>`).join('')}
       </div>
+      <p class="hint history-intro">Quante ore è rimasta accesa la luce ogni giorno: la scheda conta i minuti in cui la luce è accesa, dal ciclo, a mano o dalla lampada stessa, e li conserva per 60 giorni.</p>
       <section class="card chart-card">
-        <div class="chart-head"><small>Ore di luce al giorno</small><b class="num" data-slot="avgHours">—</b></div>
+        <div class="chart-head"><small>Oggi <b class="num" data-slot="todayHours">—</b></small><b class="num" data-slot="avgHours">—</b></div>
         <div class="bars" data-slot="bars" role="img" aria-label="Ore di luce al giorno"></div>
         <p class="hint" data-slot="chartNote">Dalla lettura della linea della lampada (non verificata) e dai comandi dell’app, salvati sulla scheda.</p>
       </section>
@@ -243,7 +244,7 @@ function PodEditor() {
         <span class="grabber" aria-hidden="true"></span>
         <div class="sheet-head"><h2 class="title" id="edTitle"></h2><button class="icon-btn" value="cancel" aria-label="Chiudi">${icon('close')}</button></div>
         <label class="field" for="edName">Pianta</label>
-        <input class="input" id="edName" type="text" maxlength="32" autocomplete="off" enterkeyhint="done">
+        <input class="input" id="edName" type="text" maxlength="24" autocomplete="off" enterkeyhint="done">
         <div class="chips" role="group" aria-label="Suggerimenti">
           ${CATALOG.map(c => `<button type="button" class="chip" data-chip="${esc(c.name)}">${esc(c.name)}</button>`).join('')}
         </div>
@@ -267,17 +268,31 @@ function openEditor(i) {
   dlg.querySelector('[data-slot="edClear"]').hidden = !p;
   dlg.showModal();
 }
-function closeEditor(dlg) {
+// The pods live on the board (EEPROM); the phone keeps a copy to show them offline.
+async function syncPlants() {
+  const json = await fetchPlants();
+  if (!json) return;
+  const moves = podsToMigrate(json, pods, hasLocalPods());
+  for (const [i, p] of moves) await savePlant(i, p);
+  const fresh = boardToPods(moves.length ? await fetchPlants() : json);
+  if (fresh && JSON.stringify(fresh) !== JSON.stringify(pods)) { pods = fresh; savePods(pods); if (current === 'piante' || current === 'home') render(); }
+}
+async function closeEditor(dlg) {
   const name = dlg.querySelector('#edName').value.trim();
   const sown = dlg.querySelector('#edSown').value;
-  if (dlg.returnValue === 'save') pods[editing] = name ? { name, sown: daysSince(sown) === null ? '' : sown } : null;
+  let next;
+  if (dlg.returnValue === 'save') next = name ? { name, sown: daysSince(sown) === null ? '' : sown } : null;
   else if (dlg.returnValue === 'clear') {
     if (!confirm(`Svuotare ${rowLabel(editing).toLowerCase()}?`)) return;
-    pods[editing] = null;
+    next = null;
   } else return;
+  if (next && !nameFits(next.name)) return toast('Nome troppo lungo: al massimo 24 caratteri (le lettere accentate contano doppio)');
+  const saved = boardToPods(await savePlant(editing, next));
+  if (!saved) return toast('Lampada non raggiungibile: pianta non salvata');
+  pods = saved;
   savePods(pods);
   render();
-  toast(dlg.returnValue === 'save' && name ? 'Pianta salvata' : 'Posto svuotato');
+  toast(dlg.returnValue === 'save' && name ? 'Pianta salvata sulla lampada' : 'Posto svuotato');
 }
 function toast(msg) {
   let t = document.querySelector('.toast');
@@ -438,7 +453,7 @@ app.addEventListener('change', e => {
 });
 
 // ---------- activity log and history (persisted on the board) ----------
-let logTimer = null, logCache = [], logMeta = null, logOk = null, period = 7;
+let logTimer = null, logCache = [], logMeta = null, logOk = null, period = 7, boardHistory;
 async function pullLog() {
   // Pages of 300 events; a fresh app reads the whole file once, then only what is new.
   for (let i = 0; i < 40; i++) {
@@ -454,6 +469,7 @@ async function pullLog() {
 async function refreshLog() {
   if (!app.querySelector('[data-slot="log"], [data-slot="lastEvent"], [data-slot="bars"]')) { clearInterval(logTimer); logTimer = null; return; }
   await pullLog();
+  if (app.querySelector('[data-slot="bars"]')) boardHistory = await fetchHistory(60);
   renderLogViews();
 }
 function renderLogViews() {
@@ -488,15 +504,22 @@ function renderLog(events) {
 let barsKey = '';
 function renderBars(el, placed) {
   app.querySelectorAll('[data-action="period"]').forEach(b => b.setAttribute('aria-checked', String(Number(b.dataset.value) === period)));
-  const days = dailyHours(lightIntervals(placed, Date.now()), period, Date.now());
+  // The board's own count (EEPROM) when available; otherwise derived from the event log.
+  const fromBoard = boardHistory?.days?.length > 0;
+  const days = fromBoard
+    ? boardHistory.days.slice(-period).map(d => ({ day: d.d, hours: Math.round(d.m / 6) / 10 }))
+    : dailyHours(lightIntervals(placed, Date.now()), period, Date.now());
+  const todayMin = fromBoard ? boardHistory.days.at(-1).m : Math.round(days.at(-1).hours * 60);
+  text('todayHours', `${Math.floor(todayMin / 60)} h ${String(todayMin % 60).padStart(2, '0')} min`);
   const max = Math.max(16, ...days.map(d => d.hours));
   const any = days.some(d => d.hours > 0);
   const avg = days.reduce((a, d) => a + d.hours, 0) / days.length;
   text('avgHours', any ? `${avg.toFixed(1)} h di media` : '—');
   el.setAttribute('aria-label', days.map(d => `${d.day}: ${d.hours} ore`).join(', '));
   el.style.setProperty('--n', days.length);
+  set('chartNote', n => { n.textContent = fromBoard ? 'Conteggio della scheda, salvato nella sua memoria: resta dopo riavvii e aggiornamenti. I giorni a zero sono giorni senza luce o con la scheda spenta.' : logOk === false ? 'Storico non disponibile: la lampada non risponde.' : 'Ricavato dal registro attività (la scheda non ha ancora il conteggio giornaliero).'; });
   // Bars grow only when what they show changes (first view, new period, new data), not on every poll.
-  const key = period + JSON.stringify(days);
+  const key = period + String(fromBoard) + JSON.stringify(days);
   el.classList.toggle('grow', key !== barsKey || !el.children.length);
   if (key === barsKey && el.children.length) return;
   barsKey = key;
@@ -510,7 +533,6 @@ function renderBars(el, placed) {
     col.append(fill, lab);
     return col;
   }));
-  set('chartNote', n => { n.textContent = logOk === false ? 'Storico non disponibile: la scheda non risponde o non ha ancora il firmware con il registro.' : any ? 'Dalla lettura della linea della lampada (non verificata) e dai comandi dell’app, salvati sulla scheda.' : 'Ancora nessuna ora di luce registrata in questo periodo.'; });
 }
 
 // ---------- router ----------
@@ -562,5 +584,6 @@ setInterval(checkUpdate, 60_000);
 window.addEventListener('hashchange', route);
 setInterval(updateDial, 30_000);
 route();
+syncPlants();
 subscribe(update);
 startPolling();

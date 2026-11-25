@@ -39,6 +39,20 @@ export async function setChannels(map) {
   for (const [ch, on] of Object.entries(map)) await setChannel(ch, on);
 }
 
+// Minutes of light per day counted by the board and kept in its EEPROM (GET /history).
+export async function fetchHistory(days = 60) {
+  try { return await call(`/history?days=${days}`); } catch { return null; }
+}
+
+// The seven pods, kept in the board's EEPROM (GET/POST /plants).
+export async function fetchPlants() {
+  try { return await call('/plants'); } catch { return null; }
+}
+export async function savePlant(pod, p) {
+  const q = new URLSearchParams({ pod, name: p ? p.name : '', sown: p ? p.sown : '', src: 'app' });
+  try { return await call(`/plants?${q}`, { method: 'POST' }); } catch { return null; }
+}
+
 // Activity log kept by the firmware (GET /log). Older firmware without it → null.
 export async function fetchLog(since = 0) {
   try { return await call(`/log?since=${since}`); } catch { return null; }

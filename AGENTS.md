@@ -88,6 +88,17 @@ source is a defect.
   explicit go-ahead for that step.
 - No purchases unless a spec shows the part is necessary and nothing on hand works.
 
+## Persistent data on the board
+
+Everything worth keeping lives on the board in EEPROM, not on the phone and not only in RAM
+(Nicola, 2026-11-25): today the light cycle, the daily light minutes and the seven pods.
+The layout is documented at the top of the EEPROM section in `firmware/web-test/web-test.ino`,
+guarded by `static_assert`s, and every stored structure has a validation function tested on
+the host (`firmware/test/`). Write to EEPROM rarely (on change, or a few times a day): each
+commit erases a flash sector. The one exception is the event log: too large for EEPROM and
+written too often, it stays in LittleFS and `ota-upload.sh --app` carries it across app
+updates.
+
 ## README
 
 `README.md` is the project's front page. Keep it current: every change that alters what

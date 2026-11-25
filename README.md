@@ -19,8 +19,8 @@ mobile app over Wi-Fi at `http://smartgarden.local`, and keeps a log of everythi
 |---|---|
 | **Light** | Switch the white and blue LED channels from the app: white only, white at 50 % (PWM), or full spectrum. Tap the active choice again to give control back to the lamp. |
 | **Light cycle** | The board runs it by itself: 12/12, 14/10 or 16/8 from a chosen hour, each with its light as in the scenes of the original project (12/12 white at 50 %, 14/10 white + blue, 16/8 white). Settings live on the board, so the light follows the cycle after a power cut with no phone and no button press. A manual choice in the app wins until the next scheduled on/off. |
-| **Plants** | A top view of the seven pods, numbered 1–7. Set the plant and the sowing date of each pod; the app counts the days. |
-| **History** | Every command, boot, Wi-Fi change and change on the lamp's own light lines is saved in the board's flash and survives reboots. The app turns it into an activity feed and daily hours of light. |
+| **Plants** | A top view of the seven pods, numbered 1–7. Set the plant and the sowing date of each pod; the app counts the days. Saved on the board (EEPROM), so every phone sees the same garden. |
+| **History** | The board counts the minutes of light of every day (cycle, manual or the lamp's own) and keeps 60 days in EEPROM; the app shows them as hours per day. Every command, boot, Wi-Fi change and cycle change is also saved in an activity log that survives reboots and app updates (`firmware/tools/log.sh` prints it on a computer). |
 | **Pump** | Read-only: the lamp runs it by itself (observed: about 5–6 min on, 30 min off). |
 | **Install** | Open `http://smartgarden.local` in Safari → Share → *Add to Home Screen*: full screen, own icon, no browser bars. The app reloads itself when a new version is uploaded. |
 
@@ -150,7 +150,7 @@ Then open `http://localhost:5173`.
 cd app
 npm test            # unit tests
 npm run coverage    # with coverage
-firmware/test/run.sh   # firmware cycle logic, compiled and run on the computer
+firmware/test/run.sh   # firmware cycle and history logic, compiled and run on the computer
 ```
 
 The pure logic (light cycle maths, event log, history, plants, settings storage) is at
@@ -179,6 +179,9 @@ uploading over the network.
 | `GET /log?since=<seq>` | Persisted events after `seq`, 300 per page |
 | `GET /schedule` | `{cycle, start, enabled, clock, on, next, override}`: the cycle the board runs |
 | `POST /schedule?cycle=14/10&start=7&enabled=1` | Change the cycle (saved in EEPROM, applied at once) |
+| `GET /plants`, `POST /plants?pod=0..6&name=…&sown=YYYY-MM-DD` | The seven pods, kept in EEPROM |
+| `GET /history?days=N` | Minutes of light per day counted by the board, last 60 days kept in EEPROM |
+| `GET /logfiles/a.bin` | Raw log file, read-only (used to keep the log across app updates) |
 | `GET /test` | The bench test page |
 
 ## How this repository is worked on

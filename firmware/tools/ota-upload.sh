@@ -9,7 +9,7 @@
 # Usage: firmware/tools/ota-upload.sh <sketch-dir> [hostname]   (default hostname: smartgarden)
 #        firmware/tools/ota-upload.sh --app [--dry-run] [hostname]
 # --app packs app/ into a LittleFS image (/www, css and js gzipped) and uploads it as the
-# board's file system. WARNING: this replaces the whole file system, persisted log included.
+# board's file system. The board's log is copied into the image first, so history survives.
 # The sketch is untouched, so OTA stays alive; the script still checks the board answers.
 set -euo pipefail
 
@@ -33,6 +33,20 @@ if [[ "${1:-}" == "--app" ]]; then
   # Images too (the garden renders change between uploads): every assets/...png|jpg in the code.
   sed -i '' -E "s#(assets/[^\"' ]+\.(png|jpg))#\1?v=$STAMP#g" "$OUT/data/www/js/"*.js
   find "$OUT/data/www/css" "$OUT/data/www/js" -type f \( -name '*.css' -o -name '*.js' \) -exec gzip -9 {} \;
+  # Keep the history: copy the board's log files into the image (cycle settings live in
+  # EEPROM and are untouched anyway). Events logged during the upload itself are lost.
+  if [[ $DRY == 0 ]]; then
+    LIP="$(dig +short +time=2 +tries=1 -p 5353 @224.0.0.251 "$HOST.local" A 2>/dev/null | grep -E '^[0-9.]+$' | head -1 || true)"
+    mkdir -p "$OUT/data/log"
+    for f in a.bin b.bin; do
+      if [[ -n "$LIP" ]] && curl -sf -m 20 -o "$OUT/data/log/$f" "http://$LIP/logfiles/$f"; then
+        echo "Kept log $f: $(wc -c < "$OUT/data/log/$f" | tr -d ' ') bytes"
+      else
+        rm -f "$OUT/data/log/$f"
+      fi
+    done
+    [[ -s "$OUT/data/log/a.bin" || -s "$OUT/data/log/b.bin" ]] || echo "WARNING: no log copied from the board; the upload will start a new log."
+  fi
   # Layout of eesz=4M2M (boards.txt): FS 0x200000–0x3FA000, page 256, block 8192.
   "$MKFS" -c "$OUT/data" -p 256 -b 8192 -s $((0x3FA000 - 0x200000)) "$OUT/fs.bin" >/dev/null
   echo "Image $OUT/fs.bin: $(du -sh "$OUT/data/www" | cut -f1) of files, $(find "$OUT/data/www" -type f | wc -l | tr -d ' ') files."

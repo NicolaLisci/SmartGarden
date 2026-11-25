@@ -414,3 +414,5 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
 .choice { flex-direction: column; align-items: flex-start; gap: 8px; min-height: 104px; padding: 12px; }
 .choice span { font-size: var(--fs-body); }
 .choice small { font-size: var(--fs-micro); opacity: .8; }
+.history-intro { margin: 14px 0 0; }
+.chart-head small b { font-size: var(--fs-small); font-weight: 600; color: var(--c-text); margin-left: 4px; }

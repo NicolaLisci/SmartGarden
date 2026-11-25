@@ -55,7 +55,25 @@ export function normalize(raw) {
     : null));
 }
 
+// The board keeps the pods in EEPROM (firmware/web-test/plants.h): names up to 24 bytes.
+export const NAME_MAX_BYTES = 24;
+export const nameFits = name => new TextEncoder().encode(name).length <= NAME_MAX_BYTES;
+
+// GET /plants → the app's pods array (null = empty pod).
+export function boardToPods(json) {
+  if (!json || !Array.isArray(json.pods) || json.pods.length !== SLOTS.length) return null;
+  return json.pods.map(p => (p && p.name ? { name: p.name, sown: daysSince(p.sown) === null ? '' : p.sown } : null));
+}
+
+// The first time the board is seen (never edited), the pods set on this phone move to it.
+export function podsToMigrate(json, local, hasLocal) {
+  const board = boardToPods(json);
+  if (!board || json.edited || !hasLocal) return [];
+  return local.map((p, i) => [i, p]).filter(([i, p]) => JSON.stringify(p) !== JSON.stringify(board[i]));
+}
+
 const KEY = 'sg.pods';
+export const hasLocalPods = () => { try { return localStorage.getItem(KEY) !== null; } catch { return false; } };
 export function loadPods() {
   try { return normalize(JSON.parse(localStorage.getItem(KEY))); } catch { return normalize(null); }
 }

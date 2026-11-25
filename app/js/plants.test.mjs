@@ -26,4 +26,25 @@ assert.equal(rowLabel(3), 'Posto 1 · dietro, a sinistra');
 assert.equal(rowLabel(6), 'Posto 4 · dietro, a destra');
 assert.deepEqual(ORDER, [3, 4, 5, 6, 0, 1, 2]);
 assert.equal(new Set(ORDER.map(slotNumber)).size, 7); // every number used once
+// Board ⇄ app.
+import('./plants.js').then(({ boardToPods, podsToMigrate, nameFits }) => {
+  const board = { edited: false, pods: [
+    { name: 'Basilico porpora', sown: '' }, { name: 'Basilico', sown: '2026-11-10' }, { name: '', sown: '' },
+    { name: 'Trinidad Scorpion giallo', sown: '' }, { name: 'Timo', sown: 'bad' }, { name: 'Maggiorana', sown: '' }, { name: 'Bonsai di pino', sown: '' }] };
+  const pods = boardToPods(board);
+  assert.equal(pods[2], null);
+  assert.deepEqual(pods[1], { name: 'Basilico', sown: '2026-11-10' });
+  assert.deepEqual(pods[4], { name: 'Timo', sown: '' }); // invalid date dropped
+  assert.equal(boardToPods({ pods: [] }), null);
+  assert.equal(boardToPods(null), null);
+
+  const local = pods.map(p => p && { ...p }); local[2] = { name: 'Menta', sown: '' };
+  assert.deepEqual(podsToMigrate(board, local, true), [[2, { name: 'Menta', sown: '' }]]);
+  assert.deepEqual(podsToMigrate({ ...board, edited: true }, local, true), []); // board already edited: board wins
+  assert.deepEqual(podsToMigrate(board, local, false), []);                    // nothing saved on the phone
+
+  assert.ok(nameFits('Trinidad Scorpion giallo'));        // 24 bytes
+  assert.ok(!nameFits('Basilico è già cresciuto'));       // 26 bytes
+  console.log('plants board: ok');
+});
 console.log('plants: ok');

@@ -15,6 +15,7 @@
 #include <ArduinoOTA.h>
 #include "secrets.h"
 #include "schedule.h"
+#include "plants.h"
 #include <EEPROM.h>
 
 const uint8_t PINS[] = { 5, 14, 13 };  // D1 (W), D5 (B), D7 (pump)
@@ -33,8 +34,8 @@ uint32_t pumpUntil = 0;
 // log keeps between LOG_FILE_MAX and 2 × LOG_FILE_MAX of history across reboots.
 // Times: epoch from NTP when known, else 0; uptime and boot number always, and an
 // EV_TIME event at NTP sync lets the app place earlier events of the same boot.
-enum Ev : uint8_t { EV_BOOT, EV_WIFI_UP, EV_WIFI_DOWN, EV_SET, EV_AUTO_OFF, EV_RELEASE, EV_OTA, EV_LAMP, EV_TIME, EV_SCHED, EV_CONFIG };
-const char *const EV_NAMES[] = { "boot", "wifi_up", "wifi_down", "set", "auto_off", "release", "ota", "lamp", "time", "sched", "config" };
+enum Ev : uint8_t { EV_BOOT, EV_WIFI_UP, EV_WIFI_DOWN, EV_SET, EV_AUTO_OFF, EV_RELEASE, EV_OTA, EV_LAMP, EV_TIME, EV_SCHED, EV_CONFIG, EV_PLANT };
+const char *const EV_NAMES[] = { "boot", "wifi_up", "wifi_down", "set", "auto_off", "release", "ota", "lamp", "time", "sched", "config", "plant" };
 enum Src : uint8_t { SRC_NONE, SRC_APP, SRC_PAGE, SRC_OTHER };
 const char *const SRC_NAMES[] = { "", "app", "page", "other" };
 struct __attribute__((packed)) Event { uint32_t seq, epoch, up; uint16_t boot; uint8_t ev, src; int8_t ch, val; uint16_t pad; };
@@ -145,51 +146,107 @@ void releaseAllLogged(Src src) { releaseAll(); logEvent(EV_RELEASE, src); }
 // A manual light command (app or test page) wins until the next scheduled on/off edge.
 // Without a clock (no NTP yet) the scheduler does nothing and the lamp's own controller
 // decides. The pump is never touched here.
-Config cfg = defaultConfig();
-uint32_t overrideUntil = 0;  // epoch seconds; 0 = no manual override
-int8_t schedLast = -1;       // state last applied by the scheduler, -1 = must reapply
+Scheduler sched;  // decisions live in schedule.h (host-tested); this file only does I/O
+Config &cfg = sched.cfg;
 
+// EEPROM is where everything worth keeping lives (rule in AGENTS.md); layout:
+//   0   Config        (4 bytes)   light cycle
+//   16  DailyHistory  (124 bytes) minutes of light per day, 60 days
+//   160 Plants        (204 bytes) the seven pods
+// The event log stays in LittleFS: too large for EEPROM and written too often.
+const int EE_HISTORY = 16, EE_PLANTS = 160, EE_SIZE = 512;
+static_assert(EE_HISTORY + sizeof(DailyHistory) <= EE_PLANTS, "EEPROM layout overlap");
+static_assert(EE_PLANTS + sizeof(Plants) <= EE_SIZE, "EEPROM layout overflow");
+DailyHistory hist;
+Plants plants;
+void saveHistory() { EEPROM.put(EE_HISTORY, hist); EEPROM.commit(); }
 void loadConfig() {
-  EEPROM.begin(sizeof(Config));
+  EEPROM.begin(EE_SIZE);
+  EEPROM.get(EE_HISTORY, hist);
+  if (!historyValid(hist)) historyReset(hist);
+  EEPROM.get(EE_PLANTS, plants);
+  if (!plantsValid(plants)) plantsDefault(plants);
   Config c{};
   EEPROM.get(0, c);
-  if (validConfig(c)) cfg = c;
+  if (validConfig(c)) sched.configure(c);
 }
 void saveConfig() {
   EEPROM.put(0, cfg);
   EEPROM.commit();
 }
-bool localMinute(uint16_t &m) {
+bool localMinute(uint16_t &m) { return localMinuteOf(time(nullptr), m); }
+uint16_t minutesLeft() { return sched.minutesLeft(time(nullptr)); }
+void manualOverride() { sched.manual(time(nullptr)); }
+// Counts minutes of light per day: on when the board forces W or B, or the lamp's own line
+// reads high. Saved to EEPROM on a new day, every 6 hours and before an OTA update.
+void countLight() {
+  static uint32_t lastMinute = 0;
   const time_t t = time(nullptr);
-  if (t < 1700000000) return false;
-  struct tm lt;
-  localtime_r(&t, &lt);
-  m = lt.tm_hour * 60 + lt.tm_min;
-  return true;
+  uint16_t day, m;
+  if (!localDayOf(t, day) || !localMinuteOf(t, m)) return;
+  const uint32_t minute = (uint32_t)t / 60;
+  if (minute == lastMinute) return;
+  const bool first = lastMinute == 0;
+  lastMinute = minute;
+  if (first) { historyAdvance(hist, day); return; }  // count whole minutes only
+  const bool lit = forced[0] || forced[1] || lampLine[0] == 1 || lampLine[1] == 1;
+  if (historyMinute(hist, day, lit) || m % 360 == 0) saveHistory();
 }
-uint16_t minutesLeft() {
-  uint16_t m;
-  return localMinute(m) ? minutesToNextEdge(cfg.start, CYCLES[cfg.cycle].hours, m) : 0;
+// GET /history?days=N (default 30, max 60): minutes of light per day, oldest first.
+void sendHistory() {
+  uint16_t today;
+  if (!localDayOf(time(nullptr), today)) return server.send(503, "application/json", "{\"error\":\"no clock\"}");
+  long n = server.hasArg("days") ? server.arg("days").toInt() : 30;
+  if (n < 1) n = 1;
+  if (n > HISTORY_DAYS) n = HISTORY_DAYS;
+  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server.send(200, "application/json", "");
+  server.sendContent("{\"days\":[");
+  char line[48];
+  for (long k = n - 1; k >= 0; k--) {
+    const uint16_t d = today - k;
+    const time_t noon = (time_t)d * 86400 + 43200;  // the civil date of day number d
+    struct tm g;
+    gmtime_r(&noon, &g);
+    snprintf(line, sizeof line, "%s{\"d\":\"%04d-%02d-%02d\",\"m\":%u}", k == n - 1 ? "" : ",",
+             g.tm_year + 1900, g.tm_mon + 1, g.tm_mday, historyGet(hist, d));
+    server.sendContent(line);
+  }
+  server.sendContent("]}");
+  server.sendContent("");
 }
-void manualOverride() {
-  if (!cfg.enabled || !epochNow()) return;
-  overrideUntil = epochNow() + minutesLeft() * 60 - epochNow() % 60;
-  schedLast = -1;  // reapply the cycle when the override ends
+
+// GET /plants: the seven pods. POST /plants?pod=0..6&name=…&sown=YYYY-MM-DD (empty name = empty pod).
+void sendPlants() {
+  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server.send(200, "application/json", "");
+  server.sendContent(plants.edited ? "{\"edited\":true,\"pods\":[" : "{\"edited\":false,\"pods\":[");
+  char name[PLANT_NAME_MAX * 6 + 1], date[16], line[200];
+  for (uint8_t i = 0; i < POD_COUNT; i++) {
+    jsonEscape(plants.pods[i].name, name, sizeof name);
+    formatDate(plants.pods[i].sown, date);
+    snprintf(line, sizeof line, "%s{\"name\":\"%s\",\"sown\":\"%s\"}", i ? "," : "", name, date);
+    server.sendContent(line);
+  }
+  server.sendContent("]}");
+  server.sendContent("");
 }
-void applyScene(bool on) {
-  const Scene &s = CYCLES[cfg.cycle].scene;
+void handlePlants() {
+  const long pod = server.hasArg("pod") ? server.arg("pod").toInt() : -1;
+  if (!server.hasArg("pod") || !plantsSet(plants, pod, server.arg("name").c_str(), server.arg("sown").c_str()))
+    return server.send(400, "text/plain", "pod 0-6, name up to 24 bytes, sown YYYY-MM-DD or empty");
+  EEPROM.put(EE_PLANTS, plants);
+  EEPROM.commit();
+  logEvent(EV_PLANT, srcArg(), -1, (int8_t)pod);
+  sendPlants();
+}
+
+void runSchedule() {
+  bool on;
+  if (!sched.step(time(nullptr), on)) return;
+  const Scene s = sched.scene();
   if (on) { drive(0, s.w > 0, s.w); drive(1, s.b > 0, s.b); }
   else { drive(0, false); drive(1, false); }
-}
-void runSchedule() {
-  uint16_t m;
-  if (!cfg.enabled || !localMinute(m)) return;
-  if (overrideUntil && epochNow() < overrideUntil) return;
-  overrideUntil = 0;
-  const bool on = lightOn(cfg.start, CYCLES[cfg.cycle].hours, m);
-  if (schedLast == (int8_t)on) return;
-  schedLast = on;
-  applyScene(on);
   logEvent(EV_SCHED, SRC_NONE, -1, on);
 }
 void sendSchedule() {
@@ -199,7 +256,7 @@ void sendSchedule() {
   snprintf(json, sizeof json, "{\"cycle\":\"%s\",\"start\":%u,\"enabled\":%s,\"clock\":%s,\"on\":%s,\"next\":%u,\"override\":%lu}",
            CYCLES[cfg.cycle].name, cfg.start, cfg.enabled ? "true" : "false", clock ? "true" : "false",
            clock && lightOn(cfg.start, CYCLES[cfg.cycle].hours, m) ? "true" : "false", minutesLeft(),
-           (unsigned long)(overrideUntil > epochNow() ? overrideUntil - epochNow() : 0));
+           (unsigned long)(sched.overrideUntil > epochNow() ? sched.overrideUntil - epochNow() : 0));
   server.send(200, "application/json", json);
 }
 // POST /schedule?cycle=14/10&start=7&enabled=1 (each argument optional)
@@ -209,11 +266,9 @@ void handleSchedule() {
   if (server.hasArg("start")) { const long h = server.arg("start").toInt(); if (h < 0 || h > 23 || !server.arg("start").length()) return server.send(400, "text/plain", "start 0-23"); c.start = h; }
   if (server.hasArg("enabled")) c.enabled = server.arg("enabled") == "1";
   if (!validConfig(c)) return server.send(400, "text/plain", "invalid");
-  cfg = c;
+  sched.configure(c);
   saveConfig();
   logEvent(EV_CONFIG, srcArg(), -1, cfg.enabled ? (int8_t)(cfg.cycle * 24 + cfg.start) : -1);
-  overrideUntil = 0;
-  schedLast = -1;
   runSchedule();  // apply at once
   sendSchedule();
 }
@@ -295,7 +350,7 @@ void setup() {
   ArduinoOTA.setHostname(OTA_HOSTNAME);
   ArduinoOTA.setPassword(OTA_PASSWORD);
   configTime("CET-1CEST,M3.5.0,M10.5.0/3", "pool.ntp.org");
-  ArduinoOTA.onStart([]() { releaseAll(); logEvent(EV_OTA); });
+  ArduinoOTA.onStart([]() { saveHistory(); releaseAll(); logEvent(EV_OTA); });
   ArduinoOTA.begin();
   server.on("/test", HTTP_GET, []() { server.send_P(200, "text/html", PAGE); });
   // The app: index at "/", every other file under /www (serveStatic also serves name.gz).
@@ -309,8 +364,14 @@ void setup() {
   server.on("/set", HTTP_POST, handleSet);
   server.on("/release", HTTP_POST, []() { releaseAllLogged(srcArg()); manualOverride(); sendState(); });
   server.on("/schedule", HTTP_GET, sendSchedule);
+  server.on("/history", HTTP_GET, sendHistory);
+  server.on("/plants", HTTP_GET, sendPlants);
+  server.on("/plants", HTTP_POST, handlePlants);
   server.on("/schedule", HTTP_POST, handleSchedule);
   server.on("/log", HTTP_GET, sendLog);
+  // Raw log files, read-only: ota-upload.sh --app copies them into the new file-system
+  // image so an app update keeps the history.
+  server.serveStatic("/logfiles/", LittleFS, "/log/", "no-store");
   // Last: a static handler on "/" would otherwise answer every API route.
   server.serveStatic("/", LittleFS, "/www/", "max-age=3600");
   server.begin();
@@ -323,7 +384,7 @@ void loop() {
   if (forced[2] && (int32_t)(millis() - pumpUntil) >= 0) { drive(2, false); logEvent(EV_AUTO_OFF, SRC_NONE, 2, 0); }
   watchLampLines();
   static uint32_t lastSched = 0;
-  if (millis() - lastSched >= 1000) { lastSched = millis(); runSchedule(); }
+  if (millis() - lastSched >= 1000) { lastSched = millis(); runSchedule(); countLight(); }
   const bool connected = WiFi.status() == WL_CONNECTED;
   static bool timeLogged = false;
   if (!timeLogged && epochNow()) { timeLogged = true; logEvent(EV_TIME); }  // anchors this boot's uptimes to the clock

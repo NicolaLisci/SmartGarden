@@ -11,7 +11,7 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const PORT = Number(process.env.PORT || 5173);
 const DEVICE = process.env.DEVICE;
 const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json' };
-const API = new Set(['/state', '/set', '/release', '/log', '/schedule']);
+const API = new Set(['/state', '/set', '/release', '/log', '/schedule', '/history', '/plants']);
 
 const sim = { w: false, b: false, p: false, pumpUntil: 0 };
 const simLog = [];
@@ -22,13 +22,25 @@ function simState() {
   if (sim.p && Date.now() >= sim.pumpUntil) { sim.p = false; logEv('auto_off', '', 'p', 0); }
   return { w: sim.w, b: sim.b, p: sim.p, pumpLeft: sim.p ? sim.pumpUntil - Date.now() : 0, lw: sim.w ? -1 : 0, lb: sim.b ? -1 : 0 };
 }
-function simulate(url, res) {
+function simulate(url, res, req) {
   if (process.env.OFFLINE) { res.writeHead(503); return res.end(); }
   if (url.pathname === '/log') {
     simState();
     res.writeHead(200, { 'content-type': 'application/json' });
     const since = Number(url.searchParams.get('since') || 0), page = simLog.filter(e => e.seq > since).slice(0, 300);
     return res.end(JSON.stringify({ now: Math.floor(Date.now() / 1000), up: Math.round(process.uptime() * 1000), boot: 1, last: simLog.length, events: page, more: (page.at(-1)?.seq || since) < simLog.length, fs: true }));
+  }
+  if (url.pathname === '/plants') {
+    sim.plants ??= { edited: false, pods: ['Basilico porpora', 'Basilico', 'Basilico lemon', 'Trinidad Scorpion giallo', 'Timo', 'Maggiorana', 'Bonsai di pino'].map(name => ({ name, sown: '' })) };
+    if (req.method === 'POST') { const i = Number(url.searchParams.get('pod')); sim.plants.pods[i] = { name: url.searchParams.get('name') || '', sown: url.searchParams.get('sown') || '' }; sim.plants.edited = true; }
+    res.writeHead(200, { 'content-type': 'application/json' });
+    return res.end(JSON.stringify(sim.plants));
+  }
+  if (url.pathname === '/history') {
+    const n = Math.min(60, Number(url.searchParams.get('days') || 30));
+    const days = Array.from({ length: n }, (_, k) => { const d = new Date(Date.now() - (n - 1 - k) * 864e5); return { d: d.toISOString().slice(0, 10), m: k === n - 1 ? 113 : 840 - (k % 3) * 60 }; });
+    res.writeHead(200, { 'content-type': 'application/json' });
+    return res.end(JSON.stringify({ days }));
   }
   if (url.pathname === '/schedule') {
     if (url.searchParams.has('cycle')) sim.cycle = url.searchParams.get('cycle');
@@ -51,7 +63,7 @@ function simulate(url, res) {
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   if (API.has(url.pathname)) {
-    if (!DEVICE) return simulate(url, res);
+    if (!DEVICE) return simulate(url, res, req);
     try {
       const r = await fetch(DEVICE + url.pathname + url.search, { method: req.method });
       res.writeHead(r.status, { 'content-type': r.headers.get('content-type') || 'text/plain' });
