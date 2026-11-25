@@ -49,8 +49,8 @@ const screens = {
       <h1 class="display">Coltivazione<br>in corso</h1>
       <figure class="hero" data-slot="hero">
         <span class="hero-stack">
-          <img class="hero-off" src="assets/garden-off.jpg" alt="Orto idroponico con sette piante sotto la lampada" width="1000" height="750">
-          <img class="hero-on" src="assets/garden-on.jpg" alt="" aria-hidden="true" width="1000" height="750">
+          <img class="hero-off" src="assets/garden-off.jpg" decoding="sync" alt="Orto idroponico con sette piante sotto la lampada" width="1000" height="750">
+          <img class="hero-on" src="assets/garden-on.jpg" decoding="sync" alt="" aria-hidden="true" width="1000" height="750">
         </span>
         <figcaption class="hero-chip" data-slot="heroChip"></figcaption>
       </figure>
@@ -134,7 +134,7 @@ const screens = {
   luce: () => `
     <section class="screen detail luce">
       <figure class="media media-led" data-slot="media">
-        <img src="assets/led.png" alt="Pannello LED della lampada" width="325" height="188">
+        <img src="assets/led.png" decoding="sync" alt="Pannello LED della lampada" width="325" height="188">
         <span class="hero-glow" aria-hidden="true"></span>
       </figure>
       ${BackButton()}
@@ -160,7 +160,7 @@ const screens = {
   pompa: () => `
     <section class="screen detail pompa">
       <figure class="media media-water" data-slot="media">
-        <img src="assets/water.png" alt="Acqua del serbatoio" width="325" height="188">
+        <img src="assets/water.png" decoding="sync" alt="Acqua del serbatoio" width="325" height="188">
         <span class="bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
       </figure>
       ${BackButton()}
@@ -406,6 +406,10 @@ function updateDial() {
     el.style.transform = `rotate(${(settings.start / 24) * 360 - 90}deg)`;
   });
   set('now', el => { el.style.transform = `rotate(${(nowMin() / 1440) * 360}deg)`; });
+  // A freshly opened dial shows its values at once; it animates only when the cycle or start changes.
+  app.querySelectorAll('.dial-arc:not([data-drawn]), .dial-now:not([data-drawn])').forEach(el => {
+    el.dataset.drawn = ''; el.style.transition = 'none'; el.getBoundingClientRect(); el.style.transition = '';
+  });
   text('cycleLabel', settings.cycle.replace('/', ' / '));
   const scene = SCENES[settings.cycle];
   text('sceneName', `Ciclo ${scene.name.toLowerCase()}`);
@@ -518,9 +522,10 @@ function renderBars(el, placed) {
   el.setAttribute('aria-label', days.map(d => `${d.day}: ${d.hours} ore`).join(', '));
   el.style.setProperty('--n', days.length);
   set('chartNote', n => { n.textContent = fromBoard ? 'Conteggio della scheda, salvato nella sua memoria: resta dopo riavvii e aggiornamenti. I giorni a zero sono giorni senza luce o con la scheda spenta.' : logOk === false ? 'Storico non disponibile: la lampada non risponde.' : 'Ricavato dal registro attività (la scheda non ha ancora il conteggio giornaliero).'; });
-  // Bars grow only when what they show changes (first view, new period, new data), not on every poll.
+  // Bars grow only when what they show changes (new period, new data): an entrance animation on
+  // opening the tab plays twice in iOS Safari, and polls must not replay it either.
   const key = period + String(fromBoard) + JSON.stringify(days);
-  el.classList.toggle('grow', key !== barsKey || !el.children.length);
+  el.classList.toggle('grow', barsKey !== '' && key !== barsKey);
   if (key === barsKey && el.children.length) return;
   barsKey = key;
   el.replaceChildren(...days.map((d, i) => {
@@ -553,12 +558,12 @@ function route() {
   render(true);
 }
 // Native-like motion: a detail screen slides in from the right, going back slides its parent
-// in from the left, any other switch settles the new screen in. Re-renders on data don't move.
+// in from the left; tabs switch instantly. Re-renders on data don't move.
 function render(navigated = false) {
   const hash = location.hash.replace(/^#\/?/, '') || 'home';
   const name = screens[hash] ? hash : 'home';
   const motion = !navigated || current === name ? ''
-    : PARENT[name] ? 'push' : PARENT[current] === name ? 'pop' : 'tab';
+    : PARENT[name] ? 'push' : PARENT[current] === name ? 'pop' : '';
   current = name;
   const draw = cls => {
     view.innerHTML = screens[name]();
