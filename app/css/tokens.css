@@ -40,13 +40,17 @@
   --shadow-knob: 0 1px 3px rgba(40, 36, 26, .25);
 
   /* motion */
-  --t-press: 150ms;
+  --t-press: 320ms; /* release; the press itself is 80 ms */
   --t-comp: 250ms;
   --t-screen: 350ms;
   --t-atmo: 700ms;
+  --t-out: 160ms; /* exits run ~65% of an enter */
   --ease: cubic-bezier(.2, .7, .2, 1);
+  --ease-in: cubic-bezier(.4, 0, 1, 1);
+  /* iOS sheet/push curve: fast start, long soft settle, no overshoot (an overshoot opens a gap at the screen edge) */
+  --spring: cubic-bezier(.32, .72, 0, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root { --t-press: 0ms; --t-comp: 0ms; --t-screen: 0ms; --t-atmo: 0ms; }
+  :root { --t-press: 0ms; --t-comp: 0ms; --t-screen: 0ms; --t-atmo: 0ms; --t-out: 0ms; }
 }

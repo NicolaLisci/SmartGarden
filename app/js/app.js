@@ -552,19 +552,30 @@ function route() {
   navDepth++;
   render(true);
 }
-// Native-like motion: tabs switch instantly; a detail screen slides in from the right.
+// Native-like motion: a detail screen slides in from the right, going back slides its parent
+// in from the left, any other switch settles the new screen in. Re-renders on data don't move.
 function render(navigated = false) {
   const hash = location.hash.replace(/^#\/?/, '') || 'home';
   const name = screens[hash] ? hash : 'home';
-  const push = navigated && PARENT[name] && current !== name;
+  const motion = !navigated || current === name ? ''
+    : PARENT[name] ? 'push' : PARENT[current] === name ? 'pop' : 'tab';
   current = name;
-  view.innerHTML = screens[name]();
-  if (push) view.firstElementChild.classList.add('push');
-  setActiveTab(PARENT[name] || name);
-  if (navigated) window.scrollTo(0, 0); // every screen opens from the top
-  document.title = name === 'home' ? 'SmartGarden' : `${view.querySelector('h1')?.textContent} · SmartGarden`;
-  update();
-  if (['attivita', 'home', 'andamento'].includes(name)) { renderLogViews(); if (!logTimer) { refreshLog(); logTimer = setInterval(refreshLog, 5000); } }
+  const draw = cls => {
+    view.innerHTML = screens[name]();
+    if (cls) view.firstElementChild.classList.add(cls);
+    setActiveTab(PARENT[name] || name);
+    if (navigated) window.scrollTo(0, 0); // every screen opens from the top
+    document.title = name === 'home' ? 'SmartGarden' : `${view.querySelector('h1')?.textContent} · SmartGarden`;
+    update();
+    if (['attivita', 'home', 'andamento'].includes(name)) { renderLogViews(); if (!logTimer) { refreshLog(); logTimer = setInterval(refreshLog, 5000); } }
+  };
+  // Push and back keep both screens on stage (the parent slides under, like iOS); where the
+  // View Transitions API is missing the new screen still slides in over the background.
+  if ((motion === 'push' || motion === 'pop') && document.startViewTransition) {
+    const root = document.documentElement;
+    root.dataset.vt = motion;
+    document.startViewTransition(() => draw()).finished.finally(() => delete root.dataset.vt);
+  } else draw(motion);
 }
 // Self-update: a Home Screen app on iOS is resumed from memory and never reloads by itself,
 // so it would keep running an old version for days. The board stamps every upload into the

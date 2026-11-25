@@ -28,13 +28,31 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
   min-height: 100dvh; display: flex; flex-direction: column;
   padding: calc(env(safe-area-inset-top) + 20px) var(--pad) calc(env(safe-area-inset-bottom) + 20px);
 }
-/* Detail screens slide in from the right like an iOS push; tabs switch without animation. */
-.screen.push { animation: push 340ms cubic-bezier(.32, .72, 0, 1) both; }
+/* Screen motion, one rhythm for the whole app:
+   - tab switch: the new screen settles in (fade + 8 px rise), its blocks staggered 40 ms;
+   - detail screen: slides in from the right like an iOS push; back slides the parent in from the left. */
+.screen.tab > :not(dialog) { animation: enter 280ms var(--ease) both; }
+.screen.tab > :nth-child(2) { animation-delay: 40ms; }
+.screen.tab > :nth-child(3) { animation-delay: 80ms; }
+.screen.tab > :nth-child(n+4) { animation-delay: 120ms; }
+.screen.push { animation: push 420ms var(--spring) both; box-shadow: -12px 0 32px rgba(40, 36, 26, .12); }
+.screen.pop { animation: pop 320ms var(--ease) both; }
 @keyframes push { from { transform: translateX(100%); } }
+@keyframes pop { from { transform: translateX(-28%); opacity: .6; } }
+@keyframes park { to { transform: translateX(-28%); opacity: .6; } }
+@keyframes leave { to { transform: translateX(100%); } }
+/* View Transitions: the nav stays put, the screens move as one sheet over another */
+.nav { view-transition-name: nav; }
+::view-transition-group(nav) { animation: none; }
+[data-vt]::view-transition-old(root), [data-vt]::view-transition-new(root) { mix-blend-mode: normal; }
+[data-vt="push"]::view-transition-old(root) { animation: park 420ms var(--spring) both; }
+[data-vt="push"]::view-transition-new(root) { animation: push 420ms var(--spring) both; box-shadow: -12px 0 32px rgba(40, 36, 26, .14); }
+[data-vt="pop"]::view-transition-old(root) { animation: leave 320ms var(--ease) both; z-index: 1; box-shadow: -12px 0 32px rgba(40, 36, 26, .14); }
+[data-vt="pop"]::view-transition-new(root) { animation: pop 320ms var(--ease) both; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after, ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; transition: none !important; }
 }
-@keyframes enter { from { opacity: 0; transform: translateY(6px); } }
+@keyframes enter { from { opacity: 0; transform: translateY(8px); } }
 
 /* ---------- header pieces ---------- */
 .brand { display: flex; align-items: center; justify-content: space-between; height: 32px; }
@@ -186,9 +204,7 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
 .sheet {
   position: relative; flex: 1; margin-top: -28px; padding: 12px var(--pad) calc(var(--nav-h) + env(safe-area-inset-bottom) + 24px);
   background: var(--c-bg); border-radius: var(--r-sheet) var(--r-sheet) 0 0; box-shadow: var(--shadow-sheet);
-  animation: sheet var(--t-screen) var(--ease) both;
 }
-@keyframes sheet { from { transform: translateY(40px); } }
 .grabber { display: block; width: 36px; height: 4px; border-radius: 2px; background: #c9c4ba; margin: 0 auto 26px; }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; }
 .hint { margin-top: 8px; font-size: var(--fs-small); color: var(--c-text-2); }
@@ -217,14 +233,14 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
 .bubbles i {
   position: absolute; bottom: -12px; width: 8px; height: 8px; border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, .55); background: rgba(255, 255, 255, .08);
-  animation: rise 3.2s linear infinite;
+  animation: rise 3.4s cubic-bezier(.3, 0, .7, 1) infinite;
 }
 .bubbles i:nth-child(1) { left: 34%; animation-delay: 0s; }
 .bubbles i:nth-child(2) { left: 46%; animation-delay: .7s; width: 12px; height: 12px; }
 .bubbles i:nth-child(3) { left: 55%; animation-delay: 1.4s; }
 .bubbles i:nth-child(4) { left: 41%; animation-delay: 2.1s; width: 6px; height: 6px; }
 .bubbles i:nth-child(5) { left: 60%; animation-delay: 2.6s; width: 10px; height: 10px; }
-@keyframes rise { to { transform: translateY(-34dvh) translateX(6px); opacity: 0; } }
+@keyframes rise { 0% { opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-34dvh) translateX(6px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .bubbles i { animation: none; } }
 
 /* ---------- analytics (empty) ---------- */
@@ -281,8 +297,15 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
   border: 0; border-radius: var(--r-sheet) var(--r-sheet) 0 0; background: var(--c-bg); color: var(--c-text);
   box-shadow: var(--shadow-sheet);
 }
-.editor[open] { animation: sheet var(--t-screen) var(--ease) both; }
-.editor::backdrop { background: rgba(25, 28, 23, .45); }
+.editor {
+  transform: translateY(100%);
+  transition: transform var(--t-out) var(--ease-in), display var(--t-out) allow-discrete, overlay var(--t-out) allow-discrete;
+}
+.editor[open] { transform: none; transition-duration: var(--t-screen); transition-timing-function: var(--spring); }
+@starting-style { .editor[open] { transform: translateY(100%); } }
+.editor::backdrop { background: rgba(25, 28, 23, 0); transition: background var(--t-out), display var(--t-out) allow-discrete, overlay var(--t-out) allow-discrete; }
+.editor[open]::backdrop { background: rgba(25, 28, 23, .45); transition-duration: var(--t-screen); }
+@starting-style { .editor[open]::backdrop { background: rgba(25, 28, 23, 0); } }
 .editor .grabber { margin-bottom: 16px; }
 .field { display: block; margin-top: 18px; margin-bottom: 8px; font-size: var(--fs-body); font-weight: 500; }
 .field small { font-weight: 400; color: var(--c-text-2); margin-left: 4px; }
@@ -342,7 +365,7 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
 .today-sub { display: block; font-size: var(--fs-small); opacity: .85; }
 .daybar { display: block; width: 100%; height: auto; margin-top: 12px; overflow: visible; }
 .daybar-track { fill: rgba(255, 255, 255, .18); }
-.daybar-lit { fill: var(--c-warm); transition: all var(--t-atmo) var(--ease); }
+.daybar-lit { fill: var(--c-warm); transition: x var(--t-atmo) var(--ease), width var(--t-atmo) var(--ease), opacity var(--t-atmo) var(--ease); }
 .daybar-now line { stroke: var(--c-white); stroke-width: 2.5; stroke-linecap: round; }
 .daybar text { fill: rgba(255, 255, 255, .7); font-size: 9px; text-anchor: middle; font-variant-numeric: tabular-nums; }
 
@@ -403,7 +426,7 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
   display: block; width: min(100%, 22px); height: var(--h); min-height: 3px; border-radius: 999px;
   background: linear-gradient(var(--c-primary), var(--c-primary-dark)); transform-origin: bottom;
 }
-.bars.grow .bar i { animation: grow 500ms var(--ease) both; animation-delay: var(--d); }
+.bars.grow .bar i { animation: grow 520ms var(--spring) both; animation-delay: var(--d); }
 @keyframes grow { from { transform: scaleY(0); } }
 .bar small { font-size: 11px; color: var(--c-text-2); min-height: 14px; }
 .chart-card .hint { margin-top: 12px; }
@@ -416,3 +439,9 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
 .choice small { font-size: var(--fs-micro); opacity: .8; }
 .history-intro { margin: 14px 0 0; }
 .chart-head small b { font-size: var(--fs-small); font-weight: 600; color: var(--c-text); margin-left: 4px; }
+
+/* press feedback: sink fast (80 ms), spring back on release */
+.chip, .row-tap, .nav-pill { transition: background var(--t-comp), color var(--t-comp), transform var(--t-press); }
+:is(.control, .seg, .choice, .pod, .chip, .btn, .row-tap, .today, .tile, .nav-pill) { transition-timing-function: var(--spring); }
+:is(.control, .seg, .choice, .pod, .chip, .btn, .row-tap, .today, .tile):active,
+.nav-btn:active .nav-pill { transition-duration: 80ms; transition-timing-function: var(--ease); }
