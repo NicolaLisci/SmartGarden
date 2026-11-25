@@ -209,7 +209,7 @@ const screens = {
 // ---------- plants: deck and editor ----------
 const Thumb = p => {
   const img = p && imageFor(p.name);
-  return img ? `<img class="thumb" src="assets/plants/${img}.png" alt="" width="56" height="56">`
+  return img ? `<img class="thumb" src="assets/plants/${img}.png" decoding="sync" alt="" width="56" height="56">`
     : `<span class="thumb thumb-empty${p ? ' has-plant' : ''}" aria-hidden="true">${p ? icon('leaf') : ''}</span>`;
 };
 // Top view of the GHS37 deck, from docs/hardware/photos/duronic-overview-lamp.jpg.
@@ -406,10 +406,6 @@ function updateDial() {
     el.style.transform = `rotate(${(settings.start / 24) * 360 - 90}deg)`;
   });
   set('now', el => { el.style.transform = `rotate(${(nowMin() / 1440) * 360}deg)`; });
-  // A freshly opened dial shows its values at once; it animates only when the cycle or start changes.
-  app.querySelectorAll('.dial-arc:not([data-drawn]), .dial-now:not([data-drawn])').forEach(el => {
-    el.dataset.drawn = ''; el.style.transition = 'none'; el.getBoundingClientRect(); el.style.transition = '';
-  });
   text('cycleLabel', settings.cycle.replace('/', ' / '));
   const scene = SCENES[settings.cycle];
   text('sceneName', `Ciclo ${scene.name.toLowerCase()}`);
@@ -573,6 +569,11 @@ function render(navigated = false) {
     document.title = name === 'home' ? 'SmartGarden' : `${view.querySelector('h1')?.textContent} · SmartGarden`;
     update();
     if (['attivita', 'home', 'andamento'].includes(name)) { renderLogViews(); if (!logTimer) { refreshLog(); logTimer = setInterval(refreshLog, 5000); } }
+    // The template is drawn neutral and update() then sets lit/selected states; without this
+    // those states fade in on every visit, which on the iPhone reads as a flash.
+    view.classList.add('fresh');
+    void view.offsetHeight;
+    view.classList.remove('fresh');
   };
   // Push and back keep both screens on stage (the parent slides under, like iOS); where the
   // View Transitions API is missing the new screen still slides in over the background.
@@ -597,6 +598,11 @@ async function checkUpdate() {
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); });
 setInterval(checkUpdate, 60_000);
 
+// Fetch every picture once at launch and keep it: an <img> for a URL this page already loaded
+// reuses it, while a new one may go back to the board (1.4 s per garden photo, one request at a
+// time), and the screen shows empty until it arrives.
+const warmImages = [...CATALOG.map(c => `assets/plants/${c.img}.png`), 'assets/led.png', 'assets/water.png', 'assets/garden-off.jpg', 'assets/garden-on.jpg']
+  .map(src => { const img = Object.assign(new Image(), { src }); img.decode().catch(() => {}); return img; });
 window.addEventListener('hashchange', route);
 setInterval(updateDial, 30_000);
 route();

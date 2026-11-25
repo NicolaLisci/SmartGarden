@@ -74,7 +74,7 @@ http.createServer(async (req, res) => {
   if (!path.startsWith(ROOT)) { res.writeHead(403); return res.end(); }
   try {
     const body = await readFile(path);
-    res.writeHead(200, { 'content-type': TYPES[extname(path)] || 'application/octet-stream' });
+    res.writeHead(200, { 'content-type': TYPES[extname(path)] || 'application/octet-stream', 'cache-control': /\.(png|jpg)$/.test(path) ? 'max-age=3600' : 'no-cache' }); // like the lamp for images; code always revalidates so edits show on reload
     res.end(body);
   } catch { res.writeHead(404); res.end('not found'); }
 }).listen(PORT, () => console.log(`SmartGarden app on http://localhost:${PORT} (${DEVICE ? 'device ' + DEVICE : 'simulator'})`));

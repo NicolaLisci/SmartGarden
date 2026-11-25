@@ -34,6 +34,8 @@ h1, h2, p, figure, ul { margin: 0; padding: 0; }
    - detail screen: slides in from the right like an iOS push; back slides the parent in from the left. */
 .screen.push { animation: push 420ms var(--spring) both; box-shadow: -12px 0 32px rgba(40, 36, 26, .12); }
 .screen.pop { animation: pop 320ms var(--ease) both; }
+/* set by render() for one style pass: a new screen shows its final state without transitions */
+.fresh *, .fresh *::before, .fresh *::after { transition: none !important; }
 @keyframes push { from { transform: translateX(100%); } }
 @keyframes pop { from { transform: translateX(-28%); opacity: .6; } }
 @keyframes park { to { transform: translateX(-28%); opacity: .6; } }

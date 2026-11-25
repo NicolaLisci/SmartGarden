@@ -19,11 +19,17 @@ async function call(url, opts) {
   return r.json();
 }
 
-function accept(state) { device.state = state; device.status = 'online'; emit(); }
-function fail() { device.status = 'offline'; emit(); }
+// The board serves one request at a time and drops some while it streams a picture, so one
+// failed poll is not an outage: only OFFLINE_AFTER in a row blank the app.
+const OFFLINE_AFTER = 3;
+let misses = 0, polling = false;
+function accept(state) { misses = 0; device.state = state; device.status = 'online'; emit(); }
+function fail() { if (++misses >= OFFLINE_AFTER) { device.status = 'offline'; emit(); } }
 
 export async function refresh() {
-  try { accept(await call('/state')); } catch { fail(); }
+  if (polling) return; // never stack polls behind a slow answer
+  polling = true;
+  try { accept(await call('/state')); } catch { fail(); } finally { polling = false; }
 }
 
 // on: false | true | a duty percentage 1–99 (PWM, light channels only).
@@ -31,7 +37,7 @@ export async function setChannel(ch, on) {
   device.pending = true; emit();
   const duty = typeof on === 'number' && on > 0 && on < 100 ? `&duty=${on}` : '';
   try { accept(await call(`/set?ch=${ch}&on=${on ? 1 : 0}${duty}&src=app`, { method: 'POST' })); }
-  catch { fail(); }
+  catch { misses = OFFLINE_AFTER - 1; fail(); } // a failed command shows at once
   finally { device.pending = false; emit(); }
 }
 
@@ -61,7 +67,7 @@ export async function fetchLog(since = 0) {
 // The light cycle runs on the board (GET/POST /schedule). null when unreachable or older firmware.
 export const schedule = { value: null };
 export async function fetchSchedule() {
-  try { schedule.value = await call('/schedule'); } catch { schedule.value = null; }
+  try { schedule.value = await call('/schedule'); } catch { /* keep the last known cycle: one dropped request is not a change */ }
   emit();
   return schedule.value;
 }
